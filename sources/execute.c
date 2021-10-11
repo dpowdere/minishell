@@ -1,27 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strrchr.c                                       :+:      :+:    :+:   */
+/*   execute.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/09 12:48:22 by ngragas           #+#    #+#             */
-/*   Updated: 2020/11/12 19:27:09 by ngragas          ###   ########.fr       */
+/*   Created: 2021/10/11 18:39:48 by ngragas           #+#    #+#             */
+/*   Updated: 2021/10/11 22:05:52 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-char	*ft_strrchr(const char *s, int c)
+void	execute(t_list *cmd_list, char **env)
 {
-	const char	*res;
-
-	if (*s == (char)c)
-		res = s;
-	else
-		res = NULL;
-	while (*s)
-		if (*++s == (char)c)
-			res = s;
-	return ((char *)res);
+	(void)cmd_list;
+	(void)env;
+	printf("execute Not Implemented\n");
 }

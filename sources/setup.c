@@ -1,27 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strrchr.c                                       :+:      :+:    :+:   */
+/*   setup.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/09 12:48:22 by ngragas           #+#    #+#             */
-/*   Updated: 2020/11/12 19:27:09 by ngragas          ###   ########.fr       */
+/*   Created: 2021/10/11 18:36:40 by ngragas           #+#    #+#             */
+/*   Updated: 2021/10/11 18:43:15 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-char	*ft_strrchr(const char *s, int c)
+char	**setup_env(void)
 {
-	const char	*res;
+	printf("setup env Not Implemented\n");
+	return (NULL);
+}
 
-	if (*s == (char)c)
-		res = s;
-	else
-		res = NULL;
-	while (*s)
-		if (*++s == (char)c)
-			res = s;
-	return ((char *)res);
+void	setup_sigaction(void)
+{
+	printf("setup sigaction Not Implemented\n");
 }

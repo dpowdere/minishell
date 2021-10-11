@@ -1,27 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strrchr.c                                       :+:      :+:    :+:   */
+/*   readline.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/09 12:48:22 by ngragas           #+#    #+#             */
-/*   Updated: 2020/11/12 19:27:09 by ngragas          ###   ########.fr       */
+/*   Created: 2021/10/11 18:41:30 by ngragas           #+#    #+#             */
+/*   Updated: 2021/10/11 18:44:16 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-char	*ft_strrchr(const char *s, int c)
+char	*read_user_line(void)
 {
-	const char	*res;
-
-	if (*s == (char)c)
-		res = s;
-	else
-		res = NULL;
-	while (*s)
-		if (*++s == (char)c)
-			res = s;
-	return ((char *)res);
+	printf("readline Not Implemented\n");
+	return (NULL);
 }
