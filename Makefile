@@ -1,6 +1,22 @@
+# ************************************************************************** #
+#                                                                            #
+#                                                        :::      ::::::::   #
+#   Makefile                                           :+:      :+:    :+:   #
+#                                                    +:+ +:+         +:+     #
+#   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        #
+#                                                +#+#+#+#+#+   +#+           #
+#   Created: 2021/10/11 17:36:54 by ngragas           #+#    #+#             #
+#   Updated: 202#    Updated: 2021/10/11 18:41:08 by ngragas          ###   ########.fr        #
+                                                           #
+# ************************************************************************** #
+
 NAME	=	minishell
 CFLAGS	= 	-Wall -Wextra -Werror -MMD -g
-SRC		=	main	\
+SRC		=	main		\
+			setup		\
+			readline	\
+			parse		\
+			execute
 
 SRC_DIR	=	sources/
 INC_DIR	=	includes/
