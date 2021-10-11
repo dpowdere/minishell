@@ -14,8 +14,12 @@
 
 char	*ft_strrchr(const char *s, int c)
 {
-	const char	*res = (*s == (char)c ? s : NULL);
+	const char	*res;
 
+	if (*s == (char)c)
+		res = s;
+	else
+		res = NULL;
 	while (*s)
 		if (*++s == (char)c)
 			res = s;

@@ -12,10 +12,9 @@
 
 #include "minishell.h"
 
-t_list	*parse_line(char *line, char **env)
+t_list	*parse_line(char *line)
 {
 	(void)line;
-	(void)env;
 	printf("parse Not Implemented\n");
 	return (NULL);
 }
