@@ -34,7 +34,7 @@ all:
 $(LIB): FORCE
 	$(MAKE) -C $(LIB_DIR)
 $(NAME): $(LIB) $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $@ -lft -L$(LIB_DIR)
+	$(CC) $(CFLAGS) $(OBJ) -o $@ -lft -L$(LIB_DIR) -lreadline
 $(OBJ): | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)

@@ -14,6 +14,10 @@
 
 char	*read_user_line(void)
 {
-	printf("readline Not Implemented\n");
-	return (NULL);
+	char	*line;
+
+	line = readline(PROMPT_STRING "$: ");
+	if (line && *line)
+		add_history(line);
+	return (line);
 }
