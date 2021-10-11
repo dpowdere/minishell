@@ -14,7 +14,11 @@
 # define MINISHELL_H
 
 # include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "libft.h"
+
+# define PROMPT_STRING "minishell"
 
 // setup.c
 char	**setup_env(void);
