@@ -12,12 +12,6 @@
 
 #include "minishell.h"
 
-char	**setup_env(void)
-{
-	printf("setup env Not Implemented\n");
-	return (NULL);
-}
-
 void	setup_sigaction(void)
 {
 	printf("setup sigaction Not Implemented\n");

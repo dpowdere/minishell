@@ -12,9 +12,8 @@
 
 #include "minishell.h"
 
-void	execute(t_list *cmd_list, char **env)
+void	execute(t_list *cmd_list)
 {
 	(void)cmd_list;
-	(void)env;
 	printf("execute Not Implemented\n");
 }
