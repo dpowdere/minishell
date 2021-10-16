@@ -6,7 +6,7 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/11 19:10:04 by ngragas          ###   ########.fr        #
+#    Updated: 2021/10/15 19:19:21 by ngragas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,8 +15,10 @@ CFLAGS	= 	-Wall -Wextra -Werror -MMD -g
 SRC		=	main		\
 			setup		\
 			readline	\
+			env			\
 			parse		\
-			execute
+			execute		\
+			utils
 
 SRC_DIR	=	sources/
 INC_DIR	=	includes/
