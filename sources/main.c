@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:25:50 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/15 23:29:18 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/16 14:42:08 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	main(int ac, char **av)
 	int		i;
 	t_list	*cmd_list;
 
-	environ = copy_environ(true);
+	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
 		return (1);
 	setup_sigaction();
