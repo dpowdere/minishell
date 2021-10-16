@@ -44,3 +44,10 @@ char	*ft_strjoin_chr(char const *s1, char const *s2, char c)
 	*cur = '\0';
 	return (str);
 }
+
+int	ft_isspace(int c)
+{
+	c = (unsigned char)c;
+	return (c == ' ' || c == '\n' || c == '\t' || \
+			c == '\v' || c == '\f' || c == '\r');
+}
