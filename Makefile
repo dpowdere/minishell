@@ -14,7 +14,7 @@ NAME	=	minishell
 CFLAGS	= 	-Wall -Wextra -Werror -MMD -g #-fsanitize=address
 SRC		=	main		\
 			env			\
-			signals		\
+			setup		\
 			readline	\
 			get_tokens	\
 			execute		\
