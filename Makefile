@@ -12,12 +12,13 @@
 
 NAME	=	minishell
 CFLAGS	= 	-Wall -Wextra -Werror -MMD -g #-fsanitize=address
-SRC		=	main		\
-			env			\
-			signals		\
-			readline	\
-			get_tokens	\
-			execute		\
+SRC		=	main			\
+			env				\
+			signals			\
+			readline		\
+			get_tokens		\
+			check_tokens	\
+			execute			\
 			utils
 
 SRC_DIR	=	sources/

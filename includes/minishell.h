@@ -25,13 +25,15 @@
 enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
-	ERR_SYNTAX_MATCHING
+	ERR_SYNTAX_MATCHING,
+	ERR_SYNTAX_TOKEN
 };
+
+# define ERR_CODE_PARSE 258
 
 # define ERR_STR_SYNTAX_EOF "syntax error: unexpected end of file"
 # define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
-
-# define ERR_CODE_PARSE 258
+# define ERR_STR_SYNTAX_TOKEN "syntax error near unexpected token"
 
 enum {
 	ENV_DEEP_COPY_FALSE = false,
@@ -74,15 +76,18 @@ char	**copy_environ(bool deep_copy);
 int		set_env(const char *name, const char *value);
 int		unset_env(const char *name);
 
-// setup.c
+// signals.c
 void	setup_sigaction(void);
 
 // readline.c
 char	*read_user_line(void);
 
-// parse.c
+// get_tokens.c
 t_list	*get_tokens_list(const char *line);
 void	free_token(void *token_content);
+
+// check_tokens.c
+bool	check_tokens(t_list *tokens_list);
 
 // execute.c
 void	execute(t_list *cmd_list);

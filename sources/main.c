@@ -50,7 +50,8 @@ int	main(int ac, char **av)
 		ft_lstiter(tokens_list, debug_token_iterator);
 		printf("]\n");
 
-//		validate_tokens(tokens_list);
+		if (check_tokens(tokens_list) == false)
+			continue ;
 //		cmds_list = get_cmds_list(tokens_list);
 		ft_lstclear(&tokens_list, free_token);
 		if (errno == ENOMEM)
