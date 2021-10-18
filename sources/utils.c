@@ -51,3 +51,25 @@ int	ft_isspace(int c)
 	return (c == ' ' || c == '\n' || c == '\t' || \
 			c == '\v' || c == '\f' || c == '\r');
 }
+
+void	*error(enum e_error type, char *extra_message,
+				t_list *list_to_free, void (*free_fn)(void*))
+{
+	if (list_to_free && free_fn)
+		ft_lstclear(&list_to_free, free_fn);
+	ft_putstr_fd(PROMPT_STRING, STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
+	if (type == ERR_ERRNO)
+		ft_putstr_fd(strerror(errno), STDERR_FILENO);
+	else if (type == ERR_SYNTAX_EOF)
+		ft_putstr_fd(ERR_STR_SYNTAX_EOF, STDERR_FILENO);
+	else if (type == ERR_SYNTAX_MATCHING)
+		ft_putstr_fd(ERR_STR_SYNTAX_MATCHING, STDERR_FILENO);
+	if (extra_message)
+	{
+		ft_putstr_fd(": ", STDERR_FILENO);
+		ft_putstr_fd(extra_message, STDERR_FILENO);
+	}
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (NULL);
+}

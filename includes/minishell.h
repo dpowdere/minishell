@@ -22,20 +22,42 @@
 
 # define PROMPT_STRING "minishell"
 
-# define ERR_SYNTAX "Syntax error"
-# define ERR_SYNTAX_CODE 258
+enum e_error {
+	ERR_ERRNO = 0,
+	ERR_SYNTAX_EOF,
+	ERR_SYNTAX_MATCHING
+};
+
+# define ERR_STR_SYNTAX_EOF "syntax error: unexpected end of file"
+# define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
+
+# define ERR_CODE_PARSE 258
 
 enum {
 	ENV_DEEP_COPY_FALSE = false,
 	ENV_DEEP_COPY_TRUE = true
 };
 
-enum e_operator
+typedef struct s_token
 {
-	OPERATOR_NONE,
+	enum e_type {
+		TOKEN_WORD = 0,
+		TOKEN_OPERATOR
+	}		type;
+	char	*string;
+}	t_token;
+
+enum e_operator	{
+	OPERATOR_NONE = 0,
 	OPERATOR_PIPE,
+	OPERATOR_OR,
 	OPERATOR_AND,
-	OPERATOR_OR
+	OPERATOR_REDIRECT_IN,
+	OPERATOR_REDIRECT_IN_STOPWORD,
+	OPERATOR_REDIRECT_OUT,
+	OPERATOR_REDIRECT_OUT_APPEND,
+	OPERATOR_SUBSHELL_IN,
+	OPERATOR_SUBSHELL_OUT
 };
 
 typedef struct s_cmd
@@ -46,12 +68,6 @@ typedef struct s_cmd
 	t_list			*redirect_out;
 	enum e_operator	next_operator;
 }	t_cmd;
-
-typedef struct s_opened
-{
-	bool	single_quote;
-	bool	double_quote;
-}	t_opened;
 
 // env.c
 char	**copy_environ(bool deep_copy);
@@ -65,7 +81,8 @@ void	setup_sigaction(void);
 char	*read_user_line(void);
 
 // parse.c
-t_list	*parse_line(char *line);
+t_list	*get_tokens_list(const char *line);
+void	free_token(void *token_content);
 
 // execute.c
 void	execute(t_list *cmd_list);
@@ -74,5 +91,7 @@ void	execute(t_list *cmd_list);
 int		ft_ptr_array_len(const void **ptr_array);
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c);
 int		ft_isspace(int c);
+void	*error(enum e_error type, char *extra_message,
+			   t_list *list_to_free, void (*free_fn)(void*));
 
 #endif
