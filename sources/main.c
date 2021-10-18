@@ -14,11 +14,16 @@
 
 extern char	**environ;
 
+void	debug_token_iterator(void *token)
+{
+	printf("'%s', ", ((t_token *)token)->string);
+}
+
 int	main(int ac, char **av)
 {
 	char	*line;
 	int		i;
-	t_list	*cmd_list;
+	t_list	*tokens_list;
 
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
@@ -31,12 +36,21 @@ int	main(int ac, char **av)
 			line = read_user_line();
 		else
 			line = av[i++];
+		errno = 0;
 		if (line == NULL)
 			break ;
-		cmd_list = parse_line(line);
+		tokens_list = get_tokens_list(line);
+		if (errno == ENOMEM)
+			return (0);
+
+		printf("TOKENS: [");
+		ft_lstiter(tokens_list, debug_token_iterator);
+		ft_lstclear(&tokens_list, free_token);
+		printf("]\n");
+
 		if (ac == 1)
 			free(line);
-		execute(cmd_list);
+//		execute(cmd_list);
 	}
 	return (0);
 }
