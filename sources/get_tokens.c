@@ -51,6 +51,8 @@ static const char	*get_word(
 	bool		opened_single_quote;
 	bool		opened_double_quote;
 
+	opened_single_quote = false;
+	opened_double_quote = false;
 	while (*line && (opened_double_quote || opened_single_quote \
 	|| (!ft_strchr(METACHARACTERS, *line) && ft_memcmp(line, "&&", 2) != 0)))
 	{
