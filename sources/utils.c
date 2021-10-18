@@ -23,12 +23,6 @@ int	ft_ptr_array_len(const void **ptr_array)
 	return (len);
 }
 
-void	ft_putendl_fd_array(char **str_array, int fd)
-{
-	while (*str_array)
-		ft_putendl_fd(*str_array++, fd);
-}
-
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c)
 {
 	char	*str;
