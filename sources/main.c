@@ -22,35 +22,40 @@ void	debug_token_iterator(void *token)
 int	main(int ac, char **av)
 {
 	char	*line;
-	int		i;
 	t_list	*tokens_list;
+//	t_list	*cmds_list;
 
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
 		return (1);
 	setup_sigaction();
-	i = 1;
+	if (isatty(STDIN_FILENO) == false)
+	{
+		(void)ac; (void)av;
+//		cmds_list = get_cmds_list_from_args(av);
+//		execute(cmds_list);
+		return (errno);
+	}
 	while (true)
 	{
-		if (ac == 1)
-			line = read_user_line();
-		else
-			line = av[i++];
-		errno = 0;
+		line = read_user_line();
 		if (line == NULL)
 			break ;
 		tokens_list = get_tokens_list(line);
+		free(line);
 		if (errno == ENOMEM)
-			return (0);
+			break ;
 
 		printf("TOKENS: [");
 		ft_lstiter(tokens_list, debug_token_iterator);
-		ft_lstclear(&tokens_list, free_token);
 		printf("]\n");
 
-		if (ac == 1)
-			free(line);
-//		execute(cmd_list);
+//		validate_tokens(tokens_list);
+//		cmds_list = get_cmds_list(tokens_list);
+		ft_lstclear(&tokens_list, free_token);
+		if (errno == ENOMEM)
+			break ;
+//		execute(cmds_list);
 	}
-	return (0);
+	return (errno);
 }

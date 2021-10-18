@@ -14,9 +14,15 @@
 
 char	*read_user_line(void)
 {
-	char	*line;
+	static bool	readline_errno_fixed;
+	char		*line;
 
 	line = readline(PROMPT_STRING "$: ");
+	if (readline_errno_fixed == false)
+	{
+		errno = 0;
+		readline_errno_fixed = true;
+	}
 	if (line && *line)
 		add_history(line);
 	return (line);

@@ -91,7 +91,7 @@ void	execute(t_list *cmd_list);
 int		ft_ptr_array_len(const void **ptr_array);
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c);
 int		ft_isspace(int c);
-void	*error(enum e_error type, char *extra_message,
-			   t_list *list_to_free, void (*free_fn)(void*));
+void	*error(enum e_error type, char *extra_message, \
+				t_list *list_to_free, void (*free_fn)(void*));
 
 #endif

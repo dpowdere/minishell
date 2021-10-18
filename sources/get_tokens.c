@@ -45,7 +45,7 @@ static bool	add_token(
 }
 
 static const char	*get_word(
-		const char *line, t_list **tokens_list, char *error_quote)
+		const char *line, t_list **tokens_list, char *error_unclosed)
 {
 	const char	*word_start = line;
 	bool		opened_single_quote;
@@ -65,12 +65,11 @@ static const char	*get_word(
 		line++;
 	}
 	if (opened_single_quote)
-		*error_quote = '\'';
+		*error_unclosed = '\'';
 	else if (opened_double_quote)
-		*error_quote = '\"';
-	if (opened_single_quote || opened_double_quote)
-		return (NULL);
-	if (!add_token(TOKEN_WORD, word_start, line - word_start, tokens_list))
+		*error_unclosed = '\"';
+	if (opened_single_quote || opened_double_quote \
+	|| !add_token(TOKEN_WORD, word_start, line - word_start, tokens_list))
 		return (NULL);
 	return (line);
 }
@@ -92,29 +91,30 @@ static const char	*get_operator(const char *line, t_list **tokens_list)
 t_list	*get_tokens_list(const char *line)
 {
 	t_list	*tokens_list;
-	char	error_quote[2];
+	char	error_unclosed[2];
 
 	tokens_list = NULL;
-	ft_bzero(error_quote, 2);
-	while (ft_isspace(*line))
-		line++;
-	while (*line)
+	ft_bzero(error_unclosed, 2);
+	while (line && *line)
 	{
+		while (ft_isspace(*line))
+			line++;
+		if (*line == '\0')
+			break ;
 		if (ft_strchr(OPERATOR_CHARS, *line) || !ft_memcmp(line, "&&", 2))
 			line = get_operator(line, &tokens_list);
 		else
-			line = get_word(line, &tokens_list, error_quote);
-		if (*error_quote)
-		{
-			error(ERR_SYNTAX_MATCHING, error_quote, NULL, NULL);
-			return (error(ERR_SYNTAX_EOF, NULL, tokens_list, free_token));
-		}
-		else if (line == NULL)
-			return (error(ERR_ERRNO, NULL, tokens_list, free_token));
-		while (ft_isspace(*line))
-			line++;
+			line = get_word(line, &tokens_list, error_unclosed);
 	}
-	return (tokens_list);
+	if (*error_unclosed && errno != ENOMEM)
+	{
+		error(ERR_SYNTAX_MATCHING, error_unclosed, NULL, NULL);
+		errno = ERR_CODE_PARSE;
+		return (error(ERR_SYNTAX_EOF, NULL, tokens_list, free_token));
+	}
+	else if (line == NULL)
+		return (error(ERR_ERRNO, NULL, tokens_list, free_token));
+	return (ft_lstreverse(&tokens_list));
 }
 
 void	free_token(void *token_content)
