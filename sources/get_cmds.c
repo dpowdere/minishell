@@ -84,7 +84,7 @@ static char	*parse_skip_brackets(char *line, bool words_started)
 	while (ft_isspace(*line))
 		line++;
 	if (*line == '\0' || *line == '|' || (*line == '&' && *(line + 1) == '&') \
-		|| *line == '<' || *line =='>')
+		|| *line == '<' || *line == '>')
 		return (line);
 	else
 		return (NULL);
