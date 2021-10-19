@@ -39,6 +39,12 @@ CFLAGS		:=	-Wall -Wextra -Werror -g #-fsanitize=address
 LDFLAGS		:=	-L$(LIB_DIR) -L$(RL_LIB_DIR)
 LDLIBS		:=	-lft -lreadline
 
+ifneq ($(findstring linux,$(shell $(CC) -dumpmachine)),)
+  ON_LINUX	:=	1
+  CPPFLAGS	:=	-MMD -I$(INC_DIR) -I$(LIB_DIR)
+  LDFLAGS	:=	-L$(LIB_DIR)
+endif
+
 all:
 	$(MAKE) $(NAME) -j8
 $(LIB): FORCE
@@ -66,6 +72,10 @@ norm:
 	@norminette $(SRC_DIR)* $(INC_DIR)* $(LIB_DIR)*.[ch]
 
 install-deps:
+ifdef ON_LINUX
+	sudo apt-get install -y libreadline-dev
+else
 	brew install readline
+endif
 .PHONY: FORCE all clean fclean install-deps re norm
 FORCE:
