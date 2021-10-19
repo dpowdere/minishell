@@ -28,7 +28,7 @@ int	main(int ac, char **av)
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
 		return (1);
-	setup_sigaction();
+	setup_signal_handlers();
 	if (isatty(STDIN_FILENO) == false)
 	{
 		(void)ac; (void)av;

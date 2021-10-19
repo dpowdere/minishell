@@ -6,12 +6,11 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/15 19:19:21 by ngragas          ###   ########.fr        #
+#    Updated: 2021/10/19 19:10:26 by dpowdere         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	minishell
-CFLAGS	= 	-Wall -Wextra -Werror -MMD -g #-fsanitize=address
 SRC		=	main			\
 			env				\
 			signals			\
@@ -32,17 +31,25 @@ DEP		=	$(OBJ:.o=.d)
 LIB_DIR	=	libft/
 LIB		=	$(LIB_DIR)libft.a
 
+RL_LIB_DIR	:=	$(HOME)/.brew/opt/readline/lib
+RL_INC_DIR	:=	$(HOME)/.brew/opt/readline/include
+
+CPPFLAGS	:=	-MMD -I$(INC_DIR) -I$(LIB_DIR) -I$(RL_INC_DIR)
+CFLAGS		:=	-Wall -Wextra -Werror -g #-fsanitize=address
+LDFLAGS		:=	-L$(LIB_DIR) -L$(RL_LIB_DIR)
+LDLIBS		:=	-lft -lreadline
+
 all:
 	$(MAKE) $(NAME) -j8
 $(LIB): FORCE
 	$(MAKE) -C $(LIB_DIR)
 $(NAME): $(LIB) $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $@ -lft -L$(LIB_DIR) -lreadline
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 $(OBJ): | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c Makefile
-	$(CC) $(CFLAGS) -c $< -o $@ -I$(INC_DIR) -I$(LIB_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 -include $(DEP)
 
 clean:
@@ -56,6 +63,9 @@ fclean: clean
 re: fclean all
 
 norm:
-	@norminette $(SRC_DIR)* $(INC_DIR)*
-.PHONY: FORCE all clean fclean re norm
+	@norminette $(SRC_DIR)* $(INC_DIR)* $(LIB_DIR)*.[ch]
+
+install-deps:
+	brew install readline
+.PHONY: FORCE all clean fclean install-deps re norm
 FORCE:

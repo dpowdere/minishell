@@ -13,14 +13,20 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <stdio.h>
-# include <string.h>
 # include <errno.h>
+# include <signal.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <termios.h>
+
 # include <readline/readline.h>
 # include <readline/history.h>
+
 # include "libft.h"
 
-# define PROMPT_STRING "minishell"
+# define COMMAND_NAME	"minishell"
+# define PROMPT_STRING	"minishell$ "
 
 enum e_error {
 	ERR_ERRNO = 0,
@@ -77,7 +83,7 @@ int		set_env(const char *name, const char *value);
 int		unset_env(const char *name);
 
 // signals.c
-void	setup_sigaction(void);
+void	setup_signal_handlers(void);
 
 // readline.c
 char	*read_user_line(void);

@@ -55,7 +55,7 @@ int	ft_isspace(int c)
 void	*error(enum e_error type, char *extra_message,
 				t_list *list_to_free, void (*free_fn)(void*))
 {
-	ft_putstr_fd(PROMPT_STRING, STDERR_FILENO);
+	ft_putstr_fd(COMMAND_NAME, STDERR_FILENO);
 	ft_putstr_fd(": ", STDERR_FILENO);
 	if (type == ERR_ERRNO)
 		ft_putstr_fd(strerror(errno), STDERR_FILENO);

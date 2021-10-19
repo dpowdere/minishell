@@ -17,7 +17,7 @@ char	*read_user_line(void)
 	static bool	readline_errno_fixed;
 	char		*line;
 
-	line = readline(PROMPT_STRING "$: ");
+	line = readline(PROMPT_STRING);
 	if (readline_errno_fixed == false)
 	{
 		errno = 0;
