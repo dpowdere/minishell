@@ -29,6 +29,7 @@ void	setup_signal_handlers(void)
 	struct sigaction	on_int;
 	struct termios		term_attrs;
 	extern int			rl_catch_signals;
+	extern int			errno;
 
 	rl_catch_signals = false;
 	tcgetattr(STDOUT_FILENO, &term_attrs);
@@ -43,6 +44,6 @@ void	setup_signal_handlers(void)
 		|| sigaction(SIGINT, &on_int, NULL) < 0)
 	{
 		error(ERR_ERRNO, NULL, NULL, NULL);
-		exit(1);
+		exit(errno);
 	}
 }
