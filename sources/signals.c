@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:36:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/11 18:43:15 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/20 11:13:05 by dpowdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 
 static void	sigint_handler(int signum)
 {
-	extern char	*rl_line_buffer;
-
 	(void)signum;
 	ft_putstr_fd("\n", STDOUT_FILENO);
 	rl_on_new_line();
