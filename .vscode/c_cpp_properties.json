@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/includes",
+                "${workspaceFolder}/libft",
+                "${HOME}/.brew/opt/readline/include"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "${HOME}/.brew/opt/readline"
+                ]
+            },
+            "compilerPath": "/usr/bin/cc",
+            "cStandard": "c11"
+        }
+    ],
+    "version": 4
+}
