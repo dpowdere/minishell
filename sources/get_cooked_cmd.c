@@ -1,51 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_cmds.c                                         :+:      :+:    :+:   */
+/*   get_cooked_cmd.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/11 18:38:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/11 18:43:15 by ngragas          ###   ########.fr       */
+/*   Created: 2021/10/21 23:09:06 by dpowdere          #+#    #+#             */
+/*   Updated: 2021/10/21 23:10:04 by dpowdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static enum e_operator	get_operator_type(const char *line)
+t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 {
-	if (!ft_memcmp(line, "||", 2))
-		return (OPERATOR_OR);
-	else if (!ft_memcmp(line, "&&", 2))
-		return (OPERATOR_AND);
-	else if (!ft_memcmp(line, "<<", 2))
-		return (OPERATOR_REDIRECT_IN_STOPWORD);
-	else if (!ft_memcmp(line, ">>", 2))
-		return (OPERATOR_REDIRECT_OUT_APPEND);
-	else if (*line == '|')
-		return (OPERATOR_PIPE);
-	else if (*line == '<')
-		return (OPERATOR_REDIRECT_IN);
-	else if (*line == '>')
-		return (OPERATOR_REDIRECT_OUT);
-	else if (*line == '(')
-		return (OPERATOR_SUBSHELL_IN);
-	else if (*line == ')')
-		return (OPERATOR_SUBSHELL_OUT);
-	else
-		return (OPERATOR_NONE);
+	/* TODO: Cook cmd for minishell consumption, expand env vars,
+	** remove quotes and escape chars, additionally split by words
+	** when appropriate.
+	**
+	** Take $? from state->cmd_retval
+	*/
+	(void)state;
+	return (debug_cooked_cmd(cmd));
 }
 
-static void	remove_escape_char(char *line, bool opened_double_quote)
-{
-	const char	line_char = *(line + 1);
-
-	if (opened_double_quote == false)
-		ft_memmove(line, line + 1, ft_strlen(line));
-	else if (line_char == '\"' || line_char == '\\')
-		ft_memmove(line, line + 1, ft_strlen(line));
-}
-
+/*
 static char	*skip_brackets_inside(char *line)
 {
 	t_opened	opened;
@@ -97,6 +76,16 @@ static char	*remove_quote(char *line, bool *opened_quote)
 	return (line - 1);
 }
 
+static void	remove_escape_char(char *line, bool opened_double_quote)
+{
+	const char	line_char = *(line + 1);
+
+	if (opened_double_quote == false)
+		ft_memmove(line, line + 1, ft_strlen(line));
+	else if (line_char == '\"' || line_char == '\\')
+		ft_memmove(line, line + 1, ft_strlen(line));
+}
+
 static char	*parse_find_cmd_end(char *line)
 {
 	t_opened	opened;
@@ -125,34 +114,4 @@ static char	*parse_find_cmd_end(char *line)
 		return (NULL);
 	return (line);
 }
-
-t_list	*get_cmds(t_list *words_list)
-{
-	t_list	*word_list;
-	char	*cmd_end;
-	t_list	*cmd_list;
-	t_list	*new_list;
-	t_cmd	*cmd;
-
-	word_list = get_words(line);
-
-	cmd_list = NULL;
-	while (*line)
-	{
-		cmd_end = parse_find_cmd_end(line);
-		if (cmd_end == NULL)
-			return (error(ERR_SYNTAX, ERR_SYNTAX_CODE, cmd_list));
-		new_list = ft_lstnew(ft_calloc(1, sizeof(*cmd)));
-		if (new_list == NULL || new_list->content == NULL)
-			return (error(strerror(errno), errno, cmd_list));
-		cmd = new_list->content;
-		cmd->cmd = ft_substr(line, 0, cmd_end - line);
-		if (cmd->cmd == NULL)
-			return (error(strerror(errno), errno, cmd_list));
-		line = parse_get_operator(cmd_end, &cmd->next_operator);
-		if (*line == '\0' && cmd->next_operator != OPERATOR_NONE)
-			return (error(ERR_SYNTAX, ERR_SYNTAX_CODE, cmd_list));
-		ft_lstadd_back(&cmd_list, new_list);
-	}
-	return (cmd_list);
-}
+*/

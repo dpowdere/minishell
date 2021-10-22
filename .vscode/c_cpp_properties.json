@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "AllPlatforms",
             "includePath": [
                 "${workspaceFolder}/includes",
                 "${workspaceFolder}/libft",

@@ -17,7 +17,12 @@ SRC		=	main			\
 			readline		\
 			get_tokens		\
 			check_tokens	\
+			get_raw_cmds	\
+			get_cooked_cmd	\
 			execute			\
+			free			\
+			debug_tokens	\
+			debug_cmds		\
 			utils
 
 SRC_DIR	=	sources/
@@ -35,7 +40,7 @@ RL_LIB_DIR	:=	$(HOME)/.brew/opt/readline/lib
 RL_INC_DIR	:=	$(HOME)/.brew/opt/readline/include
 
 CPPFLAGS	:=	-MMD -I$(INC_DIR) -I$(LIB_DIR) -I$(RL_INC_DIR)
-CFLAGS		:=	-Wall -Wextra -Werror -g #-fsanitize=address
+CFLAGS		:=	-Wall -Wextra -Werror -g3 #-fsanitize=address
 LDFLAGS		:=	-L$(LIB_DIR) -L$(RL_LIB_DIR)
 LDLIBS		:=	-lft -lreadline
 
@@ -43,6 +48,16 @@ ifneq ($(findstring linux,$(shell $(CC) -dumpmachine)),)
   ON_LINUX	:=	1
   CPPFLAGS	:=	-MMD -I$(INC_DIR) -I$(LIB_DIR)
   LDFLAGS	:=	-L$(LIB_DIR)
+endif
+
+ifdef DEBUG_TOKENS
+  CPPFLAGS	+=	-DDEBUG_TOKENS=$(DEBUG_TOKENS)
+endif
+ifdef DEBUG_RAW_CMDS
+  CPPFLAGS	+=	-DDEBUG_RAW_CMDS=$(DEBUG_RAW_CMDS)
+endif
+ifdef DEBUG_COOKED_CMDS
+  CPPFLAGS	+=	-DDEBUG_COOKED_CMDS=$(DEBUG_COOKED_CMDS)
 endif
 
 all:

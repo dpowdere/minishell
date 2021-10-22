@@ -114,11 +114,5 @@ t_list	*get_tokens_list(const char *line)
 	}
 	else if (line == NULL)
 		return (error(ERR_ERRNO, NULL, tokens_list, free_token));
-	return (ft_lstreverse(&tokens_list));
-}
-
-void	free_token(void *token_content)
-{
-	free(((t_token *)token_content)->string);
-	free(token_content);
+	return (debug_tokens(ft_lstreverse(&tokens_list)));
 }
