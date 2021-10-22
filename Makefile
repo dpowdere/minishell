@@ -6,7 +6,7 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/19 19:10:26 by dpowdere         ###   ########.fr        #
+#    Updated: 2021/10/22 23:25:08 by dpowdere         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,8 +36,9 @@ DEP		=	$(OBJ:.o=.d)
 LIB_DIR	=	libft/
 LIB		=	$(LIB_DIR)libft.a
 
-RL_LIB_DIR	:=	$(HOME)/.brew/opt/readline/lib
-RL_INC_DIR	:=	$(HOME)/.brew/opt/readline/include
+HOMEBREW_PREFIX := $(shell brew config | grep HOMEBREW_PREFIX | cut -d' ' -f2)
+RL_LIB_DIR	:=	$(HOMEBREW_PREFIX)/opt/readline/lib
+RL_INC_DIR	:=	$(HOMEBREW_PREFIX)/opt/readline/include
 
 CPPFLAGS	:=	-MMD -I$(INC_DIR) -I$(LIB_DIR) -I$(RL_INC_DIR)
 CFLAGS		:=	-Wall -Wextra -Werror -g3 #-fsanitize=address
