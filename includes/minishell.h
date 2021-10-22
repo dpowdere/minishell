@@ -64,15 +64,14 @@ typedef struct s_state	t_state;
 typedef int				(*t_readline_func)(t_state *);
 typedef struct s_state
 {
-	int				argc;
-	char			**argv;
-	char			**environ;
+	int				ac;
+	char			**av;
 	char			*line;
 	bool			should_free_line;
 	bool			is_input_interactive;
 	t_readline_func	read_user_line;
 	t_list			*children_to_wait;
-	int				cmd_retval;
+	int				cmd_exit_status;
 
 }	t_state;
 

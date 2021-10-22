@@ -40,8 +40,8 @@ void	setup_signal_handlers(t_state *state)
 
 	if (state->is_input_interactive)
 		suppress_ctrl_chars_echo();
-	ft_bzero(&on_quit, sizeof(on_quit));
-	ft_bzero(&on_int, sizeof(on_int));
+	on_quit = (struct sigaction){};
+	on_int = (struct sigaction){};
 	on_quit.sa_handler = SIG_IGN;
 	on_int.sa_handler = sigint_handler;
 	if (!state->is_input_interactive)
