@@ -113,7 +113,6 @@ typedef struct s_redirect
 
 typedef struct s_cmd
 {
-	char			*cmd;
 	t_list			*args_list;
 	t_list			*redirect_in;
 	t_list			*redirect_out;

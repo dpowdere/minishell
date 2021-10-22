@@ -70,8 +70,7 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	cmd = (t_cmd *)data;
 	if (ix > 0)
 		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
-	printf(HEADER_TMPL AEC_YELLOW "%s" AEC_RESET "\n", "cmd", cmd->cmd);
-	printf(HEADER_TMPL, "args");
+	printf(HEADER_TMPL, "cmd");
 	arg = cmd->args_list;
 	if (!arg)
 		printf("\n");

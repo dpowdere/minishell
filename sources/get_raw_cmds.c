@@ -76,16 +76,34 @@ static char	*populate_subshell_arg(char *arg, t_list *start, t_list *end)
 static bool	got_arg_for_subshell(t_cmd *cmd, t_list *start, t_list *end)
 {
 	char	*arg;
+	t_list	*item;
 
-	arg = malloc(subshell_arg_strlen(start, end));
+	arg = ft_strdup("minishell");
 	if (arg == NULL)
-		return (false);
-	cmd->args_list = ft_lstnew(populate_subshell_arg(arg, start, end));
-	if (cmd->args_list == NULL)
 	{
-		free(arg);
+		free_cmd(cmd);
 		return (false);
 	}
+	cmd->args_list = ft_lstnew(arg);
+	if (cmd->args_list == NULL)
+	{
+		free_cmd(cmd);
+		return (false);
+	}
+	arg = malloc(subshell_arg_strlen(start, end));
+	if (arg == NULL)
+	{
+		free_cmd(cmd);
+		return (false);
+	}
+	item = ft_lstnew(populate_subshell_arg(arg, start, end));
+	if (item == NULL)
+	{
+		free(arg);
+		free_cmd(cmd);
+		return (false);
+	}
+	ft_lstadd_back(&cmd->args_list, item);
 	return (true);
 }
 
@@ -116,12 +134,6 @@ static t_cmd	*get_subshell_cmd(t_list **global_cursor)
 			&& get_operator_type(token->string) == OPERATOR_SUBSHELL_OUT)
 			--brackets_to_close;
 		local_cursor = local_cursor->next;
-	}
-	cmd->cmd = ft_strdup("minishell");
-	if (cmd->cmd == NULL)
-	{
-		free(cmd);
-		return (error(ERR_ERRNO, NULL, NULL, NULL));
 	}
 	if (got_arg_for_subshell(cmd, start, end) == false)
 	{
@@ -168,17 +180,6 @@ static inline bool	is_non_redirect_operator(t_token *token)
 	op = get_operator_type(token->string);
 	return (op != OPERATOR_REDIRECT_IN && op != OPERATOR_REDIRECT_IN_STOPWORD
 		&& op != OPERATOR_REDIRECT_OUT && op != OPERATOR_REDIRECT_OUT_APPEND);
-}
-
-static t_list	*populate_cmd(t_cmd **cmd, t_list *cursor)
-{
-	(*cmd)->cmd = ft_strdup(((t_token *)cursor->content)->string);
-	if ((*cmd)->cmd == NULL)
-	{
-		free_cmd(*cmd);
-		*cmd = NULL;
-	}
-	return (cursor->next);
 }
 
 static t_list	*populate_arg(t_cmd **cmd, t_list *cursor)
@@ -275,8 +276,6 @@ static t_cmd	*get_cmd(t_list **global_cursor)
 		}
 		else if (is_redirect_operator(token))
 			local_cursor = populate_redirect(&cmd, local_cursor);
-		else if (cmd->cmd == NULL)
-			local_cursor = populate_cmd(&cmd, local_cursor);
 		else
 			local_cursor = populate_arg(&cmd, local_cursor);
 	}
