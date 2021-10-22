@@ -12,18 +12,48 @@
 
 #include "minishell.h"
 
-char	*read_user_line(void)
+int	readline_stdin_tty(t_state *s)
 {
 	static bool	readline_errno_fixed;
-	char		*line;
 
-	line = readline(PROMPT_STRING);
+	s->line = readline(PROMPT_STRING);
 	if (readline_errno_fixed == false)
 	{
 		errno = 0;
 		readline_errno_fixed = true;
 	}
-	if (line && *line)
-		add_history(line);
-	return (line);
+	if (s->line == NULL)
+		return (READLINE_ERROR);
+	if (*s->line)
+		add_history(s->line);
+	return (READLINE_LINE);
+}
+
+int	readline_stdin_non_tty(t_state *s)
+{
+	int	retval;
+
+	retval = get_next_line(STDIN_FILENO, &s->line);
+	if (retval > 0 || (retval == 0 && ft_strlen(s->line) > 0))
+		return (READLINE_LINE);
+	else if (retval == 0)
+	{
+		free(s->line);
+		return (READLINE_EOF);
+	}
+	return (READLINE_ERROR);
+}
+
+int	readline_arg(t_state *s)
+{
+	static int	i = 0;
+
+	if (i >= s->argc)
+		return (READLINE_EOF);
+	if (++i < s->argc)
+	{
+		s->line = s->argv[i];
+		return (READLINE_LINE);
+	}
+	return (READLINE_EOF);
 }

@@ -83,6 +83,7 @@ t_list		*ft_lstreverse(t_list **begin_list);
 void		ft_lstdelone(t_list *lst, void (*del)(void*));
 void		ft_lstclear(t_list **lst, void (*del)(void*));
 void		ft_lstiter(t_list *lst, void (*f)(void *));
+void		ft_lstiterix(t_list *lst, void (*f)(void *, int ix, int is_last));
 t_list		*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 
 int			ft_wchrto8(char *dst_utf8, wchar_t src_utf32);

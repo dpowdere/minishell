@@ -20,3 +20,15 @@ void	ft_lstiter(t_list *lst, void (*f)(void *))
 		lst = lst->next;
 	}
 }
+
+void	ft_lstiterix(t_list *lst, void (*f)(void *data, int ix, int is_last))
+{
+	int	ix;
+
+	ix = 0;
+	while (lst)
+	{
+		f(lst->content, ++ix, lst->next == NULL);
+		lst = lst->next;
+	}
+}

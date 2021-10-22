@@ -23,7 +23,9 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
+# include "get_next_line.h"
 # include "libft.h"
+# include "minishell_debug.h"
 
 # define COMMAND_NAME	"minishell"
 # define PROMPT_STRING	"minishell$ "
@@ -32,7 +34,8 @@ enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN
+	ERR_SYNTAX_TOKEN,
+	ERR_SYNTAX
 };
 
 # define ERR_CODE_PARSE 258
@@ -45,6 +48,33 @@ enum {
 	ENV_DEEP_COPY_FALSE = false,
 	ENV_DEEP_COPY_TRUE = true
 };
+
+enum {
+	READLINE_ERROR = -1,
+	READLINE_EOF,
+	READLINE_LINE
+};
+
+enum {
+	DONT_FREE_LINE = false,
+	DO_FREE_LINE = true
+};
+
+typedef struct s_state	t_state;
+typedef int				(*t_readline_func)(t_state *);
+typedef struct s_state
+{
+	int				argc;
+	char			**argv;
+	char			**environ;
+	char			*line;
+	bool			should_free_line;
+	bool			is_input_interactive;
+	t_readline_func	read_user_line;
+	t_list			*children_to_wait;
+	int				cmd_retval;
+
+}	t_state;
 
 typedef struct s_token
 {
@@ -68,10 +98,24 @@ enum e_operator	{
 	OPERATOR_SUBSHELL_OUT
 };
 
+typedef struct s_opened
+{
+	int		brackets_count;
+	bool	single_quote;
+	bool	double_quote;
+	bool	words_started;
+}	t_opened;
+
+typedef struct s_redirect
+{
+	enum e_operator	type;
+	char			*word;
+}	t_redirect;
+
 typedef struct s_cmd
 {
 	char			*cmd;
-	char			**args_list;
+	t_list			*args_list;
 	t_list			*redirect_in;
 	t_list			*redirect_out;
 	enum e_operator	next_operator;
@@ -83,20 +127,33 @@ int		set_env(const char *name, const char *value);
 int		unset_env(const char *name);
 
 // signals.c
-void	setup_signal_handlers(void);
+void	setup_signal_handlers(t_state *state);
 
 // readline.c
-char	*read_user_line(void);
+int		readline_arg(t_state *s);
+int		readline_stdin_non_tty(t_state *s);
+int		readline_stdin_tty(t_state *s);
 
 // get_tokens.c
 t_list	*get_tokens_list(const char *line);
-void	free_token(void *token_content);
 
 // check_tokens.c
 bool	check_tokens(t_list *tokens_list);
 
+// get_raw_cmds.c
+t_list	*get_cmds_list(t_list *tokens_list);
+
+// get_cooked_cmd.c
+t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
+
 // execute.c
-void	execute(t_list *cmd_list);
+void	execute(t_list *cmd_list, t_state *state);
+
+// free.c
+void	free_token(void *token_content);
+void	free_redirect(void *redirect_content);
+void	free_cmd(void *cmd_content);
+void	clean_up(t_state *state);
 
 // utils.c
 int		ft_ptr_array_len(const void **ptr_array);
