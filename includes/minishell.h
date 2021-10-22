@@ -64,8 +64,8 @@ typedef struct s_state	t_state;
 typedef int				(*t_readline_func)(t_state *);
 typedef struct s_state
 {
-	int				ac;
-	char			**av;
+	int				argc;
+	char			**argv;
 	char			*line;
 	bool			should_free_line;
 	bool			is_input_interactive;

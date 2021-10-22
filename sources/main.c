@@ -40,17 +40,17 @@ void	setup_environ(void)
 		exit(errno);
 }
 
-void	setup_input(t_state *state, int ac, char **av)
+void	setup_input(t_state *state, int argc, char **argv)
 {
-	state->ac = ac;
-	state->av = av;
+	state->argc = argc;
+	state->argv = argv;
 	state->should_free_line = DO_FREE_LINE;
 	if (isatty(STDIN_FILENO))
 	{
 		state->read_user_line = readline_stdin_tty;
 		state->is_input_interactive = true;
 	}
-	else if (ac > 1)
+	else if (argc > 1)
 	{
 		state->should_free_line = DONT_FREE_LINE;
 		state->read_user_line = readline_arg;
@@ -59,14 +59,14 @@ void	setup_input(t_state *state, int ac, char **av)
 		state->read_user_line = readline_stdin_non_tty;
 }
 
-int	main(int ac, char **av)
+int	main(int argc, char **argv)
 {
 	t_state	state;
 	int		interpret_error;
 
 	state = (t_state){};
 	setup_environ();
-	setup_input(&state, ac, av);
+	setup_input(&state, argc, argv);
 	setup_signal_handlers(&state);
 	interpret_error = 0;
 	while (state.read_user_line(&state) > READLINE_EOF && !interpret_error)
