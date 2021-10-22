@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static void	parse_execute(t_state *state)
+static int	interpret(t_state *state)
 {
 	t_list	*tokens_list;
 	t_list	*cmds_list;
@@ -20,36 +20,37 @@ static void	parse_execute(t_state *state)
 	tokens_list = get_tokens_list(state->line);
 	if (state->should_free_line)
 		free(state->line);
-	if (errno == ENOMEM)
-		return ((void)error(ERR_ERRNO, NULL, NULL, NULL));
-	if (check_tokens(tokens_list) == false)
-		return ;
+	if (errno == ENOMEM || check_tokens(tokens_list) == false)
+		return (1);
 	cmds_list = get_cmds_list(tokens_list);
 	ft_lstclear(&tokens_list, free_token);
 	if (errno == ENOMEM)
-		return ((void)error(ERR_ERRNO, NULL, NULL, NULL));
+		return (1);
 	execute(cmds_list, state);
 	//ft_lstclear(&cmds_list, free_cmd);
+	return (0);
 }
 
-void	setup_environ(t_state *state, int argc, char **argv)
+void	setup_environ(void)
 {
-	state->argc = argc;
-	state->argv = argv;
-	state->environ = copy_environ(ENV_DEEP_COPY_TRUE);
-	if (state->environ == NULL)
+	extern char	**environ;
+
+	environ = copy_environ(ENV_DEEP_COPY_TRUE);
+	if (environ == NULL)
 		exit(errno);
 }
 
-void	setup_input(t_state *state)
+void	setup_input(t_state *state, int ac, char **av)
 {
+	state->ac = ac;
+	state->av = av;
 	state->should_free_line = DO_FREE_LINE;
 	if (isatty(STDIN_FILENO))
 	{
 		state->read_user_line = readline_stdin_tty;
 		state->is_input_interactive = true;
 	}
-	else if (state->argc > 1)
+	else if (ac > 1)
 	{
 		state->should_free_line = DONT_FREE_LINE;
 		state->read_user_line = readline_arg;
@@ -61,13 +62,15 @@ void	setup_input(t_state *state)
 int	main(int ac, char **av)
 {
 	t_state	state;
+	int		interpret_error;
 
-	ft_bzero(&state, sizeof(state));
-	setup_environ(&state, ac, av);
-	setup_input(&state);
+	state = (t_state){};
+	setup_environ();
+	setup_input(&state, ac, av);
 	setup_signal_handlers(&state);
-	while (state.read_user_line(&state) > READLINE_EOF)
-		parse_execute(&state);
+	interpret_error = 0;
+	while (state.read_user_line(&state) > READLINE_EOF && !interpret_error)
+		interpret_error = interpret(&state);
 	clean_up(&state);
 	return (errno);
 }

@@ -5,4 +5,5 @@
 *.dylib
 *.o
 *.so
+core*
 minishell
