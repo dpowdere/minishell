@@ -34,8 +34,7 @@ enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN,
-	ERR_SYNTAX
+	ERR_SYNTAX_TOKEN
 };
 
 # define ERR_CODE_PARSE 258
@@ -64,8 +63,8 @@ typedef struct s_state	t_state;
 typedef int				(*t_readline_func)(t_state *);
 typedef struct s_state
 {
-	int				ac;
-	char			**av;
+	int				argc;
+	char			**argv;
 	char			*line;
 	bool			should_free_line;
 	bool			is_input_interactive;
@@ -97,23 +96,14 @@ enum e_operator	{
 	OPERATOR_SUBSHELL_OUT
 };
 
-typedef struct s_opened
-{
-	int		brackets_count;
-	bool	single_quote;
-	bool	double_quote;
-	bool	words_started;
-}	t_opened;
-
 typedef struct s_redirect
 {
 	enum e_operator	type;
-	char			*word;
+	char			*target;
 }	t_redirect;
 
 typedef struct s_cmd
 {
-	char			*cmd;
 	t_list			*args_list;
 	t_list			*redirect_in;
 	t_list			*redirect_out;

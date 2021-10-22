@@ -59,7 +59,7 @@ static void	debug_redirect(void *data)
 		printf(REDIR_TMPL, "|");
 	else
 		printf(AEC_RED "ERROR %d" AEC_RESET, r->type);
-	printf(" " AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL, r->word, "");
+	printf(" " AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL, r->target, "");
 }
 
 static void	debug_cmd(void *data, int ix, int is_last)
@@ -70,11 +70,12 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	cmd = (t_cmd *)data;
 	if (ix > 0)
 		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
-	printf(HEADER_TMPL AEC_YELLOW "%s" AEC_RESET "\n", "cmd", cmd->cmd);
-	printf(HEADER_TMPL, "args");
 	arg = cmd->args_list;
 	if (!arg)
 		printf("\n");
+	printf(HEADER_TMPL AEC_YELLOW "%s" AEC_RESET "\n", "cmd", (char *)arg->content);
+	arg = arg->next;
+	printf(HEADER_TMPL, "args");
 	while (arg)
 	{
 		printf(AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL,

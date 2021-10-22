@@ -33,7 +33,7 @@ void	free_token(void *token_content)
 
 void	free_redirect(void *redirect_content)
 {
-	free(((t_redirect *)redirect_content)->word);
+	free(((t_redirect *)redirect_content)->target);
 	free(redirect_content);
 }
 
@@ -42,9 +42,8 @@ void	free_cmd(void *cmd_content)
 	t_cmd	*cmd;
 
 	cmd = (t_cmd *)cmd_content;
-	free(cmd);
 	ft_lstclear(&cmd->args_list, free);
 	ft_lstclear(&cmd->redirect_in, free_redirect);
 	ft_lstclear(&cmd->redirect_out, free_redirect);
-	free(cmd_content);
+	free(cmd);
 }

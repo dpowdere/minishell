@@ -48,11 +48,11 @@ int	readline_arg(t_state *s)
 {
 	static int	i = 0;
 
-	if (i >= s->ac)
+	if (i >= s->argc)
 		return (READLINE_EOF);
-	if (++i < s->ac)
+	if (++i < s->argc)
 	{
-		s->line = s->av[i];
+		s->line = s->argv[i];
 		return (READLINE_LINE);
 	}
 	return (READLINE_EOF);
