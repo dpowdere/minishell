@@ -34,8 +34,7 @@ enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN,
-	ERR_SYNTAX
+	ERR_SYNTAX_TOKEN
 };
 
 # define ERR_CODE_PARSE 258
@@ -97,18 +96,10 @@ enum e_operator	{
 	OPERATOR_SUBSHELL_OUT
 };
 
-typedef struct s_opened
-{
-	int		brackets_count;
-	bool	single_quote;
-	bool	double_quote;
-	bool	words_started;
-}	t_opened;
-
 typedef struct s_redirect
 {
 	enum e_operator	type;
-	char			*word;
+	char			*target;
 }	t_redirect;
 
 typedef struct s_cmd

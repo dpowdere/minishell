@@ -23,11 +23,10 @@ static int	interpret(t_state *state)
 	if (errno == ENOMEM || check_tokens(tokens_list) == false)
 		return (1);
 	cmds_list = get_cmds_list(tokens_list);
-	ft_lstclear(&tokens_list, free_token);
 	if (errno == ENOMEM)
 		return (1);
 	execute(cmds_list, state);
-	//ft_lstclear(&cmds_list, free_cmd);
+	ft_lstclear(&cmds_list, free_cmd);
 	return (0);
 }
 
@@ -69,7 +68,7 @@ int	main(int argc, char **argv)
 	setup_input(&state, argc, argv);
 	setup_signal_handlers(&state);
 	interpret_error = 0;
-	while (state.read_user_line(&state) > READLINE_EOF && !interpret_error)
+	while (!interpret_error && state.read_user_line(&state) > READLINE_EOF)
 		interpret_error = interpret(&state);
 	clean_up(&state);
 	return (errno);

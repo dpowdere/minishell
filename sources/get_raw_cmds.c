@@ -12,8 +12,6 @@
 
 #include "minishell.h"
 
-#define SPACE_CHAR	' '
-
 static enum e_operator	get_operator_type(const char *line)
 {
 	if (!ft_memcmp(line, "||", 2))
@@ -38,276 +36,136 @@ static enum e_operator	get_operator_type(const char *line)
 		return (OPERATOR_NONE);
 }
 
-static size_t	subshell_arg_strlen(t_list *start, t_list *end)
+static t_list	*popconvert_tokenlst_to_stringlst(t_list **tokens_list)
 {
-	size_t	len;
-
-	len = 0;
-	while (start != end)
-	{
-		len += ft_strlen(((t_token *)start->content)->string) + 1;
-		start = start->next;
-	}
-	return (len);
-}
-
-static char	*populate_subshell_arg(char *arg, t_list *start, t_list *end)
-{
-	char	*cursor;
+	t_list	*stringlst;
 	t_token	*token;
-	size_t	len;
 
-	cursor = arg;
-	while (start != end)
-	{
-		token = (t_token *)start->content;
-		len = ft_strlen(token->string);
-		ft_strlcpy(cursor, token->string, len + 1);
-		cursor += len;
-		*cursor++ = SPACE_CHAR;
-		start = start->next;
-	}
-	if (cursor != arg)
-		--cursor;
-	*cursor = '\0';
-	return (arg);
+	stringlst = *tokens_list;
+	token = (*tokens_list)->content;
+	*tokens_list = (*tokens_list)->next;
+	stringlst->content = token->string;
+	stringlst->next = NULL;
+	free(token);
+	return (stringlst);
 }
 
-static bool	got_arg_for_subshell(t_cmd *cmd, t_list *start, t_list *end)
+static t_list	*get_cmd_subshell(t_list *tokens_list, t_cmd *cmd)
 {
-	char	*arg;
-	t_list	*item;
-
-	arg = ft_strdup("minishell");
-	if (arg == NULL)
-	{
-		free_cmd(cmd);
-		return (false);
-	}
-	cmd->args_list = ft_lstnew(arg);
-	if (cmd->args_list == NULL)
-	{
-		free_cmd(cmd);
-		return (false);
-	}
-	arg = malloc(subshell_arg_strlen(start, end));
-	if (arg == NULL)
-	{
-		free_cmd(cmd);
-		return (false);
-	}
-	item = ft_lstnew(populate_subshell_arg(arg, start, end));
-	if (item == NULL)
-	{
-		free(arg);
-		free_cmd(cmd);
-		return (false);
-	}
-	ft_lstadd_back(&cmd->args_list, item);
-	return (true);
-}
-
-static t_cmd	*get_subshell_cmd(t_list **global_cursor)
-{
-	t_cmd	*cmd;
-	t_list	*local_cursor;
-	t_list	*start;
-	t_list	*end;
-	t_token	*token;
 	int		brackets_to_close;
+	t_token	*token;
 
-	cmd = ft_calloc(1, sizeof(t_cmd));
-	if (cmd == NULL)
-		return (NULL);
 	brackets_to_close = 1;
-	start = (*global_cursor)->next;
-	end = start;
-	local_cursor = start;
-	while (brackets_to_close && local_cursor)
+	token = tokens_list->content;
+	free(token->string);
+	token->string = ft_strdup(COMMAND_NAME);
+	if (token->string == NULL)
+		return (tokens_list);
+	while (brackets_to_close > 0)
 	{
-		token = (t_token *)local_cursor->content;
-		end = local_cursor;
-		if (token->type == TOKEN_OPERATOR
-			&& get_operator_type(token->string) == OPERATOR_SUBSHELL_IN)
-			++brackets_to_close;
-		else if (token->type == TOKEN_OPERATOR
-			&& get_operator_type(token->string) == OPERATOR_SUBSHELL_OUT)
-			--brackets_to_close;
-		local_cursor = local_cursor->next;
-	}
-	if (got_arg_for_subshell(cmd, start, end) == false)
-	{
-		free_cmd(cmd);
-		return (error(ERR_ERRNO, NULL, NULL, NULL));
-	}
-	if (local_cursor)
-	{
-		token = (t_token *)local_cursor->content;
+		ft_lstadd_back(&cmd->args_list,
+			popconvert_tokenlst_to_stringlst(&tokens_list));
+		token = tokens_list->content;
 		if (token->type == TOKEN_OPERATOR)
-			cmd->next_operator = get_operator_type(token->string);
-		else
 		{
-			free_cmd(cmd);
-			return (error(ERR_SYNTAX_TOKEN, ERR_STR_SYNTAX_TOKEN, NULL, NULL));
+			if (get_operator_type(token->string) == OPERATOR_SUBSHELL_IN)
+				++brackets_to_close;
+			else if (get_operator_type(token->string) == OPERATOR_SUBSHELL_OUT)
+				--brackets_to_close;
 		}
-		*global_cursor = local_cursor->next;
+	}
+	free_token(ft_lstpop(&tokens_list));
+	return (tokens_list);
+}
+
+static t_list	*get_operator_redirect(t_list *tokens_list, t_cmd *cmd,
+										enum e_operator operator)
+{
+	t_redirect	*redirect;
+	t_list		*redirectlst;
+
+	redirect = malloc(sizeof(*redirect));
+	if (redirect == NULL)
+		return (tokens_list);
+	redirectlst = popconvert_tokenlst_to_stringlst(&tokens_list);
+	free(redirectlst->content);
+	redirectlst->content = redirect;
+	redirectlst->next = NULL;
+	redirect->type = operator;
+	redirect->target = ((t_token *)tokens_list->content)->string;
+	free(ft_lstpop(&tokens_list));
+	if (operator == OPERATOR_REDIRECT_IN
+		|| operator == OPERATOR_REDIRECT_IN_STOPWORD)
+		ft_lstadd_back(&cmd->redirect_in, redirectlst);
+	else if (operator == OPERATOR_REDIRECT_OUT
+		|| operator == OPERATOR_REDIRECT_OUT_APPEND)
+		ft_lstadd_back(&cmd->redirect_out, redirectlst);
+	return (tokens_list);
+}
+
+static t_list	*get_operator(t_list *tokens_list, t_cmd *cmd,
+							enum e_operator operator)
+{
+	if (operator == OPERATOR_PIPE
+		|| operator == OPERATOR_OR
+		|| operator == OPERATOR_AND)
+	{
+		cmd->next_operator = operator;
+		free_token(ft_lstpop(&tokens_list));
 	}
 	else
-	{
-		cmd->next_operator = OPERATOR_NONE;
-		*global_cursor = local_cursor;
-	}
-	return (cmd);
+		tokens_list = get_operator_redirect(tokens_list, cmd, operator);
+	return (tokens_list);
 }
 
-static inline bool	is_redirect_operator(t_token *token)
+t_list	*get_cmd(t_list *tokens_list, t_cmd *cmd)
 {
-	enum e_operator	op;
+	t_token			*token;
+	enum e_operator	operator;
 
-	if (token->type != TOKEN_OPERATOR)
-		return (false);
-	op = get_operator_type(token->string);
-	return (op == OPERATOR_REDIRECT_IN || op == OPERATOR_REDIRECT_IN_STOPWORD
-		|| op == OPERATOR_REDIRECT_OUT || op == OPERATOR_REDIRECT_OUT_APPEND);
+	operator = OPERATOR_NONE;
+	while (tokens_list && errno == 0 && operator != OPERATOR_PIPE && \
+		operator != OPERATOR_OR && operator != OPERATOR_AND)
+	{
+		token = tokens_list->content;
+		if (token->type == TOKEN_WORD)
+			ft_lstadd_back(&cmd->args_list,
+				popconvert_tokenlst_to_stringlst(&tokens_list));
+		else if (token->type == TOKEN_OPERATOR)
+		{
+			operator = get_operator_type(token->string);
+			if (operator == OPERATOR_SUBSHELL_IN)
+				tokens_list = get_cmd_subshell(tokens_list, cmd);
+			else
+				tokens_list = get_operator(tokens_list, cmd, operator);
+		}
+	}
+	return (tokens_list);
 }
 
-static inline bool	is_non_redirect_operator(t_token *token)
-{
-	enum e_operator	op;
-
-	if (token->type != TOKEN_OPERATOR)
-		return (false);
-	op = get_operator_type(token->string);
-	return (op != OPERATOR_REDIRECT_IN && op != OPERATOR_REDIRECT_IN_STOPWORD
-		&& op != OPERATOR_REDIRECT_OUT && op != OPERATOR_REDIRECT_OUT_APPEND);
-}
-
-static t_list	*populate_arg(t_cmd **cmd, t_list *cursor)
-{
-	char	*arg;
-	t_list	*item;
-
-	arg = ft_strdup(((t_token *)cursor->content)->string);
-	if (arg == NULL)
-	{
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	item = ft_lstnew(arg);
-	if (item == NULL)
-	{
-		free(arg);
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	ft_lstadd_back(&(*cmd)->args_list, item);
-	return (cursor->next);
-}
-
-static t_list	*populate_redirect(t_cmd **cmd, t_list *cursor)
-{
-	char		*word;
-	t_redirect	*redir;
-	t_list		*item;
-
-	redir = ft_calloc(1, sizeof(t_redirect));
-	if (redir == NULL)
-	{
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	redir->type = get_operator_type(((t_token *)cursor->content)->string);
-	cursor = cursor->next;
-	if (cursor == NULL)
-	{
-		free(redir);
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	word = ft_strdup(((t_token *)cursor->content)->string);
-	if (word == NULL)
-	{
-		free(redir);
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	redir->word = word;
-	item = ft_lstnew(redir);
-	if (item == NULL)
-	{
-		free(word);
-		free(redir);
-		free_cmd(*cmd);
-		*cmd = NULL;
-		return (NULL);
-	}
-	if (redir->type == OPERATOR_REDIRECT_IN
-		|| redir->type == OPERATOR_REDIRECT_IN_STOPWORD)
-		ft_lstadd_back(&(*cmd)->redirect_in, item);
-	else if (redir->type == OPERATOR_REDIRECT_OUT
-		|| redir->type == OPERATOR_REDIRECT_OUT_APPEND)
-		ft_lstadd_back(&(*cmd)->redirect_out, item);
-	return (cursor->next);
-}
-
-static t_cmd	*get_cmd(t_list **global_cursor)
+t_list	*get_cmds_list(t_list *tokens_list)
 {
 	t_cmd	*cmd;
-	t_list	*local_cursor;
-	t_token	*token;
+	t_list	*cmdlst;
+	t_list	*cmds_list;
 
-	cmd = ft_calloc(1, sizeof(t_cmd));
-	if (cmd == NULL)
-		return (NULL);
-	local_cursor = *global_cursor;
-	while (local_cursor && cmd)
+	cmds_list = NULL;
+	while (tokens_list && errno == 0)
 	{
-		token = (t_token *)local_cursor->content;
-		if (is_non_redirect_operator(token))
+		cmd = ft_calloc(1, sizeof(*cmd));
+		cmdlst = ft_lstnew(cmd);
+		if (cmd == NULL || cmdlst == NULL)
 		{
-			cmd->next_operator = get_operator_type(token->string);
-			local_cursor = local_cursor->next;
+			free(cmd);
 			break ;
 		}
-		else if (is_redirect_operator(token))
-			local_cursor = populate_redirect(&cmd, local_cursor);
-		else
-			local_cursor = populate_arg(&cmd, local_cursor);
+		ft_lstadd_front(&cmds_list, cmdlst);
+		tokens_list = get_cmd(tokens_list, cmd);
 	}
-	*global_cursor = local_cursor;
-	return (cmd);
-}
-
-t_list	*get_cmds_list(t_list *cursor)
-{
-	t_list	*cmd_list;
-	t_list	*new_item;
-	t_token	*token;
-	t_cmd	*cmd;
-
-	cmd_list = NULL;
-	while (cursor)
+	if (errno)
 	{
-		token = (t_token *)cursor->content;
-		if (token->type == TOKEN_OPERATOR
-			&& get_operator_type(token->string) == OPERATOR_SUBSHELL_IN)
-			cmd = get_subshell_cmd(&cursor);
-		else
-			cmd = get_cmd(&cursor);
-		if (cmd == NULL)
-			return (error(ERR_ERRNO, NULL, cmd_list, free_cmd));
-		new_item = ft_lstnew(cmd);
-		if (new_item == NULL)
-		{
-			free_cmd(cmd);
-			return (error(ERR_ERRNO, NULL, cmd_list, free_cmd));
-		}
-		ft_lstadd_front(&cmd_list, new_item);
+		ft_lstclear(&tokens_list, free_token);
+		return (error(ERR_ERRNO, NULL, cmds_list, free_cmd));
 	}
-	return (debug_raw_cmds(ft_lstreverse(&cmd_list)));
+	return (debug_raw_cmds(ft_lstreverse(&cmds_list)));
 }

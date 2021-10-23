@@ -95,7 +95,7 @@ bool	check_tokens(t_list *tokens_list)
 	int		i;
 
 	if (tokens_list == NULL)
-		return (false);
+		return (true);
 	checkers[0] = check_brackets_count;
 	checkers[1] = check_tokens_sequence;
 	i = 0;
