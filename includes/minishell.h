@@ -133,7 +133,7 @@ bool	check_tokens(t_list *tokens_list);
 t_list	*get_cmds_list(t_list *tokens_list);
 
 // get_cooked_cmd.c
-t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
+t_cmd	*get_cooked_cmd(t_cmd *cmd);
 
 // execute.c
 void	execute(t_list *cmd_list, t_state *state);

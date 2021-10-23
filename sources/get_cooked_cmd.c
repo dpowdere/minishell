@@ -12,15 +12,8 @@
 
 #include "minishell.h"
 
-t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
+t_cmd	*get_cooked_cmd(t_cmd *cmd)
 {
-	/* TODO: Cook cmd for minishell consumption, expand env vars,
-	** remove quotes and escape chars, additionally split by words
-	** when appropriate.
-	**
-	** Take $? from state->cmd_retval
-	*/
-	(void)state;
 	return (debug_cooked_cmd(cmd));
 }
 
