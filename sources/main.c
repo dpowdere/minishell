@@ -20,8 +20,10 @@ static int	interpret(t_state *state)
 	tokens_list = get_tokens_list(state->line);
 	if (state->should_free_line)
 		free(state->line);
-	if (errno == ENOMEM || check_tokens(tokens_list) == false)
+	if (errno == ENOMEM)
 		return (1);
+	if (check_tokens(tokens_list) == false)
+		return (0);
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (1);
@@ -61,15 +63,15 @@ void	setup_input(t_state *state, int argc, char **argv)
 int	main(int argc, char **argv)
 {
 	t_state	state;
-	int		interpret_error;
+	int		fatal_error;
 
 	state = (t_state){};
 	setup_environ();
 	setup_input(&state, argc, argv);
 	setup_signal_handlers(&state);
-	interpret_error = 0;
-	while (!interpret_error && state.read_user_line(&state) > READLINE_EOF)
-		interpret_error = interpret(&state);
+	fatal_error = 0;
+	while (!fatal_error && state.read_user_line(&state) > READLINE_EOF)
+		fatal_error = interpret(&state);
 	clean_up(&state);
 	return (errno);
 }

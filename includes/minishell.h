@@ -28,13 +28,14 @@
 # include "minishell_debug.h"
 
 # define COMMAND_NAME	"minishell"
-# define PROMPT_STRING	"minishell$ "
+# define PROMPT_STRING	"\x1b[32mminishell\x1b[0m$ "
 
 enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN
+	ERR_SYNTAX_TOKEN,
+	ERR_AMBIGUOUS_REDIRECT
 };
 
 # define ERR_CODE_PARSE 258
@@ -42,6 +43,7 @@ enum e_error {
 # define ERR_STR_SYNTAX_EOF "syntax error: unexpected end of file"
 # define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
 # define ERR_STR_SYNTAX_TOKEN "syntax error near unexpected token"
+# define ERR_STR_AMBIGUOUS_REDIRECT "ambiguous redirect"
 
 enum {
 	ENV_DEEP_COPY_FALSE = false,
@@ -109,6 +111,16 @@ typedef struct s_cmd
 	t_list			*redirect_out;
 	enum e_operator	next_operator;
 }	t_cmd;
+
+typedef struct s_word_part
+{
+	int		free;
+	int		split;
+	int		star;
+	int		quote;
+	int		esc;
+	size_t	n;
+}	t_part;
 
 // env.c
 char	**copy_environ(bool deep_copy);

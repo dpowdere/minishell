@@ -70,12 +70,8 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	cmd = (t_cmd *)data;
 	if (ix > 0)
 		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
+	printf("\r" HEADER_TMPL, "args");
 	arg = cmd->args_list;
-	if (!arg)
-		printf("\n");
-	printf(HEADER_TMPL AEC_YELLOW "%s" AEC_RESET "\n", "cmd", (char *)arg->content);
-	arg = arg->next;
-	printf(HEADER_TMPL, "args");
 	while (arg)
 	{
 		printf(AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL,
@@ -98,7 +94,7 @@ inline t_list	*debug_raw_cmds(t_list *raw_cmds_list)
 {
 	if (DEBUG_RAW_CMDS)
 	{
-		printf("RAW CMDS: [\n");
+		printf(AEC_BOLD "RAW CMDS" AEC_RESET ": [\n");
 		ft_lstiterix(raw_cmds_list, debug_cmd);
 		printf("]\n");
 	}
@@ -109,7 +105,7 @@ inline t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd)
 {
 	if (DEBUG_COOKED_CMDS)
 	{
-		printf("COOKED CMD:\n");
+		printf(AEC_BOLD "COOKED CMD" AEC_RESET ":\n");
 		debug_cmd((void *)cooked_cmd, 0, true);
 	}
 	return (cooked_cmd);

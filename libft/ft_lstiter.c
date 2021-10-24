@@ -32,3 +32,17 @@ void	ft_lstiterix(t_list *lst, void (*f)(void *data, int ix, int is_last))
 		lst = lst->next;
 	}
 }
+
+// Stream process list elements.
+// Each element is reused. Its content can change. Processing of an element can
+// yield more than one element, but the first one of them would be the element
+// itself.
+void	ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list **))
+{
+	t_list	*converted_list;
+
+	converted_list = NULL;
+	while (*lst)
+		ft_lstadd_back(&converted_list, pipeline(lst));
+	ft_lstadd_front(lst, converted_list);
+}

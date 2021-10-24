@@ -12,8 +12,30 @@
 
 #include "minishell.h"
 
+t_list	*cook_arg(t_list **lst)
+{
+	t_list	*poped_item;
+
+	poped_item = *lst;
+	*lst = poped_item->next;
+	poped_item->next = NULL;
+	return (poped_item);
+}
+
+void	*cook_redirect(void *data)
+{
+	return (data);
+}
+
 t_cmd	*get_cooked_cmd(t_cmd *cmd)
 {
+	ft_lstpipeline(&cmd->args_list, cook_arg);
+	ft_lstconv(&cmd->redirect_in, cook_redirect);
+	ft_lstconv(&cmd->redirect_out, cook_redirect);
+	if (errno == ENOMEM)
+		error(ERR_ERRNO, NULL, NULL, NULL);
+	elif (errno == EPROTO)
+		error(ERR_AMBIGUOUS_REDIRECT, NULL, NULL, NULL);
 	return (debug_cooked_cmd(cmd));
 }
 

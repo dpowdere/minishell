@@ -36,7 +36,8 @@ DEP		=	$(OBJ:.o=.d)
 LIB_DIR	=	libft/
 LIB		=	$(LIB_DIR)libft.a
 
-HOMEBREW_PREFIX := $(shell brew config | grep HOMEBREW_PREFIX | cut -d' ' -f2)
+HOMEBREW_PREFIX := $(shell test -n "$$(which brew)" \
+                        && brew config | grep HOMEBREW_PREFIX | cut -d' ' -f2)
 RL_LIB_DIR	:=	$(HOMEBREW_PREFIX)/opt/readline/lib
 RL_INC_DIR	:=	$(HOMEBREW_PREFIX)/opt/readline/include
 
@@ -93,5 +94,7 @@ ifdef ON_LINUX
 else
 	brew install readline
 endif
-.PHONY: FORCE all clean fclean install-deps re norm
+kill:
+	kill -s KILL $$(ps -C$(NAME) -opid=)
+.PHONY: FORCE all clean fclean install-deps kill re norm
 FORCE:

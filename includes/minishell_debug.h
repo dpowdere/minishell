@@ -30,6 +30,7 @@
 # define AEC_BOLD			"\x1b[1m"
 # define AEC_BOLD_RED		"\x1b[31;1m"
 # define AEC_GRAY			"\x1b[38;5;247m"
+# define AEC_GREEN			"\x1b[32m"
 # define AEC_RED			"\x1b[31m"
 # define AEC_RESET			"\x1b[0m"
 # define AEC_YELLOW			"\x1b[33m"

@@ -36,3 +36,14 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
 	}
 	return (begin);
 }
+
+// Change list items' content, but reuse themselves.
+void	ft_lstconv(t_list **lst, void *(*f)(void *))
+{
+	t_list	*converted_list;
+
+	converted_list = NULL;
+	while (*lst)
+		ft_lstadd_back(&converted_list, ft_lstpopconv(lst, f));
+	ft_lstadd_front(lst, converted_list);
+}

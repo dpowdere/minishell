@@ -31,7 +31,7 @@ inline t_list	*debug_tokens(t_list *tokens_list)
 {
 	if (DEBUG_TOKENS)
 	{
-		printf("TOKENS: [");
+		printf(AEC_BOLD "TOKENS" AEC_RESET ": [");
 		ft_lstiterix(tokens_list, debug_token_iterator);
 		printf("]\n");
 	}
