@@ -84,15 +84,13 @@ static t_list	*get_operator_redirect(t_list *tokens_list, t_cmd *cmd,
 	t_redirect	*redirect;
 	t_list		*redirectlst;
 
-	redirect = malloc(sizeof(*redirect));
-	if (redirect == NULL)
-		return (tokens_list);
-	redirectlst = popconvert_tokenlst_to_stringlst(&tokens_list);
-	free(redirectlst->content);
-	redirectlst->content = redirect;
+	redirectlst = tokens_list;
+	tokens_list = tokens_list->next;
 	redirectlst->next = NULL;
-	redirect->type = operator;
+	redirect = redirectlst->content;
+	free(redirect->target);
 	redirect->target = ((t_token *)tokens_list->content)->string;
+	redirect->type = operator;
 	free(ft_lstpop(&tokens_list));
 	if (operator == OPERATOR_REDIRECT_IN
 		|| operator == OPERATOR_REDIRECT_IN_STOPWORD)
