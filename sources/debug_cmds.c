@@ -73,7 +73,12 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	arg = cmd->args_list;
 	if (!arg)
 		printf("\n");
-	printf(HEADER_TMPL AEC_YELLOW "%s" AEC_RESET "\n", "cmd", (char *)arg->content);
+	printf(HEADER_TMPL AEC_YELLOW, "cmd");
+	if (*(char *)arg->content == SUBSHELL_MAGIC_BYTE)
+		printf(COMMAND_NAME);
+	else
+		printf("%s", (char *)arg->content);
+	printf(AEC_RESET "\n");
 	arg = arg->next;
 	printf(HEADER_TMPL, "args");
 	while (arg)
