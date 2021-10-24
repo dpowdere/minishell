@@ -18,6 +18,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <sys/param.h>
 # include <termios.h>
 
 # include <readline/readline.h>
@@ -149,6 +150,7 @@ void	clean_up(t_state *state);
 int		ft_ptr_array_len(const void **ptr_array);
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c);
 int		ft_isspace(int c);
+char	*ft_basename(char *path);
 void	*error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
 
