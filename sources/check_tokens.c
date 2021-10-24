@@ -15,7 +15,7 @@
 static bool	check_sequence(t_token *token, t_token *prev_token)
 {
 	if (token->type == TOKEN_WORD \
-	&& prev_token->type == TOKEN_OPERATOR && *prev_token->string == ')')
+			&& prev_token->type == TOKEN_OPERATOR && *prev_token->string == ')')
 		return (false);
 	else if (token->type == TOKEN_OPERATOR)
 	{
@@ -25,10 +25,11 @@ static bool	check_sequence(t_token *token, t_token *prev_token)
 		{
 			if (*token->string == '(' && ft_strchr(")<>", *prev_token->string))
 				return (false);
-			else if (*token->string != '(' && *prev_token->string != ')')
+			else if (ft_strchr("&|)", *token->string) \
+					&& *prev_token->string != ')')
 				return (false);
 			else if (ft_strchr("<>", *token->string) \
-			&& ft_strchr("<>", *prev_token->string))
+					&& ft_strchr("<>", *prev_token->string))
 				return (false);
 		}
 	}
@@ -51,7 +52,7 @@ static char	*check_tokens_sequence(const t_list *tokens_list)
 		else if (token->type == TOKEN_OPERATOR && *token->string == '(')
 			words_started = false;
 		else if (token->type == TOKEN_OPERATOR \
-		&& ft_strchr("|&)", *token->string) && words_started == false)
+				&& ft_strchr("|&)", *token->string) && words_started == false)
 			return (token->string);
 		if (prev_token && check_sequence(token, prev_token) == false)
 			return (token->string);
