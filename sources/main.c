@@ -20,7 +20,9 @@ static int	interpret(t_state *state)
 	tokens_list = get_tokens_list(state->line);
 	if (state->should_free_line)
 		free(state->line);
-	if (errno == ENOMEM || check_tokens(tokens_list) == false)
+	if (check_tokens(tokens_list) == false)
+		return (0);
+	if (errno == ENOMEM)
 		return (1);
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
