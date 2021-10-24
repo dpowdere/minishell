@@ -146,6 +146,7 @@ void	clean_up(t_state *state);
 
 // utils.c
 int		ft_ptr_array_len(const void **ptr_array);
+void	**ft_lst_to_ptr_array(t_list *list);
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c);
 int		ft_isspace(int c);
 void	*error(enum e_error type, char *extra_message, \

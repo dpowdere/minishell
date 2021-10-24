@@ -23,6 +23,23 @@ int	ft_ptr_array_len(const void **ptr_array)
 	return (len);
 }
 
+void	**ft_lst_to_ptr_array(t_list *list)
+{
+	int		elements;
+	void	**ptr_array;
+	int		i;
+
+	elements = ft_lstsize(list);
+	ptr_array = malloc((elements + 1) * sizeof(*ptr_array));
+	if (ptr_array == NULL)
+		return (NULL);
+	i = 0;
+	while (list)
+		ptr_array[i++] = ft_lstpop(&list);
+	ptr_array[i] = NULL;
+	return (ptr_array);
+}
+
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c)
 {
 	char	*str;
