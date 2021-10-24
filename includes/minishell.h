@@ -29,6 +29,7 @@
 
 # define COMMAND_NAME	"minishell"
 # define PROMPT_STRING	"minishell$ "
+# define SUBSHELL_MAGIC_BYTE '\1'
 
 enum e_error {
 	ERR_ERRNO = 0,

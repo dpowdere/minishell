@@ -57,10 +57,7 @@ static t_list	*get_cmd_subshell(t_list *tokens_list, t_cmd *cmd)
 
 	brackets_to_close = 1;
 	token = tokens_list->content;
-	free(token->string);
-	token->string = ft_strdup(COMMAND_NAME);
-	if (token->string == NULL)
-		return (tokens_list);
+	*token->string = SUBSHELL_MAGIC_BYTE;
 	while (brackets_to_close > 0)
 	{
 		ft_lstadd_back(&cmd->args_list,
@@ -148,22 +145,18 @@ t_list	*get_cmds_list(t_list *tokens_list)
 	t_list	*cmds_list;
 
 	cmds_list = NULL;
-	while (tokens_list && errno == 0)
+	while (tokens_list)
 	{
 		cmd = ft_calloc(1, sizeof(*cmd));
 		cmdlst = ft_lstnew(cmd);
 		if (cmd == NULL || cmdlst == NULL)
 		{
 			free(cmd);
-			break ;
+			ft_lstclear(&tokens_list, free_token);
+			return (error(ERR_ERRNO, NULL, cmds_list, free_cmd));
 		}
 		ft_lstadd_front(&cmds_list, cmdlst);
 		tokens_list = get_cmd(tokens_list, cmd);
-	}
-	if (errno)
-	{
-		ft_lstclear(&tokens_list, free_token);
-		return (error(ERR_ERRNO, NULL, cmds_list, free_cmd));
 	}
 	return (debug_raw_cmds(ft_lstreverse(&cmds_list)));
 }
