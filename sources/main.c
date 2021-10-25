@@ -31,7 +31,8 @@ static int	interpret(t_state *state)
 	if (errno == ENOMEM)
 		return (1);
 	execute(cmds_list, state);
-	ft_lstclear(&cmds_list, free_cmd);
+	if (errno == ENOMEM)
+		return (1);
 	return (0);
 }
 
