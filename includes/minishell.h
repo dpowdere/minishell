@@ -14,6 +14,7 @@
 # define MINISHELL_H
 
 # include <errno.h>
+# include <fcntl.h>
 # include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -37,14 +38,17 @@ enum e_error {
 	ERR_ERRNO = 0,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN
+	ERR_SYNTAX_TOKEN,
+	ERR_COMMAND_NOT_FOUND
 };
 
 # define ERR_CODE_PARSE 258
+# define ERR_CODE_NOT_FOUND 127
 
 # define ERR_STR_SYNTAX_EOF "syntax error: unexpected end of file"
 # define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
 # define ERR_STR_SYNTAX_TOKEN "syntax error near unexpected token"
+# define ERR_STR_COMMAND_NOT_FOUND "command not found"
 
 enum {
 	ENV_DEEP_COPY_FALSE = false,
@@ -74,7 +78,6 @@ typedef struct s_state
 	t_readline_func	read_user_line;
 	t_list			*children_to_wait;
 	int				cmd_exit_status;
-
 }	t_state;
 
 typedef struct s_token
@@ -139,7 +142,7 @@ t_list	*get_cmds_list(t_list *tokens_list);
 t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
 
 // execute.c
-void	execute(t_list *cmd_list, t_state *state);
+void	execute(t_list *cmds_list, t_state *state);
 
 // free.c
 void	free_token(void *token_content);

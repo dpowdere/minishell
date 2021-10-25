@@ -110,6 +110,8 @@ void	*error(enum e_error type, char *extra_message,
 		ft_putstr_fd(ERR_STR_SYNTAX_MATCHING, STDERR_FILENO);
 	else if (type == ERR_SYNTAX_TOKEN)
 		ft_putstr_fd(ERR_STR_SYNTAX_TOKEN, STDERR_FILENO);
+	else if (type == ERR_COMMAND_NOT_FOUND)
+		ft_putstr_fd(ERR_STR_COMMAND_NOT_FOUND, STDERR_FILENO);
 	if (extra_message)
 	{
 		ft_putstr_fd(": ", STDERR_FILENO);
