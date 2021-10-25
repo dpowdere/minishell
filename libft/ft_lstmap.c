@@ -37,7 +37,7 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
 	return (begin);
 }
 
-// Change list items' content, but reuse themselves.
+// Reuse list elements, but change their content.
 void	ft_lstconv(t_list **lst, void *(*f)(void *))
 {
 	t_list	*converted_list;

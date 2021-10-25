@@ -112,14 +112,23 @@ typedef struct s_cmd
 	enum e_operator	next_operator;
 }	t_cmd;
 
-typedef struct s_word_part
+enum e_part_type
 {
-	int		free;
+	INITIAL_STRING,
+	VARIABLE,
+	VARIABLE_IN_DOUBLE_QUOTES,
+	FIELD_IN_VARIABLE
+};
+
+typedef struct s_part
+{
+	char	*from;
+	char	*upto;
+	int		parse;
 	int		split;
 	int		star;
 	int		quote;
 	int		esc;
-	size_t	n;
 }	t_part;
 
 // env.c

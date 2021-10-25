@@ -10,16 +10,84 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "minishell.h"
 
-t_list	*cook_arg(t_list **lst)
+t_list	*get_star_list(void)
 {
-	t_list	*poped_item;
+	DIR				*dp;
+	struct dirent	*dir_entry;
+	t_list			*lst;
 
-	poped_item = *lst;
-	*lst = poped_item->next;
-	poped_item->next = NULL;
-	return (poped_item);
+	lst = NULL;
+	dp = opendir(".");
+	dir_entry = readdir(dp);
+	while (dir_entry)
+	{
+		if (ft_strncmp(".", dir_entry->d_name, 1))
+			ft_lstadd_front(&lst, ft_lstnew(dir_entry->d_name));
+		dir_entry = readdir(dp);
+	}
+	return (lst);
+}
+
+void	*new_part(char *from, enum e_part_type type)
+{
+	t_list	*part_list;
+	t_part	*part;
+
+	part = ft_calloc(1, sizeof(*part));
+	part_list = ft_lstnew(part);
+	if (part == NULL || part_list == NULL)
+	{
+		free(part);
+		return (from);
+	}
+	part->from = from;
+	part->upto = from;
+	if (type == VARIABLE)
+		part->split = true;
+	if (type == INITIAL_STRING || type == VARIABLE)
+		part->star = true;
+	if (type == INITIAL_STRING)
+		part->quote = true;
+	if (type == INITIAL_STRING)
+		part->esc = true;
+	return (part_list);
+}
+
+t_list	*cook(t_list *word_list, t_list *part_list)
+{
+	(void)part_list;
+	return (word_list);
+}
+
+t_list	*serve(t_list *word_list)
+{
+	t_list	*part_list;
+
+	part_list = word_list->content;
+	word_list->content = ((t_part *)part_list->content)->from;
+	free(part_list->content);
+	free(part_list);
+	return (word_list);
+}
+
+t_list	*cook_arg(t_list *word_list)
+{
+	char	*str;
+	t_list	*part_list;
+
+	str = word_list->content;
+	word_list->content = new_part(str, INITIAL_STRING);
+	if (word_list->content == str)
+		return (word_list);
+	part_list = word_list->content;
+	return (serve(cook(word_list, part_list)));
 }
 
 void	*cook_redirect(void *data)
@@ -29,12 +97,12 @@ void	*cook_redirect(void *data)
 
 t_cmd	*get_cooked_cmd(t_cmd *cmd)
 {
-	ft_lstpipeline(&cmd->args_list, cook_arg);
+	ft_lstpipeline1(&cmd->args_list, cook_arg);
 	ft_lstconv(&cmd->redirect_in, cook_redirect);
 	ft_lstconv(&cmd->redirect_out, cook_redirect);
 	if (errno == ENOMEM)
 		error(ERR_ERRNO, NULL, NULL, NULL);
-	elif (errno == EPROTO)
+	else if (errno == EPROTO)
 		error(ERR_AMBIGUOUS_REDIRECT, NULL, NULL, NULL);
 	return (debug_cooked_cmd(cmd));
 }
