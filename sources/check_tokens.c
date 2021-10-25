@@ -109,7 +109,6 @@ bool	check_tokens(t_list *tokens_list)
 				error(ERR_SYNTAX_MATCHING, ")", tokens_list, free_token);
 			else if (i == 1)
 				error(ERR_SYNTAX_TOKEN, error_token, tokens_list, free_token);
-			errno = ERR_CODE_PARSE;
 			return (false);
 		}
 		i++;

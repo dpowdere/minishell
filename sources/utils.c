@@ -120,3 +120,10 @@ void	*error(enum e_error type, char *extra_message,
 		ft_lstclear(&list_to_free, free_fn);
 	return (NULL);
 }
+
+void	*error_with_exit(enum e_error type, char *extra_message,
+			   t_list *list_to_free, void (*free_fn)(void*))
+{
+	error(type, extra_message, list_to_free, free_fn);
+	exit(errno);
+}

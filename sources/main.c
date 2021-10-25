@@ -17,11 +17,14 @@ static int	interpret(t_state *state)
 	t_list	*tokens_list;
 	t_list	*cmds_list;
 
-	tokens_list = get_tokens_list(state->line);
+	tokens_list = get_tokens_list(state->line, &state->cmd_exit_status);
 	if (state->should_free_line)
 		free(state->line);
 	if (check_tokens(tokens_list) == false)
+	{
+		state->cmd_exit_status = ERR_CODE_PARSE;
 		return (0);
+	}
 	if (errno == ENOMEM)
 		return (1);
 	cmds_list = get_cmds_list(tokens_list);
@@ -70,7 +73,7 @@ int	main(int argc, char **argv)
 	setup_input(&state, argc, argv);
 	setup_signal_handlers(&state);
 	interpret_error = 0;
-	while (!interpret_error && state.read_user_line(&state) > READLINE_EOF)
+	while (interpret_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		interpret_error = interpret(&state);
 	clean_up(&state);
 	return (errno);

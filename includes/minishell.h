@@ -126,7 +126,7 @@ int		readline_stdin_non_tty(t_state *s);
 int		readline_stdin_tty(t_state *s);
 
 // get_tokens.c
-t_list	*get_tokens_list(const char *line);
+t_list	*get_tokens_list(const char *line, int *cmd_exit_status);
 
 // check_tokens.c
 bool	check_tokens(t_list *tokens_list);
