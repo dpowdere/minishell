@@ -130,12 +130,7 @@ typedef struct s_part
 	int		star;
 	t_list	*star_list;
 	int		quote;
-	enum
-	{
-		ESC_DONE_OR_UNNEED,
-		ESC_OUTSIDE_DOUBLE_QUOTES,
-		ESC_INSIDE_DOUBLE_QUOTES
-	}		e_esc;
+	int		esc;
 }	t_part;
 
 typedef struct s_cooking_cursor

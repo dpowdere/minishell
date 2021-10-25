@@ -17,6 +17,9 @@
 
 #include "minishell.h"
 
+#define OUTSIDE_DOUBLE_QUOTES	0
+#define INSIDE_DOUBLE_QUOTES	1
+
 t_list	*get_star_list(void)
 {
 	DIR				*dp;
@@ -56,7 +59,7 @@ void	*new_part(char *from, enum e_part_type type)
 	if (type == INITIAL_STRING)
 		part->quote = true;
 	if (type == INITIAL_STRING)
-		part->e_esc = ESC_OUTSIDE_DOUBLE_QUOTES;
+		part->esc = true;
 	return (part_list);
 }
 
@@ -69,11 +72,10 @@ t_cooking_cursor	*copy_forward(t_cooking_cursor *cc)
 	return (cc);
 }
 
-t_cooking_cursor	*esc(t_cooking_cursor *cc)
+t_cooking_cursor	*esc(t_cooking_cursor *cc, bool inside_double_quotes)
 {
-	if (cc->part->e_esc == ESC_OUTSIDE_DOUBLE_QUOTES
-		|| (cc->part->e_esc == ESC_INSIDE_DOUBLE_QUOTES
-			&& ft_strchr("\"\\$\n", *(cc->cursor + 1))))
+	if (!inside_double_quotes
+		|| (inside_double_quotes && ft_strchr("\"\\$\n", *(cc->cursor + 1))))
 	{
 		cc->cursor += 1;
 		return (copy_forward(cc));
@@ -87,7 +89,22 @@ t_cooking_cursor	*single_quotes(t_cooking_cursor *cc)
 	cc->cursor += 1;
 	while (*cc->cursor != '\0' && *cc->cursor != '\'')
 		*cc->part->upto++ = *cc->cursor++;
-	if (*cc->cursor)
+	if (*cc->cursor != '\0')
+		cc->cursor += 1;
+	return (cc);
+}
+
+t_cooking_cursor	*double_quotes(t_cooking_cursor *cc)
+{
+	cc->cursor += 1;
+	while(*cc->cursor != '\0' && *cc->cursor != '"')
+	{
+		if (*cc->cursor == '\\')
+			cc = esc(cc, INSIDE_DOUBLE_QUOTES);
+		else
+			cc = copy_forward(cc);
+	}
+	if (*cc->cursor != '\0')
 		cc->cursor += 1;
 	return (cc);
 }
@@ -96,6 +113,7 @@ t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
 {
 	t_cooking_cursor	cc;
 
+	cc = (t_cooking_cursor){};
 	cc.word_list = word_list;
 	cc.part_list = word_list->content;
 	cc.part = cc.part_list->content;
@@ -112,10 +130,12 @@ t_list	*cook(t_list *word_list, t_state *state)
 	cc = get_cooking_cursor(word_list, state);
 	while (*cc.cursor)
 	{
-		if (cc.part->e_esc != ESC_DONE_OR_UNNEED && *cc.cursor == '\\')
-			esc(&cc);
+		if (cc.part->esc && *cc.cursor == '\\')
+			esc(&cc, OUTSIDE_DOUBLE_QUOTES);
 		else if (cc.part->quote && *cc.cursor == '\'')
 			single_quotes(&cc);
+		else if (cc.part->quote && *cc.cursor == '"')
+			double_quotes(&cc);
 		else
 			copy_forward(&cc);
 	}
