@@ -12,7 +12,18 @@
 
 #include "libft.h"
 
-void	*ft_free_ptr_array(void **array, unsigned int count)
+void	*ft_free_ptr_array(void **array)
+{
+	unsigned int	i;
+
+	i = 0;
+	while (array[i])
+		free(array[i++]);
+	free(array);
+	return (NULL);
+}
+
+void	*ft_free_nptr_array(void **array, unsigned int count)
 {
 	unsigned int	i;
 
