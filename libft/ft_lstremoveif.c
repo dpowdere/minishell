@@ -19,7 +19,7 @@ void	ft_lstremoveif(t_list **begin, void *data_ref, int (*cmp)(),
 	t_list	*next;
 	t_list	*prev;
 
-	if (!begin || (begin && !(*begin)) || !data_ref || !(*cmp) || !(*free_fct))
+	if (!begin || !*begin || !data_ref || !(*cmp) || !(*free_fct))
 		return ;
 	cur = *begin;
 	prev = NULL;
