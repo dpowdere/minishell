@@ -56,16 +56,74 @@ void	*new_part(char *from, enum e_part_type type)
 	if (type == INITIAL_STRING)
 		part->quote = true;
 	if (type == INITIAL_STRING)
-		part->esc = true;
+		part->e_esc = ESC_OUTSIDE_DOUBLE_QUOTES;
 	return (part_list);
 }
 
-t_list	*cook(t_list *word_list, t_list *part_list)
+t_cooking_cursor	*copy_forward(t_cooking_cursor *cc)
 {
-	(void)part_list;
+	if (cc->cursor != cc->part->upto)
+		*cc->part->upto = *cc->cursor;
+	cc->part->upto += 1;
+	cc->cursor += 1;
+	return (cc);
+}
+
+t_cooking_cursor	*esc(t_cooking_cursor *cc)
+{
+	if (cc->part->e_esc == ESC_OUTSIDE_DOUBLE_QUOTES
+		|| (cc->part->e_esc == ESC_INSIDE_DOUBLE_QUOTES
+			&& ft_strchr("\"\\$\n", *(cc->cursor + 1))))
+	{
+		cc->cursor += 1;
+		return (copy_forward(cc));
+	}
+	else
+		return (copy_forward(copy_forward(cc)));
+}
+
+t_cooking_cursor	*single_quotes(t_cooking_cursor *cc)
+{
+	cc->cursor += 1;
+	while (*cc->cursor != '\0' && *cc->cursor != '\'')
+		*cc->part->upto++ = *cc->cursor++;
+	if (*cc->cursor)
+		cc->cursor += 1;
+	return (cc);
+}
+
+t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
+{
+	t_cooking_cursor	cc;
+
+	cc.word_list = word_list;
+	cc.part_list = word_list->content;
+	cc.part = cc.part_list->content;
+	cc.cursor = cc.part->upto;
+	cc.state = state;
+	return (cc);
+}
+
+// Make cooked word parts and new words
+t_list	*cook(t_list *word_list, t_state *state)
+{
+	t_cooking_cursor	cc;
+
+	cc = get_cooking_cursor(word_list, state);
+	while (*cc.cursor)
+	{
+		if (cc.part->e_esc != ESC_DONE_OR_UNNEED && *cc.cursor == '\\')
+			esc(&cc);
+		else if (cc.part->quote && *cc.cursor == '\'')
+			single_quotes(&cc);
+		else
+			copy_forward(&cc);
+	}
+	copy_forward(&cc);
 	return (word_list);
 }
 
+// Translate parts into final words
 t_list	*serve(t_list *word_list)
 {
 	t_list	*part_list;
@@ -77,17 +135,15 @@ t_list	*serve(t_list *word_list)
 	return (word_list);
 }
 
-t_list	*cook_arg(t_list *word_list)
+t_list	*cook_arg(t_list *word_list, void *state)
 {
 	char	*str;
-	t_list	*part_list;
 
 	str = word_list->content;
 	word_list->content = new_part(str, INITIAL_STRING);
 	if (word_list->content == str)
 		return (word_list);
-	part_list = word_list->content;
-	return (serve(cook(word_list, part_list)));
+	return (serve(cook(word_list, (t_state *)state)));
 }
 
 void	*cook_redirect(void *data)
@@ -95,9 +151,9 @@ void	*cook_redirect(void *data)
 	return (data);
 }
 
-t_cmd	*get_cooked_cmd(t_cmd *cmd)
+t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 {
-	ft_lstpipeline1(&cmd->args_list, cook_arg);
+	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, state);
 	ft_lstconv(&cmd->redirect_in, cook_redirect);
 	ft_lstconv(&cmd->redirect_out, cook_redirect);
 	if (errno == ENOMEM)

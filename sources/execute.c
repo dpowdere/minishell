@@ -20,7 +20,7 @@ void	execute(t_list *cmd_list, t_state *state)
 	cursor = cmd_list;
 	while (cursor)
 	{
-		cmd = get_cooked_cmd((t_cmd *)cursor->content);
+		cmd = get_cooked_cmd((t_cmd *)cursor->content, state);
 		/*
 		** - Если stdout команды присоединен к каналу, добавить канал последним
 		**   в список редиректов redirect_out;

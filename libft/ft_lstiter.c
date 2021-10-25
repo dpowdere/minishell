@@ -63,3 +63,20 @@ void	ft_lstpipeline1(t_list **lst, t_list *(*pipeline)(t_list *))
 	}
 	ft_lstadd_front(lst, converted_list);
 }
+
+void	ft_lstpipeline1_extradata(t_list **lst,
+	t_list *(*pipeline)(t_list *, void *), void *extra_data)
+{
+	t_list	*converted_list;
+	t_list	*elem;
+
+	converted_list = NULL;
+	while (*lst)
+	{
+		elem = *lst;
+		*lst = (*lst)->next;
+		elem->next = NULL;
+		ft_lstadd_back(&converted_list, pipeline(elem, extra_data));
+	}
+	ft_lstadd_front(lst, converted_list);
+}

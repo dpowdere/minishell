@@ -116,6 +116,7 @@ enum e_part_type
 {
 	INITIAL_STRING,
 	VARIABLE,
+	DOUBLE_QUOTES,
 	VARIABLE_IN_DOUBLE_QUOTES,
 	FIELD_IN_VARIABLE
 };
@@ -127,9 +128,24 @@ typedef struct s_part
 	int		parse;
 	int		split;
 	int		star;
+	t_list	*star_list;
 	int		quote;
-	int		esc;
+	enum
+	{
+		ESC_DONE_OR_UNNEED,
+		ESC_OUTSIDE_DOUBLE_QUOTES,
+		ESC_INSIDE_DOUBLE_QUOTES
+	}		e_esc;
 }	t_part;
+
+typedef struct s_cooking_cursor
+{
+	t_list	*word_list;
+	t_list	*part_list;
+	t_part	*part;
+	char	*cursor;
+	t_state	*state;
+}	t_cooking_cursor;
 
 // env.c
 char	**copy_environ(bool deep_copy);
@@ -154,7 +170,7 @@ bool	check_tokens(t_list *tokens_list);
 t_list	*get_cmds_list(t_list *tokens_list);
 
 // get_cooked_cmd.c
-t_cmd	*get_cooked_cmd(t_cmd *cmd);
+t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
 
 // execute.c
 void	execute(t_list *cmd_list, t_state *state);
