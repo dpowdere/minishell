@@ -123,8 +123,9 @@ enum e_part_type
 
 typedef struct s_part
 {
-	char	*from;
-	char	*upto;
+	char	*str; // Save pointer to initial string (?)
+	char	*start;
+	char	*exclusive_end;
 	int		parse;
 	int		split;
 	int		star;
@@ -135,11 +136,12 @@ typedef struct s_part
 
 typedef struct s_cooking_cursor
 {
-	t_list	*word_list;
-	t_list	*part_list;
-	t_part	*part;
-	char	*cursor;
-	t_state	*state;
+	t_list			*word_list;
+	t_list			*part_list;
+	t_part			*part;
+	enum e_error	error;
+	char			*cursor;
+	t_state			*state;
 }	t_cooking_cursor;
 
 // env.c

@@ -20,6 +20,9 @@
 #define OUTSIDE_DOUBLE_QUOTES	0
 #define INSIDE_DOUBLE_QUOTES	1
 
+#define ID_START "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+#define ID_OTH "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
+
 t_list	*get_star_list(void)
 {
 	DIR				*dp;
@@ -38,7 +41,7 @@ t_list	*get_star_list(void)
 	return (lst);
 }
 
-void	*new_part(char *from, enum e_part_type type)
+void	*new_part(char *str, enum e_part_type type)
 {
 	t_list	*part_list;
 	t_part	*part;
@@ -48,10 +51,10 @@ void	*new_part(char *from, enum e_part_type type)
 	if (part == NULL || part_list == NULL)
 	{
 		free(part);
-		return (from);
+		return (NULL);
 	}
-	part->from = from;
-	part->upto = from;
+	part->start = str;
+	part->exclusive_end = str;
 	if (type == VARIABLE)
 		part->split = true;
 	if (type == INITIAL_STRING || type == VARIABLE)
@@ -63,12 +66,28 @@ void	*new_part(char *from, enum e_part_type type)
 	return (part_list);
 }
 
+t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
+{
+	t_cooking_cursor	cc;
+
+	cc = (t_cooking_cursor){};
+	cc.word_list = word_list;
+	cc.part_list = word_list->content;
+	cc.part = cc.part_list->content;
+	cc.cursor = cc.part->exclusive_end;
+	cc.state = state;
+	return (cc);
+}
+
 t_cooking_cursor	*copy_forward(t_cooking_cursor *cc)
 {
-	if (cc->cursor != cc->part->upto)
-		*cc->part->upto = *cc->cursor;
-	cc->part->upto += 1;
-	cc->cursor += 1;
+	if (cc->cursor != cc->part->exclusive_end)
+		*cc->part->exclusive_end = *cc->cursor;
+	if (*cc->cursor != '\0')
+	{
+		cc->part->exclusive_end += 1;
+		cc->cursor += 1;
+	}
 	return (cc);
 }
 
@@ -88,7 +107,7 @@ t_cooking_cursor	*single_quotes(t_cooking_cursor *cc)
 {
 	cc->cursor += 1;
 	while (*cc->cursor != '\0' && *cc->cursor != '\'')
-		*cc->part->upto++ = *cc->cursor++;
+		*cc->part->exclusive_end++ = *cc->cursor++;
 	if (*cc->cursor != '\0')
 		cc->cursor += 1;
 	return (cc);
@@ -97,7 +116,7 @@ t_cooking_cursor	*single_quotes(t_cooking_cursor *cc)
 t_cooking_cursor	*double_quotes(t_cooking_cursor *cc)
 {
 	cc->cursor += 1;
-	while(*cc->cursor != '\0' && *cc->cursor != '"')
+	while (*cc->cursor != '\0' && *cc->cursor != '"')
 	{
 		if (*cc->cursor == '\\')
 			cc = esc(cc, INSIDE_DOUBLE_QUOTES);
@@ -109,16 +128,48 @@ t_cooking_cursor	*double_quotes(t_cooking_cursor *cc)
 	return (cc);
 }
 
-t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
+t_cooking_cursor	*process_var(t_cooking_cursor *cc)
 {
-	t_cooking_cursor	cc;
+	while (*cc->cursor)
+		copy_forward(cc);
+	copy_forward(cc);
+	return (cc);
+}
 
-	cc = (t_cooking_cursor){};
-	cc.word_list = word_list;
-	cc.part_list = word_list->content;
-	cc.part = cc.part_list->content;
-	cc.cursor = cc.part->upto;
-	cc.state = state;
+t_cooking_cursor	*insert_var(t_cooking_cursor *cc)
+{
+	char	*start;
+	char	*exclusive_end;
+	char	*varname;
+
+	if (!ft_strchr(ID_START, *(cc->cursor + 1)))
+		return (copy_forward(cc));
+	start = ++cc->cursor;
+	while (ft_strchr(ID_OTH, *cc->cursor))
+		cc->cursor += 1;
+	exclusive_end = cc->cursor;
+	varname = ft_calloc((exclusive_end - start) + 1, sizeof(char));
+	if (varname == NULL)
+		return (cc);
+	ft_strlcpy(varname, start, (exclusive_end - start) + 1);
+	start = getenv(varname);
+	free(varname);
+	if (start == NULL || ft_strlen(start) == 0)
+		return (cc);
+	cc->part_list->next = new_part(start, VARIABLE);
+	if (cc->part_list->next == NULL)
+		return (cc);
+	if (*cc->cursor != '\0')
+	{
+		cc->part_list->next->next = new_part(cc->cursor, INITIAL_STRING);
+		if (cc->part_list->next->next == NULL)
+			return (cc);
+	}
+	cc->part_list = cc->part_list->next;
+	cc->part = cc->part_list->content;
+	cc = process_var(cc);
+	cc->part_list = cc->part_list->next;
+	cc->part = cc->part_list->content;
 	return (cc);
 }
 
@@ -136,6 +187,8 @@ t_list	*cook(t_list *word_list, t_state *state)
 			single_quotes(&cc);
 		else if (cc.part->quote && *cc.cursor == '"')
 			double_quotes(&cc);
+		else if (*cc.cursor == '$')
+			insert_var(&cc);
 		else
 			copy_forward(&cc);
 	}
@@ -144,15 +197,26 @@ t_list	*cook(t_list *word_list, t_state *state)
 }
 
 // Translate parts into final words
-t_list	*serve(t_list *word_list)
+void	*serve(void *data)
 {
 	t_list	*part_list;
+	t_part	*part;
+	char	*arg;
+	size_t	len;
 
-	part_list = word_list->content;
-	word_list->content = ((t_part *)part_list->content)->from;
+	part_list = (t_list *)data;
+	len = 1;
+	while (part_list)
+	{
+		part = part_list->content;
+		// count len of all parts
+	}
+	// malloc arg
+	// cpy all parts to arg
+	// replace content of the list with the arg
 	free(part_list->content);
 	free(part_list);
-	return (word_list);
+	return ();
 }
 
 t_list	*cook_arg(t_list *word_list, void *state)
@@ -161,9 +225,14 @@ t_list	*cook_arg(t_list *word_list, void *state)
 
 	str = word_list->content;
 	word_list->content = new_part(str, INITIAL_STRING);
-	if (word_list->content == str)
+	if (word_list->content == NULL)
+	{
+		word_list->content = str;
 		return (word_list);
-	return (serve(cook(word_list, (t_state *)state)));
+	}
+	word_list = cook(word_list, (t_state *)state);
+	ft_lstconv(&word_list, serve);
+	return (word_list);
 }
 
 void	*cook_redirect(void *data)
@@ -182,95 +251,3 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 		error(ERR_AMBIGUOUS_REDIRECT, NULL, NULL, NULL);
 	return (debug_cooked_cmd(cmd));
 }
-
-/*
-static char	*skip_brackets_inside(char *line)
-{
-	t_opened	opened;
-
-	opened = (t_opened){0};
-	opened.brackets_count = 1;
-	while (*line && opened.brackets_count)
-	{
-		if (*line == ')' && !opened.single_quote && !opened.double_quote)
-			opened.brackets_count--;
-		if (opened.brackets_count && !ft_isspace(*line))
-			opened.words_started = true;
-		if (*line == '\\' && *(line + 1) != '\0' && !opened.single_quote)
-			line++;
-		else if (*line == '\'' && !opened.double_quote)
-			opened.single_quote = !opened.single_quote;
-		else if (*line == '\"' && !opened.single_quote)
-			opened.double_quote = !opened.double_quote;
-		else if (*line == '(' && !opened.single_quote && !opened.double_quote)
-			opened.brackets_count++;
-		line++;
-	}
-	if (opened.words_started == false || opened.brackets_count)
-		return (NULL);
-	else
-		return (line);
-}
-
-static char	*parse_skip_brackets(char *line, bool words_started)
-{
-	if (words_started)
-		return (NULL);
-	line = skip_brackets_inside(line + 1);
-	if (line == NULL)
-		return (NULL);
-	while (ft_isspace(*line))
-		line++;
-	if (*line == '\0' || *line == '|' || (*line == '&' && *(line + 1) == '&') \
-		|| *line == '<' || *line == '>')
-		return (line);
-	else
-		return (NULL);
-}
-
-static char	*remove_quote(char *line, bool *opened_quote)
-{
-	ft_memmove(line, line + 1, ft_strlen(line));
-	*opened_quote = !*opened_quote;
-	return (line - 1);
-}
-
-static void	remove_escape_char(char *line, bool opened_double_quote)
-{
-	const char	line_char = *(line + 1);
-
-	if (opened_double_quote == false)
-		ft_memmove(line, line + 1, ft_strlen(line));
-	else if (line_char == '\"' || line_char == '\\')
-		ft_memmove(line, line + 1, ft_strlen(line));
-}
-
-static char	*parse_find_cmd_end(char *line)
-{
-	t_opened	opened;
-
-	opened = (t_opened){0};
-	while (*line && !((line[0] == '|' || (line[0] == '&' && line[1] == '&')) \
-				&& !opened.single_quote && !opened.double_quote))
-	{
-		if (!ft_isspace(*line))
-			opened.words_started = true;
-		if (*line == '\'' && !opened.double_quote)
-			line = remove_quote(line, &opened.single_quote);
-		else if (*line == '\"' && !opened.single_quote)
-			line = remove_quote(line, &opened.double_quote);
-		else if (*line == '\\' && !opened.single_quote)
-			remove_escape_char(line, opened.double_quote);
-		else if (*line == ')' && !opened.single_quote && !opened.double_quote)
-			return (NULL);
-		else if (*line == '(' && !opened.single_quote && !opened.double_quote)
-			line = parse_skip_brackets(line, opened.words_started);
-		if (line == NULL)
-			return (NULL);
-		line++;
-	}
-	if (!opened.words_started || opened.single_quote || opened.double_quote)
-		return (NULL);
-	return (line);
-}
-*/

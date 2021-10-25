@@ -1,7 +1,18 @@
 {
 	"files.associations": {
 		"*.h": "c",
-		"type_traits": "c"
+		"type_traits": "c",
+		"__config": "c",
+		"__split_buffer": "c",
+		"__string": "c",
+		"algorithm": "c",
+		"atomic": "c",
+		"functional": "c",
+		"istream": "c",
+		"locale": "c",
+		"optional": "c",
+		"ostream": "c",
+		"vector": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }
