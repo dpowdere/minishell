@@ -15,14 +15,9 @@
 void	clean_up(t_state *state)
 {
 	extern char	**environ;
-	char		**env;
 
-	env = environ;
-	while (*env)
-		free(*env++);
-	free(environ);
-	if (state->is_input_interactive)
-		ft_putchar_fd('\n', STDOUT_FILENO);
+	(void)state;
+	ft_free_ptr_array((void **)environ);
 }
 
 void	free_token(void *token_content)

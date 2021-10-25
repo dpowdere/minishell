@@ -66,6 +66,8 @@ endif
 
 all:
 	$(MAKE) $(NAME) -j8
+debug: CPPFLAGS	+= -DDEBUG_TOKENS=1 -DDEBUG_RAW_CMDS=1
+debug: $(NAME)
 $(LIB): FORCE
 	$(MAKE) -C $(LIB_DIR)
 $(NAME): $(LIB) $(OBJ)

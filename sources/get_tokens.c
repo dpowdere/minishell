@@ -88,7 +88,7 @@ static const char	*get_operator(const char *line, t_list **tokens_list)
 	return (line + operator_len);
 }
 
-t_list	*get_tokens_list(const char *line)
+t_list	*get_tokens_list(const char *line, int *cmd_exit_status)
 {
 	t_list	*tokens_list;
 	char	error_unclosed[2];
@@ -109,7 +109,7 @@ t_list	*get_tokens_list(const char *line)
 	if (*error_unclosed && errno != ENOMEM)
 	{
 		error(ERR_SYNTAX_MATCHING, error_unclosed, NULL, NULL);
-		errno = ERR_CODE_PARSE;
+		*cmd_exit_status = ERR_CODE_PARSE;
 		return (error(ERR_SYNTAX_EOF, NULL, tokens_list, free_token));
 	}
 	else if (line == NULL)
