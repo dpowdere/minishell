@@ -92,6 +92,10 @@ void		ft_lstpipeline1_extradata(t_list **lst,
 				t_list *(*pipeline)(t_list *, void *), void *extra_data);
 t_list		*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 void		ft_lstconv(t_list **lst, void *(*f)(void *));
+void		*ft_lstreduce(t_list *lst, void *initial, \
+							void *(*f)(void *, void *));
+void		*ft_lstpopreduce(t_list **lst, void *initial, \
+							void *(*f)(void *, void *));
 
 int			ft_wchrto8(char *dst_utf8, wchar_t src_utf32);
 size_t		ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n);

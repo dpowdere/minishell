@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <dirent.h>
+#include <stddef.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -196,27 +197,47 @@ t_list	*cook(t_list *word_list, t_state *state)
 	return (word_list);
 }
 
+void	*calc_memsize(void *initial, void *next)
+{
+	t_part	*part;
+
+	part = (t_part *)next;
+	*(size_t *)initial += part->exclusive_end - part->start;
+	return (initial);
+}
+
+void	*populate_arg(void *initial, void *next)
+{
+	t_part		*part;
+	ptrdiff_t	memsize;
+
+	part = (t_part *)next;
+	memsize = part->exclusive_end - part->start;
+	initial = (void *)((char *)initial - memsize);
+	ft_memcpy(initial, part->start, memsize);
+	free(part);
+	return (initial);
+}
+
 // Translate parts into final words
 void	*serve(void *data)
 {
 	t_list	*part_list;
-	t_part	*part;
-	char	*arg;
-	size_t	len;
+	size_t	memsize;
+	char	*arg_terminator;
 
 	part_list = (t_list *)data;
-	len = 1;
-	while (part_list)
+	memsize = 1;
+	ft_lstreduce(part_list, &memsize, calc_memsize);
+	arg_terminator = malloc(memsize);
+	if (arg_terminator == NULL)
 	{
-		part = part_list->content;
-		// count len of all parts
+		ft_lstclear(&part_list, free);
+		return (NULL);
 	}
-	// malloc arg
-	// cpy all parts to arg
-	// replace content of the list with the arg
-	free(part_list->content);
-	free(part_list);
-	return ();
+	part_list = ft_lstreverse(&part_list);
+	arg_terminator += memsize - 1;
+	return (ft_lstpopreduce(&part_list, arg_terminator, populate_arg));
 }
 
 t_list	*cook_arg(t_list *word_list, void *state)
