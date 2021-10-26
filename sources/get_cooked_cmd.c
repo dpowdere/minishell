@@ -139,22 +139,24 @@ t_cooking_cursor	*process_var(t_cooking_cursor *cc)
 
 t_cooking_cursor	*insert_var(t_cooking_cursor *cc)
 {
+	t_list	*part_list;
 	char	*start;
-	char	*exclusive_end;
-	char	*varname;
+	char	*tmp;
 
-	if (!ft_strchr(ID_START, *(cc->cursor + 1)))
+	start = cc->cursor + 1;
+	if (*start == '\0' || !ft_strchr(ID_START, *start))
 		return (copy_forward(cc));
-	start = ++cc->cursor;
-	while (ft_strchr(ID_OTH, *cc->cursor))
+	cc->cursor += 1;
+	while (*cc->cursor != '\0' && ft_strchr(ID_OTH, *cc->cursor))
 		cc->cursor += 1;
-	exclusive_end = cc->cursor;
-	varname = ft_calloc((exclusive_end - start) + 1, sizeof(char));
-	if (varname == NULL)
+	tmp = ft_calloc(cc->cursor - start + 1, sizeof(char));
+	if (tmp == NULL)
 		return (cc);
-	ft_strlcpy(varname, start, (exclusive_end - start) + 1);
-	start = getenv(varname);
-	free(varname);
+	ft_strlcpy(tmp, start, cc->cursor - start + 1);
+	start = getenv(tmp);
+	if (DEBUG_CMD_COOKING)
+		printf(" env: %s: `" AEC_GREEN "%s" AEC_RESET "`\n", tmp, start);
+	free(tmp);
 	if (start == NULL || ft_strlen(start) == 0)
 		return (cc);
 	cc->part_list->next = new_part(start, VARIABLE);
@@ -166,10 +168,17 @@ t_cooking_cursor	*insert_var(t_cooking_cursor *cc)
 		if (cc->part_list->next->next == NULL)
 			return (cc);
 	}
+	part_list = cc->part_list;
 	cc->part_list = cc->part_list->next;
 	cc->part = cc->part_list->content;
+	tmp = cc->cursor;
+	cc->cursor = start;
 	cc = process_var(cc);
-	cc->part_list = cc->part_list->next;
+	cc->cursor = tmp;
+	if (*tmp != '\0')
+		cc->part_list = cc->part_list->next;
+	else
+		cc->part_list = part_list;
 	cc->part = cc->part_list->content;
 	return (cc);
 }
@@ -203,6 +212,14 @@ void	*calc_memsize(void *initial, void *next)
 
 	part = (t_part *)next;
 	*(size_t *)initial += part->exclusive_end - part->start;
+	if (DEBUG_CMD_COOKING)
+	{
+		ft_putstr_fd("part: `" AEC_YELLOW, STDOUT_FILENO);
+		write(STDOUT_FILENO, part->start, part->exclusive_end - part->start);
+		ft_putstr_fd(AEC_RESET "` (", STDOUT_FILENO);
+		ft_putnbr_fd(part->exclusive_end - part->start, STDOUT_FILENO);
+		ft_putendl_fd(")", STDOUT_FILENO);
+	}
 	return (initial);
 }
 
@@ -213,10 +230,18 @@ void	*populate_arg(void *initial, void *next)
 
 	part = (t_part *)next;
 	memsize = part->exclusive_end - part->start;
-	initial = (void *)((char *)initial - memsize);
+	initial = (char *)initial - memsize;
 	ft_memcpy(initial, part->start, memsize);
 	free(part);
 	return (initial);
+}
+
+static inline void	*debug_cooked_string(void *arg)
+{
+	if (DEBUG_CMD_COOKING)
+		printf("text: `" AEC_RED "%s" AEC_RESET "` (%ld)\n",
+			(char *)arg, ft_strlen((char *)arg));
+	return (arg);
 }
 
 // Translate parts into final words
@@ -237,7 +262,9 @@ void	*serve(void *data)
 	}
 	part_list = ft_lstreverse(&part_list);
 	arg_terminator += memsize - 1;
-	return (ft_lstpopreduce(&part_list, arg_terminator, populate_arg));
+	*arg_terminator = '\0';
+	return (debug_cooked_string(
+			ft_lstpopreduce(&part_list, arg_terminator, populate_arg)));
 }
 
 t_list	*cook_arg(t_list *word_list, void *state)

@@ -24,6 +24,9 @@
 # ifndef DEBUG_COOKED_CMDS
 #  define DEBUG_COOKED_CMDS	0
 # endif
+# ifndef DEBUG_CMD_COOKING
+#  define DEBUG_CMD_COOKING	0
+# endif
 
 // ANSI Escape Code
 # define AEC_BLUE			"\x1b[34m"
