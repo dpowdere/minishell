@@ -73,6 +73,7 @@ typedef struct s_state
 	t_readline_func	read_user_line;
 	t_list			*children_to_wait;
 	int				cmd_exit_status;
+	char			*cmd_exit_status_str;
 
 }	t_state;
 
@@ -171,6 +172,10 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
 
 // execute.c
 void	execute(t_list *cmd_list, t_state *state);
+
+// exit_status.c
+void	update_cmd_exit_status(int exit_status, t_state *state);
+char	*get_cmd_exit_status_str(t_state *state);
 
 // free.c
 void	free_token(void *token_content);

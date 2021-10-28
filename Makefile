@@ -20,6 +20,7 @@ SRC		=	main			\
 			get_raw_cmds	\
 			get_cooked_cmd	\
 			execute			\
+			exit_status		\
 			free			\
 			debug_tokens	\
 			debug_cmds		\

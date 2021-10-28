@@ -144,6 +144,8 @@ t_cooking_cursor	*insert_var(t_cooking_cursor *cc)
 	char	*tmp;
 
 	start = cc->cursor + 1;
+	//if (*start == '?')
+	//	insert exit status
 	if (*start == '\0' || !ft_strchr(ID_START, *start))
 		return (copy_forward(cc));
 	cc->cursor += 1;
@@ -159,9 +161,16 @@ t_cooking_cursor	*insert_var(t_cooking_cursor *cc)
 	free(tmp);
 	if (start == NULL || ft_strlen(start) == 0)
 		return (cc);
-	cc->part_list->next = new_part(start, VARIABLE);
-	if (cc->part_list->next == NULL)
-		return (cc);
+	if (cc->cursor == cc->part->start)
+	{
+		// reuse part_list
+	}
+	else
+	{
+		cc->part_list->next = new_part(start, VARIABLE);
+		if (cc->part_list->next == NULL)
+			return (cc);
+	}
 	if (*cc->cursor != '\0')
 	{
 		cc->part_list->next->next = new_part(cc->cursor, INITIAL_STRING);
