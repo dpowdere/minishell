@@ -17,6 +17,16 @@
 ** if UTF-32 >= 1114112 (0x10FFFF): return error (0 bytes)
 */
 
+#if defined(__CYGWIN__) || defined(_WIN64)
+
+int	ft_wchrto8(char *dst_utf8, wchar_t src_utf32)
+{
+	(void)dst_utf8;
+	(void)src_utf32;
+	return (0);
+}
+#else
+
 int	ft_wchrto8(char *dst_utf8, wchar_t src_utf32)
 {
 	int		bytes;
@@ -43,3 +53,4 @@ int	ft_wchrto8(char *dst_utf8, wchar_t src_utf32)
 	}
 	return (bytes);
 }
+#endif

@@ -6,4 +6,5 @@
 *.o
 *.so
 core*
-minishell
+minishell*
+.idea

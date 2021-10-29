@@ -27,7 +27,7 @@ SRCS =	ft_isalpha.c	ft_isdigit.c	ft_isalnum.c	ft_isprint.c	\
 		ft_lstnew.c		ft_lstadd_front.c	ft_lstadd_back.c			\
 		ft_lstremove.c	ft_lstremoveif.c	ft_lstpop.c					\
 		ft_lstdelone.c	ft_lstclear.c									\
-		ft_lstsort.c	ft_lstreverse.c	ft_lstsize.c				\
+		ft_lstsort.c	ft_lstreverse.c		ft_lstsize.c				\
 		ft_lstlast.c	\
 		ft_lstiter.c	ft_lstmap.c										\
 		ft_wchrto8.c	ft_wstrto8.c									\

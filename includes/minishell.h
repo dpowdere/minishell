@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <sys/param.h>
+# include <sys/wait.h>
 # include <termios.h>
 
 # include <readline/readline.h>

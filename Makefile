@@ -50,6 +50,10 @@ ifneq ($(findstring linux,$(shell $(CC) -dumpmachine)),)
   LDFLAGS	:=	-L$(LIB_DIR)
 endif
 
+ifeq ($(OS),Windows_NT)
+  NAME		:=	$(addsuffix .exe, $(NAME))
+endif
+
 ifdef DEBUG_TOKENS
   CPPFLAGS	+=	-DDEBUG_TOKENS=$(DEBUG_TOKENS)
 endif

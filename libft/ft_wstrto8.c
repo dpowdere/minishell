@@ -19,6 +19,17 @@
 ** if UTF-32 >= 1114112 (0x10FFFF): return error (-1)
 */
 
+#if defined(__CYGWIN__) || defined(_WIN64)
+
+size_t	ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n)
+{
+	(void)dst_utf8;
+	(void)src_utf32;
+	(void)n;
+	return (0);
+}
+#else
+
 size_t	ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n)
 {
 	int		char_size;
@@ -47,3 +58,4 @@ size_t	ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n)
 		*dst_utf8 = '\0';
 	return (count);
 }
+#endif
