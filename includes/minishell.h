@@ -43,7 +43,9 @@ enum e_error {
 };
 
 # define ERR_CODE_PARSE 258
+# define ERR_CODE_SIGNAL 128
 # define ERR_CODE_NOT_FOUND 127
+# define ERR_CODE_NOT_EXECUTABLE 126
 
 # define ERR_STR_SYNTAX_EOF "syntax error: unexpected end of file"
 # define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
@@ -76,8 +78,8 @@ typedef struct s_state
 	bool			should_free_line;
 	bool			is_input_interactive;
 	t_readline_func	read_user_line;
-	t_list			*children_to_wait;
-	int				cmd_exit_status;
+	t_list			*childs_list;
+	int				exit_status;
 }	t_state;
 
 typedef struct s_token
@@ -130,7 +132,7 @@ int		readline_stdin_non_tty(t_state *s);
 int		readline_stdin_tty(t_state *s);
 
 // get_tokens.c
-t_list	*get_tokens_list(const char *line, int *cmd_exit_status);
+t_list	*get_tokens_list(const char *line, int *exit_status);
 
 // check_tokens.c
 bool	check_tokens(t_list *tokens_list);
@@ -143,6 +145,26 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
 
 // execute.c
 void	execute(t_list *cmds_list, t_state *state);
+
+// execute_child.c
+void	execute_child_init_streams(int pipe_out_in[2], int fd_for_stdin);
+void	execute_child(t_cmd *cmd);
+
+// execute_builtin.c
+void	*is_builtin(const char *command);
+bool	execute_builtin(t_cmd *cmd, int *exit_status);
+int		execute_builtin_run(char **args, int current_exit_status);
+
+// builtins.c
+int		shell_echo(char **args);
+int		shell_pwd(char **args);
+int		shell_cd(char **args);
+int		shell_exit(char **args);
+
+// builtins_env.c
+int		shell_env(char **args);
+int		shell_export(char **args);
+int		shell_unset(char **args);
 
 // free.c
 void	free_token(void *token_content);
@@ -158,5 +180,6 @@ int		ft_isspace(int c);
 char	*ft_basename(char *path);
 void	*error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
-
+void	*error_with_exit(enum e_error type, char *extra_message, \
+				t_list *list_to_free, void (*free_fn)(void*));
 #endif

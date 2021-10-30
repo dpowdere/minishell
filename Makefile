@@ -20,6 +20,10 @@ SRC		=	main			\
 			get_raw_cmds	\
 			get_cooked_cmd	\
 			execute			\
+			execute_child	\
+			execute_builtin	\
+			builtins		\
+			builtins_env	\
 			free			\
 			debug_tokens	\
 			debug_cmds		\

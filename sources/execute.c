@@ -12,149 +12,112 @@
 
 #include "minishell.h"
 
-void	run_builtin(char **args)
+static int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
 {
-	(void)args;
-	return ;
+	return (*pid == *pid_to_find);
 }
 
-bool	is_builtin(char *command)
+static bool	execute_fork_wait(t_state *state)
 {
-	int			i;
-	const char	*builtins[] = {"echo",
-								"pwd",
-								"cd",
-								"env",
-								"export",
-								"unset",
-								"exit",
-								NULL};
+	pid_t	child_pid;
+	int		stat_loc;
 
-	i = 0;
-	while (builtins[i])
+	while (state->childs_list)
 	{
-		if (ft_strncmp(builtins[i], command, sizeof(builtins[i])) == 0)
-			return (true);
-		i++;
+		child_pid = wait(&stat_loc);
+		if (child_pid == -1)
+		{
+			if (errno == EINTR)
+				continue ;
+			error(ERR_ERRNO, NULL, NULL, NULL);
+			ft_lstclear(&state->childs_list, free);
+			return (false);
+		}
+		if (WIFEXITED(stat_loc))
+			state->exit_status = WEXITSTATUS(stat_loc);
+		else if (WIFSIGNALED(stat_loc))
+			state->exit_status = ERR_CODE_SIGNAL + WTERMSIG(stat_loc);
+		ft_lstremoveif(&state->childs_list, &child_pid, pid_comparator, free);
+		printf("exit code %d\n", state->exit_status);
 	}
-	return (false);
+	if (errno == EINTR)
+		return (false);
+	return (true);
 }
 
-static int	child_pid_comparator(pid_t *child_pid, pid_t *pid_to_find)
+static bool	add_pid_to_childs_list(pid_t child_pid, t_list **childs_list)
 {
-	return (*child_pid == *pid_to_find);
+	t_list	*child_lst;
+	pid_t	*child_pid_ptr;
+
+	child_pid_ptr = malloc(sizeof(child_pid));
+	if (child_pid_ptr == NULL)
+		return (false);
+	*child_pid_ptr = child_pid;
+	child_lst = ft_lstnew(child_pid_ptr);
+	if (child_lst == NULL)
+	{
+		free(child_pid_ptr);
+		return (false);
+	}
+	ft_lstadd_front(childs_list, child_lst);
+	return (true);
+}
+
+static bool	execute_fork(t_cmd *cmd, t_list **childs_list)
+{
+	pid_t		child_pid;
+	int			pipe_out_in[2];
+	static int	fd_for_stdin;
+
+	ft_bzero(pipe_out_in, sizeof(pipe_out_in));
+	if (cmd->next_operator == OPERATOR_PIPE)
+		if (pipe(pipe_out_in) == -1)
+			return (false);
+	child_pid = fork();
+	if (child_pid == -1)
+		return (false);
+	if (child_pid == 0)
+	{
+		execute_child_init_streams(pipe_out_in, fd_for_stdin);
+		execute_child(cmd);
+	}
+	if (fd_for_stdin)
+		close(fd_for_stdin);
+	fd_for_stdin = 0;
+	if (cmd->next_operator == OPERATOR_PIPE)
+	{
+		fd_for_stdin = pipe_out_in[0];
+		close(pipe_out_in[1]);
+	}
+	return (add_pid_to_childs_list(child_pid, childs_list));
 }
 
 void	execute(t_list *cmds_list, t_state *state)
 {
-	extern char	**environ;
-	t_cmd		*cmd;
-	char		**args;
-	int			pipe_out_in[2];
-	int			fd_to_replace_stdin;
-	pid_t		child_pid;
-	int			stat_loc;
-	char		*cmd_path;
+	t_cmd	*cmd;
+	bool	fork_builtin;
 
-	fd_to_replace_stdin = 0;
+	fork_builtin = false;
 	while (cmds_list)
 	{
 //		cmd = get_cooked_cmd((t_cmd *)cursor->content, state);
 		cmd = cmds_list->content;
-		ft_bzero(pipe_out_in, sizeof(pipe_out_in));
 		if (cmd->next_operator == OPERATOR_PIPE)
-			if (pipe(pipe_out_in) == -1)
-				return (void)(error(ERR_ERRNO, NULL, cmds_list, free_cmd));
-		printf("created PIPE %d -> %d\n", pipe_out_in[1], pipe_out_in[0]);
-		child_pid = fork();
-		if (child_pid == -1)
-			exit(errno);
-		if (child_pid == 0)
-		{
-			printf("i am child\n");
-			if (fd_to_replace_stdin)
-			{
-				if (dup2(fd_to_replace_stdin, STDIN_FILENO) == -1)
-					exit(errno);
-				close(fd_to_replace_stdin);
-				printf("I set stdin pipe from fd %d and closed it\n", fd_to_replace_stdin);
-			}
-			if (pipe_out_in[0])
-			{
-				close(pipe_out_in[0]);
-				printf("child closed fd %d\n", pipe_out_in[0]);
-			}
-			if (cmd->next_operator == OPERATOR_PIPE)
-			{
-				printf("I set stdout pipe to fd %d and closed it\n", pipe_out_in[1]);
-				if (dup2(pipe_out_in[1], STDOUT_FILENO) == -1)
-					exit(errno);
-				close(pipe_out_in[1]);
-			}
-//			redirects:
-//			int file = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-//			dup2(file, STDOUT_FILENO);
-//			close(file);
-
-			args = (char **)ft_lst_to_ptr_array(cmd->args_list);
-			if (args == NULL)
-				return (void)(error(ERR_ERRNO, NULL, cmds_list, free_cmd));
-			cmd->args_list = NULL;
-			if (is_builtin(args[0]))
-				run_builtin(args);
-			else
-			{
-//				cmd_path = get_cmd_path(args[0]);
-				cmd_path = args[0];
-				if (errno == ENOMEM)
-					;
-				else if (cmd_path == NULL)
-				{
-					errno = ERR_CODE_NOT_FOUND;
-					error(ERR_COMMAND_NOT_FOUND, args[0], NULL, NULL);
-				}
-				else if (execve(cmd_path, args, environ) == -1)
-					error(ERR_ERRNO, NULL, NULL, NULL);
-			}
-			ft_free_ptr_array((void **)args);
-			ft_lstclear(&cmds_list, free_cmd);
-			clean_up(state);
-			exit(errno);
-		}
-		if (fd_to_replace_stdin)
-		{
-			close(fd_to_replace_stdin);
-			printf("parent closed in fd %d\n", fd_to_replace_stdin);
-			fd_to_replace_stdin = 0;
-		}
-		if (pipe_out_in[1])
-		{
-			fd_to_replace_stdin = pipe_out_in[0];
-			close(pipe_out_in[1]);
-			printf("parent closed out fd %d\n", pipe_out_in[1]);
-		}
-		ft_lstadd_front(&state->children_to_wait, ft_lstnew(malloc(sizeof(pid_t))));
-		*((int *)state->children_to_wait->content) = child_pid;
+			fork_builtin = true;
+		if (is_builtin(cmd->args_list->content) && fork_builtin == false \
+				&& execute_builtin(cmd, &state->exit_status) == false)
+			error_with_exit(ERR_ERRNO, NULL, cmds_list, free_cmd);
+		else if (execute_fork(cmd, &state->childs_list) == false)
+			error_with_exit(ERR_ERRNO, NULL, cmds_list, free_cmd);
 		if (cmd->next_operator != OPERATOR_PIPE)
 		{
-			while (state->children_to_wait)
-			{
-				child_pid = wait(&stat_loc);
-				if (child_pid == -1)
-				{
-					if (errno == EINTR)
-					{
-						errno = 0;
-						continue ;
-					}
-					printf("fail wait!!\n%s\n", strerror(errno));
-					exit(errno);
-				}
-				printf("child pid %d done!\n", child_pid);
-				ft_lstremoveif(&state->children_to_wait, &child_pid, child_pid_comparator, free);
-				state->cmd_exit_status = WEXITSTATUS(stat_loc);
-				printf("exit code %d\n", state->cmd_exit_status);
-			}
+			fork_builtin = false;
+			if (execute_fork_wait(state) == false)
+				return (ft_lstclear(&cmds_list, free_cmd));
+			if ((cmd->next_operator == OPERATOR_OR && state->exit_status == 0) \
+			|| (cmd->next_operator == OPERATOR_AND && state->exit_status != 0))
+				return (ft_lstclear(&cmds_list, free_cmd));
 		}
 		free_cmd(ft_lstpop(&cmds_list));
 	}

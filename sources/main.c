@@ -17,12 +17,12 @@ static int	interpret(t_state *state)
 	t_list	*tokens_list;
 	t_list	*cmds_list;
 
-	tokens_list = get_tokens_list(state->line, &state->cmd_exit_status);
+	tokens_list = get_tokens_list(state->line, &state->exit_status);
 	if (state->should_free_line)
 		free(state->line);
 	if (check_tokens(tokens_list) == false)
 	{
-		state->cmd_exit_status = ERR_CODE_PARSE;
+		state->exit_status = ERR_CODE_PARSE;
 		return (0);
 	}
 	if (errno == ENOMEM)
@@ -33,6 +33,8 @@ static int	interpret(t_state *state)
 	execute(cmds_list, state);
 	if (errno == ENOMEM)
 		return (1);
+	if (errno)
+		printf("CURRENT ERRNO %d: %s\n", errno, strerror(errno));
 	return (0);
 }
 
@@ -77,5 +79,8 @@ int	main(int argc, char **argv)
 	while (interpret_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		interpret_error = interpret(&state);
 	clean_up(&state);
-	return (errno);
+	if (state.exit_status)
+		return (state.exit_status);
+	else
+		return (errno);
 }

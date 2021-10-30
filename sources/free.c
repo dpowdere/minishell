@@ -14,9 +14,8 @@
 
 void	clean_up(t_state *state)
 {
-	extern char	**environ;
-
 	(void)state;
+	ft_lstclear(&state->childs_list, free);
 	ft_free_ptr_array((void **)environ);
 }
 
