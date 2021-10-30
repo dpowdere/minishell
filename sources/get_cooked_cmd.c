@@ -141,6 +141,32 @@ void	cook_single_quotes(t_cooking_cursor *cc)
 		step_cpy(cc);
 }
 
+void	insert_exit_status(t_cooking_cursor *cc)
+{
+	enum e_phase	phase;
+	char			*status;
+
+	status = get_cmd_exit_status_str(cc->state);
+	step(step(cc));
+	if (DEBUG_CMD_COOKING)
+		printf(" exit_status[" AEC_YELLOW "%s" AEC_RESET "]", status);
+	if (cc->write_cursor == cc->part->start)
+	{
+		cc->part->phase = PATHNAME_EXPANSION;
+		cc->part->start = status;
+		cc->recyle_wordpart = true;
+	}
+	else
+		ft_lstadd_back(&cc->part_list, new_part(status, PATHNAME_EXPANSION));
+	if (cc->inside_double_quotes)
+		phase = _VARSUB_OPEN_DOUBLE_QUOTE;
+	else
+		phase = VARIABLE_SUBSTITUTION;
+	if (*cc->cursor != '\0')
+		ft_lstadd_back(&cc->part_list, new_part(cc->cursor, phase));
+	cc->finish_phase = true;
+}
+
 void	cook_substitute_variable(t_cooking_cursor *cc)
 {
 	enum e_phase	phase;
@@ -149,7 +175,10 @@ void	cook_substitute_variable(t_cooking_cursor *cc)
 
 	start = cc->cursor + 1;
 	if (*start == '?')
-		(void)0; //insert_exit_status
+	{
+		insert_exit_status(cc);
+		return ;
+	}
 	if (!string_cooking_condition(cc, start) || !ft_strchr(ID_START, *start))
 	{
 		step_cpy(cc);
@@ -196,8 +225,8 @@ void	cook_double_quotes(t_cooking_cursor *cc, int is_double_quote_open)
 	extern int	errno;
 	int	qrem;
 
-	qrem = cc->part->phase == QUOTE_REMOVAL
-		|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE;
+	qrem = (cc->part->phase == QUOTE_REMOVAL
+			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE);
 	cc->inside_double_quotes = true;
 	if (!is_double_quote_open)
 	{
