@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/16 14:50:03 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,12 @@ enum e_operator	{
 	OPERATOR_PIPE,
 	OPERATOR_OR,
 	OPERATOR_AND,
-	OPERATOR_REDIRECT_IN,
-	OPERATOR_REDIRECT_IN_STOPWORD,
-	OPERATOR_REDIRECT_OUT,
-	OPERATOR_REDIRECT_OUT_APPEND,
-	OPERATOR_SUBSHELL_IN,
-	OPERATOR_SUBSHELL_OUT
+	REDIRECT_IN,
+	REDIRECT_IN_HEREDOC,
+	REDIRECT_OUT,
+	REDIRECT_OUT_APPEND,
+	SUBSHELL_IN,
+	SUBSHELL_OUT
 };
 
 typedef struct s_redirect
@@ -113,8 +113,8 @@ typedef struct s_redirect
 typedef struct s_cmd
 {
 	t_list			*args_list;
-	t_list			*redirect_in;
-	t_list			*redirect_out;
+	t_list			*redirects;
+	char			*heredoc;
 	enum e_operator	next_operator;
 }	t_cmd;
 
@@ -146,8 +146,12 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
 // execute.c
 void	execute(t_list *cmds_list, t_state *state);
 
+// redirects.c
+bool	redirect_heredoc_create(char *heredoc);
+bool	redirect_files(t_list *redirects_list);
+
 // execute_child.c
-void	execute_child_init_streams(int pipe_out_in[2], int fd_for_stdin);
+void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc);
 void	execute_child(t_cmd *cmd);
 
 // execute_builtin.c
@@ -180,6 +184,6 @@ int		ft_isspace(int c);
 char	*ft_basename(char *path);
 void	*error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
-void	*error_with_exit(enum e_error type, char *extra_message, \
+void	*exit_with_error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
 #endif

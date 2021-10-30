@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:38:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/21 15:43:28 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/10/30 21:12:12 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,19 @@ static enum e_operator	get_operator_type(const char *line)
 	else if (!ft_memcmp(line, "&&", 2))
 		return (OPERATOR_AND);
 	else if (!ft_memcmp(line, "<<", 2))
-		return (OPERATOR_REDIRECT_IN_STOPWORD);
+		return (REDIRECT_IN_HEREDOC);
 	else if (!ft_memcmp(line, ">>", 2))
-		return (OPERATOR_REDIRECT_OUT_APPEND);
+		return (REDIRECT_OUT_APPEND);
 	else if (*line == '|')
 		return (OPERATOR_PIPE);
 	else if (*line == '<')
-		return (OPERATOR_REDIRECT_IN);
+		return (REDIRECT_IN);
 	else if (*line == '>')
-		return (OPERATOR_REDIRECT_OUT);
+		return (REDIRECT_OUT);
 	else if (*line == '(')
-		return (OPERATOR_SUBSHELL_IN);
+		return (SUBSHELL_IN);
 	else if (*line == ')')
-		return (OPERATOR_SUBSHELL_OUT);
+		return (SUBSHELL_OUT);
 	else
 		return (OPERATOR_NONE);
 }
@@ -65,9 +65,9 @@ static t_list	*get_cmd_subshell(t_list *tokens_list, t_cmd *cmd)
 		token = tokens_list->content;
 		if (token->type == TOKEN_OPERATOR)
 		{
-			if (get_operator_type(token->string) == OPERATOR_SUBSHELL_IN)
+			if (get_operator_type(token->string) == SUBSHELL_IN)
 				++brackets_to_close;
-			else if (get_operator_type(token->string) == OPERATOR_SUBSHELL_OUT)
+			else if (get_operator_type(token->string) == SUBSHELL_OUT)
 				--brackets_to_close;
 		}
 	}
@@ -89,12 +89,7 @@ static t_list	*get_operator_redirect(t_list *tokens_list, t_cmd *cmd,
 	redirect->target = ((t_token *)tokens_list->content)->string;
 	redirect->type = operator;
 	free(ft_lstpop(&tokens_list));
-	if (operator == OPERATOR_REDIRECT_IN
-		|| operator == OPERATOR_REDIRECT_IN_STOPWORD)
-		ft_lstadd_back(&cmd->redirect_in, redirectlst);
-	else if (operator == OPERATOR_REDIRECT_OUT
-		|| operator == OPERATOR_REDIRECT_OUT_APPEND)
-		ft_lstadd_back(&cmd->redirect_out, redirectlst);
+	ft_lstadd_back(&cmd->redirects, redirectlst);
 	return (tokens_list);
 }
 
@@ -129,7 +124,7 @@ t_list	*get_cmd(t_list *tokens_list, t_cmd *cmd)
 		else if (token->type == TOKEN_OPERATOR)
 		{
 			operator = get_operator_type(token->string);
-			if (operator == OPERATOR_SUBSHELL_IN)
+			if (operator == SUBSHELL_IN)
 				tokens_list = get_cmd_subshell(tokens_list, cmd);
 			else
 				tokens_list = get_operator(tokens_list, cmd, operator);

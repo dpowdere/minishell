@@ -22,6 +22,7 @@ SRC		=	main			\
 			execute			\
 			execute_child	\
 			execute_builtin	\
+			redirects		\
 			builtins		\
 			builtins_env	\
 			free			\

@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/30 18:22:04 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,12 @@ void	execute_child(t_cmd *cmd)
 {
 	char	**args;
 	char	*cmd_path;
-	int		errno_execve;
 
+	if (redirect_files(cmd->redirects) == false)
+		exit(EXIT_FAILURE);
 	args = (char **)ft_lst_to_ptr_array(cmd->args_list);
 	if (args == NULL)
-		error_with_exit(ERR_ERRNO, NULL, NULL, NULL);
+		exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
 	if (is_builtin(args[0]))
 		execute_builtin_run(args, errno);
 	else if (ft_strchr(args[0], '/') && cmd_path_check(args[0]) == true)
@@ -87,9 +88,7 @@ void	execute_child(t_cmd *cmd)
 		while (cmd_path)
 		{
 			execve(cmd_path, args, environ);
-			errno_execve = errno;
 			cmd_path = get_next_env_path(args[0]);
-			errno = errno_execve;
 		}
 	}
 	execute_fail(args[0]);
@@ -97,23 +96,25 @@ void	execute_child(t_cmd *cmd)
 	exit(errno);
 }
 
-void	execute_child_init_streams(int pipe_out_in[2], int fd_for_stdin)
+void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc)
 {
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{
 		close(pipe_out_in[0]);
 		if (dup2(pipe_out_in[1], STDOUT_FILENO) == -1)
-			error_with_exit(ERR_ERRNO, NULL, NULL, NULL);
+			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
 		close(pipe_out_in[1]);
 	}
-	if (fd_for_stdin)
+	if (heredoc)
+	{
+		if (redirect_heredoc_create(heredoc) == false)
+			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+	}
+	else if (fd_for_stdin)
 	{
 		if (dup2(fd_for_stdin, STDIN_FILENO) == -1)
-			error_with_exit(ERR_ERRNO, NULL, NULL, NULL);
-		close(fd_for_stdin);
+			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
 	}
-//			redirects:
-//			int file = open("file.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-//			dup2(file, STDOUT_FILENO);
-//			close(file);
+	if (fd_for_stdin)
+		close(fd_for_stdin);
 }

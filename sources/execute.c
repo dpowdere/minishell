@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:39:48 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/11 22:05:52 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 00:18:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static bool	execute_fork(t_cmd *cmd, t_list **childs_list)
 		return (false);
 	if (child_pid == 0)
 	{
-		execute_child_init_streams(pipe_out_in, fd_for_stdin);
+		child_pipes_setup(pipe_out_in, fd_for_stdin, cmd->heredoc);
 		execute_child(cmd);
 	}
 	if (fd_for_stdin)
@@ -105,11 +105,13 @@ void	execute(t_list *cmds_list, t_state *state)
 		cmd = cmds_list->content;
 		if (cmd->next_operator == OPERATOR_PIPE)
 			fork_builtin = true;
-		if (is_builtin(cmd->args_list->content) && fork_builtin == false \
-				&& execute_builtin(cmd, &state->exit_status) == false)
-			error_with_exit(ERR_ERRNO, NULL, cmds_list, free_cmd);
+		if (is_builtin(cmd->args_list->content) && fork_builtin == false)
+		{
+			if (execute_builtin(cmd, &state->exit_status) == false)
+				exit_with_error(ERR_ERRNO, NULL, cmds_list, free_cmd);
+		}
 		else if (execute_fork(cmd, &state->childs_list) == false)
-			error_with_exit(ERR_ERRNO, NULL, cmds_list, free_cmd);
+			exit_with_error(ERR_ERRNO, NULL, cmds_list, free_cmd);
 		if (cmd->next_operator != OPERATOR_PIPE)
 		{
 			fork_builtin = false;

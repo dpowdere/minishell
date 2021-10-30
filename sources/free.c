@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 18:51:41 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/21 18:51:56 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/10/30 21:07:50 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	free_cmd(void *cmd_content)
 
 	cmd = (t_cmd *)cmd_content;
 	ft_lstclear(&cmd->args_list, free);
-	ft_lstclear(&cmd->redirect_in, free_redirect);
-	ft_lstclear(&cmd->redirect_out, free_redirect);
+	ft_lstclear(&cmd->redirects, free_redirect);
+	free(cmd->heredoc);
 	free(cmd);
 }
