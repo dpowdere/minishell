@@ -31,6 +31,7 @@
 // ANSI Escape Code
 # define AEC_BLUE			"\x1b[34m"
 # define AEC_BOLD			"\x1b[1m"
+# define AEC_BOLD_GREEN		"\x1b[32;1m"
 # define AEC_BOLD_RED		"\x1b[31;1m"
 # define AEC_GRAY			"\x1b[38;5;247m"
 # define AEC_GREEN			"\x1b[32m"

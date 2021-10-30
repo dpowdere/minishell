@@ -12,7 +12,10 @@
 		"locale": "c",
 		"optional": "c",
 		"ostream": "c",
-		"vector": "c"
+		"vector": "c",
+		"*.tcc": "c",
+		"typeinfo": "c",
+		"cmath": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

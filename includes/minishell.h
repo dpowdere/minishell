@@ -31,7 +31,8 @@
 # define PROMPT_STRING	"\x1b[32mminishell\x1b[0m$ "
 
 enum e_error {
-	ERR_ERRNO = 0,
+	ERR_NOERROR = 0,
+	ERR_ERRNO,
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
 	ERR_SYNTAX_TOKEN,
@@ -113,26 +114,24 @@ typedef struct s_cmd
 	enum e_operator	next_operator;
 }	t_cmd;
 
-enum e_part_type
+enum e_phase
 {
-	INITIAL_STRING,
-	VARIABLE,
-	DOUBLE_QUOTES,
-	VARIABLE_IN_DOUBLE_QUOTES,
-	FIELD_IN_VARIABLE
+	FINAL = 0,
+	VARIABLE_SUBSTITUTION,
+	_VARSUB_OPEN_DOUBLE_QUOTE,
+	FIELD_SPLITTING,
+	PATHNAME_EXPANSION,
+	_PATHEXP_IN_VARIABLE,
+	_PATHEXP_OPEN_DOUBLE_QUOTE,
+	QUOTE_REMOVAL,
+	_QREM_OPEN_DOUBLE_QUOTE,
 };
 
 typedef struct s_part
 {
-	char	*str; // Save pointer to initial string (?)
-	char	*start;
-	char	*exclusive_end;
-	int		parse;
-	int		split;
-	int		star;
-	t_list	*star_list;
-	int		quote;
-	int		esc;
+	char			*start;
+	char			*exclusive_end;
+	enum e_phase	phase;
 }	t_part;
 
 typedef struct s_cooking_cursor
@@ -140,9 +139,16 @@ typedef struct s_cooking_cursor
 	t_list			*word_list;
 	t_list			*part_list;
 	t_part			*part;
-	enum e_error	error;
 	char			*cursor;
+	char			*write_cursor;
+	int				finish_phase;
+	int				recyle_wordpart;
+	int				inside_double_quotes;
+	int				need_another_traversal;
+	t_list			*star_list;
 	t_state			*state;
+	int				phase_num;
+	enum e_error	error;
 }	t_cooking_cursor;
 
 // env.c
