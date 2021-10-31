@@ -24,6 +24,7 @@
 #define ID_START "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 #define ID_OTH "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
 #define DOUBLE_QUOTE_ESCAPES "\"\\$\n"
+#define IFS_SPACES " \t\n"
 
 t_list	*get_star_list(void)
 {
@@ -43,7 +44,7 @@ t_list	*get_star_list(void)
 	return (lst);
 }
 
-void	*new_part(char *start, enum e_phase phase)
+t_list	*new_part(char *start, enum e_phase phase)
 {
 	t_list	*part_list;
 	t_part	*part;
@@ -88,7 +89,10 @@ t_cooking_cursor	*step_cpy(t_cooking_cursor *cc)
 {
 	if (string_cooking_condition(cc, NULL))
 	{
-		if (cc->cursor != cc->write_cursor)
+		if (cc->cursor != cc->write_cursor
+			&& cc->part->phase != FIELD_SPLITTING
+			&& cc->part->phase != _PATHEXP_IN_VARIABLE
+			&& cc->part->phase != FINAL)
 			*cc->write_cursor = *cc->cursor;
 		cc->write_cursor += 1;
 		cc->cursor += 1;
@@ -105,7 +109,10 @@ t_cooking_cursor	*step(t_cooking_cursor *cc)
 
 t_cooking_cursor	*final_cpy(t_cooking_cursor *cc)
 {
-	if (cc->cursor != cc->write_cursor)
+	if (cc->cursor != cc->write_cursor
+		&& cc->part->phase != FIELD_SPLITTING
+		&& cc->part->phase != _PATHEXP_IN_VARIABLE
+		&& cc->part->phase != FINAL)
 		*cc->write_cursor = *cc->cursor;
 	return (cc);
 }
@@ -154,7 +161,7 @@ void	insert_exit_status(t_cooking_cursor *cc)
 	{
 		cc->part->phase = PATHNAME_EXPANSION;
 		cc->part->start = status;
-		cc->recyle_wordpart = true;
+		cc->recycle_wordpart = true;
 	}
 	else
 		ft_lstadd_back(&cc->part_list, new_part(status, PATHNAME_EXPANSION));
@@ -207,7 +214,7 @@ void	cook_substitute_variable(t_cooking_cursor *cc)
 	{
 		cc->part->phase = phase;
 		cc->part->start = start;
-		cc->recyle_wordpart = true;
+		cc->recycle_wordpart = true;
 	}
 	else
 		ft_lstadd_back(&cc->part_list, new_part(start, phase));
@@ -223,7 +230,7 @@ void	cook_substitute_variable(t_cooking_cursor *cc)
 void	cook_double_quotes(t_cooking_cursor *cc, int is_double_quote_open)
 {
 	extern int	errno;
-	int	qrem;
+	int			qrem;
 
 	qrem = (cc->part->phase == QUOTE_REMOVAL
 			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE);
@@ -288,7 +295,58 @@ void	cook_wordpart_expand_pathnames(t_cooking_cursor *cc)
 
 void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
 {
-	cook_wordpart_find_string_terminator(cc);
+	t_list	*lst;
+
+	printf("ifs, cursor: `%s`, write cursor: `%s`\n", cc->cursor, cc->write_cursor);
+	while (string_cooking_condition(cc, NULL)
+		&& ft_strchr(IFS_SPACES, *cc->cursor))
+		step(cc);
+	if (cc->cursor != cc->write_cursor)
+	{
+		printf("ifs start space, cursor: `%s`, write cursor: `%s`\n",
+			cc->cursor, cc->write_cursor);
+		lst = ft_lstdetach((t_list **)&cc->word_list->content, cc->part_list);
+		cc->finish_phase = true;
+		cc->dont_change_phase = true;
+		cc->part->start = cc->cursor;
+		cc->part->exclusive_end = NULL;
+		if (cc->word_list->content == NULL)
+		{
+			cc->recycle_wordpart = true;
+			cc->word_list->content = lst;
+		}
+		else
+		{
+			ft_lstadd_back(&cc->word_list, ft_lstnew(lst));
+			cc->part_list = ft_lstlast((t_list *)cc->word_list->content);
+		}
+	}
+	while (string_cooking_condition(cc, NULL))
+	{
+		if (!ft_strchr(IFS_SPACES, *cc->cursor))
+			step_cpy(cc);
+		else
+		{
+			while (string_cooking_condition(cc, NULL) && ft_strchr(IFS_SPACES, *cc->cursor))
+				step(cc);
+			printf("ifs mid space, cursor: `%s`, write cursor: `%s`\n",
+				cc->cursor, cc->write_cursor);
+			cc->finish_phase = true;
+			if (*cc->cursor == '\0' && cc->part_list->next == NULL)
+				return ;
+			else if (*cc->cursor == '\0' && cc->part_list->next != NULL)
+			{
+				ft_lstadd_back(&cc->word_list, ft_lstnew(cc->part_list->next));
+				cc->part_list->next = NULL;
+			}
+			else
+			{
+				lst = ft_lstnew(new_part(cc->cursor, FIELD_SPLITTING));
+				ft_lstadd_back(&cc->word_list, lst);
+			}
+			return ;
+		}
+	}
 }
 
 void	tune_cursors(t_cooking_cursor *cc)
@@ -313,24 +371,29 @@ void	tune_cursors(t_cooking_cursor *cc)
 void	seal_wordpart(t_cooking_cursor *cc)
 {
 	final_cpy(cc);
-	if (cc->part->exclusive_end == NULL
-		|| cc->part->phase == QUOTE_REMOVAL
-		|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE)
-		cc->part->exclusive_end = cc->write_cursor;
-	if (cc->part->phase == VARIABLE_SUBSTITUTION)
-		cc->part->phase = PATHNAME_EXPANSION;
-	else if (cc->part->phase == _VARSUB_OPEN_DOUBLE_QUOTE)
-		cc->part->phase = _PATHEXP_OPEN_DOUBLE_QUOTE;
-	else if (cc->part->phase == FIELD_SPLITTING)
-		cc->part->phase = _PATHEXP_IN_VARIABLE;
-	else if (cc->part->phase == PATHNAME_EXPANSION)
-		cc->part->phase = QUOTE_REMOVAL;
-	else if (cc->part->phase == _PATHEXP_OPEN_DOUBLE_QUOTE)
-		cc->part->phase = _QREM_OPEN_DOUBLE_QUOTE;
-	else if (cc->part->phase == _PATHEXP_IN_VARIABLE
-		|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE
-		|| cc->part->phase == QUOTE_REMOVAL)
-		cc->part->phase = FINAL;
+	if (cc->dont_change_phase)
+		cc->dont_change_phase = false;
+	else
+	{
+		if (cc->part->exclusive_end == NULL
+			|| cc->part->phase == QUOTE_REMOVAL
+			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE)
+			cc->part->exclusive_end = cc->write_cursor;
+		if (cc->part->phase == VARIABLE_SUBSTITUTION)
+			cc->part->phase = PATHNAME_EXPANSION;
+		else if (cc->part->phase == _VARSUB_OPEN_DOUBLE_QUOTE)
+			cc->part->phase = _PATHEXP_OPEN_DOUBLE_QUOTE;
+		else if (cc->part->phase == FIELD_SPLITTING)
+			cc->part->phase = _PATHEXP_IN_VARIABLE;
+		else if (cc->part->phase == PATHNAME_EXPANSION)
+			cc->part->phase = QUOTE_REMOVAL;
+		else if (cc->part->phase == _PATHEXP_OPEN_DOUBLE_QUOTE)
+			cc->part->phase = _QREM_OPEN_DOUBLE_QUOTE;
+		else if (cc->part->phase == _PATHEXP_IN_VARIABLE
+			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE
+			|| cc->part->phase == QUOTE_REMOVAL)
+			cc->part->phase = FINAL;
+	}
 	cc->need_another_traversal += cc->part->phase;
 }
 
@@ -378,8 +441,8 @@ void	debug_cooking_phase(t_list *word_list, t_cooking_cursor *cc)
 
 void	next_wordpart(t_cooking_cursor *cc, t_list *word_list)
 {
-	if (cc->recyle_wordpart)
-		cc->recyle_wordpart = false;
+	if (cc->recycle_wordpart)
+		cc->recycle_wordpart = false;
 	else
 	{
 		seal_wordpart(cc);

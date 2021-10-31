@@ -75,6 +75,7 @@ void		ft_lstadd_back(t_list **lst, t_list *new);
 void		ft_lstinsert(t_list **lst, t_list *new);
 void		*ft_lstpop(t_list **lst);
 t_list		*ft_lstpopconv(t_list **lst, void *(*f)(void *));
+t_list		*ft_lstdetach(t_list **lst, t_list *detachable_link);
 void		ft_lstremove(t_list **begin, t_list *to_delete);
 void		ft_lstremoveif(t_list **begin, void *data_ref, int (*cmp)(), \
 							void (*free_fct)(void *));

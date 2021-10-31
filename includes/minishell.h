@@ -142,7 +142,8 @@ typedef struct s_cooking_cursor
 	char			*cursor;
 	char			*write_cursor;
 	int				finish_phase;
-	int				recyle_wordpart;
+	int				recycle_wordpart;
+	int				dont_change_phase;
 	int				inside_double_quotes;
 	int				need_another_traversal;
 	t_list			*star_list;
