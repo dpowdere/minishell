@@ -297,17 +297,12 @@ void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
 {
 	t_list	*lst;
 
-	printf("ifs, cursor: `%s`, write cursor: `%s`\n", cc->cursor, cc->write_cursor);
 	while (string_cooking_condition(cc, NULL)
 		&& ft_strchr(IFS_SPACES, *cc->cursor))
 		step(cc);
 	if (cc->cursor != cc->write_cursor)
 	{
-		printf("ifs start space, cursor: `%s`, write cursor: `%s`\n",
-			cc->cursor, cc->write_cursor);
 		lst = ft_lstdetach((t_list **)&cc->word_list->content, cc->part_list);
-		cc->finish_phase = true;
-		cc->dont_change_phase = true;
 		cc->part->start = cc->cursor;
 		cc->part->exclusive_end = NULL;
 		if (cc->word_list->content == NULL)
@@ -319,7 +314,10 @@ void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
 		{
 			ft_lstadd_back(&cc->word_list, ft_lstnew(lst));
 			cc->part_list = ft_lstlast((t_list *)cc->word_list->content);
+			cc->dont_change_phase = true;
 		}
+		cc->finish_phase = true;
+		return ;
 	}
 	while (string_cooking_condition(cc, NULL))
 	{
@@ -327,10 +325,9 @@ void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
 			step_cpy(cc);
 		else
 		{
-			while (string_cooking_condition(cc, NULL) && ft_strchr(IFS_SPACES, *cc->cursor))
+			while (string_cooking_condition(cc, NULL)
+				&& ft_strchr(IFS_SPACES, *cc->cursor))
 				step(cc);
-			printf("ifs mid space, cursor: `%s`, write cursor: `%s`\n",
-				cc->cursor, cc->write_cursor);
 			cc->finish_phase = true;
 			if (*cc->cursor == '\0' && cc->part_list->next == NULL)
 				return ;
@@ -342,6 +339,8 @@ void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
 			else
 			{
 				lst = ft_lstnew(new_part(cc->cursor, FIELD_SPLITTING));
+				((t_list *)lst->content)->next = cc->part_list->next;
+				cc->part_list->next = NULL;
 				ft_lstadd_back(&cc->word_list, lst);
 			}
 			return ;
@@ -409,7 +408,7 @@ void	debug_cooking_phase(t_list *word_list, t_cooking_cursor *cc)
 		part_list = word_list->content;
 		word_num = 1;
 		part_num = 1;
-		printf("\n--> phase %d, word %d [", ++cc->phase_num, word_num);
+		printf("\n--> phase %d, w%d [", ++cc->phase_num, word_num);
 		while (word_list && part_list)
 		{
 			part = part_list->content;
@@ -429,7 +428,7 @@ void	debug_cooking_phase(t_list *word_list, t_cooking_cursor *cc)
 				printf("]");
 				if (word_list != NULL)
 				{
-					printf(", word %d [", word_num);
+					printf(", w%d [", word_num);
 					part_list = word_list->content;
 				}
 				else
@@ -519,7 +518,7 @@ void	*populate_arg(void *initial, void *next)
 static inline void	*debug_cooked_string(void *arg)
 {
 	if (DEBUG_CMD_COOKING)
-		printf("\n--> arg[" AEC_RED "%s" AEC_RESET "]\n", (char *)arg);
+		printf("\narg[" AEC_RED "%s" AEC_RESET "]", (char *)arg);
 	return (arg);
 }
 
@@ -567,6 +566,8 @@ t_list	*cook_arg(t_list *word_list, void *state)
 		next_wordpart(&cc, word_list);
 	}
 	ft_lstconv(&word_list, serve);
+	if (DEBUG_CMD_COOKING)
+		printf("\n\n");
 	return (word_list);
 }
 
