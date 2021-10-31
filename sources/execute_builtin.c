@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:32 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 01:02:52 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 15:36:57 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ bool	execute_builtin(t_cmd *cmd, int *exit_status)
 	return (true);
 }
 
-int	execute_builtin_run(char **args, int current_exit_status)
+int	execute_builtin_run(char **args, const int current_exit_status)
 {
 	int	(*builtin_function)(char **);
 

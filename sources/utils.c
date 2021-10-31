@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 20:01:22 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 16:57:51 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 00:28:26 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,8 @@ void	*error(enum e_error type, char *extra_message,
 		ft_putstr_fd(ERR_STR_SYNTAX_TOKEN, STDERR_FILENO);
 	else if (type == ERR_COMMAND_NOT_FOUND)
 		ft_putstr_fd(ERR_STR_COMMAND_NOT_FOUND, STDERR_FILENO);
+	else if (type == ERR_ENV_INVALID)
+		ft_putstr_fd(ERR_STR_ENV_INVALID, STDERR_FILENO);
 	if (extra_message)
 	{
 		ft_putstr_fd(": ", STDERR_FILENO);
@@ -133,4 +135,18 @@ void	*exit_with_error(enum e_error type, char *extra_message,
 int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
 {
 	return (*pid == *pid_to_find);
+}
+
+bool	valid_identifier_name(const char *name)
+{
+	if (name == NULL || name[0] == '\0' || ft_isdigit(name[0]))
+		return (false);
+	while (*name)
+	{
+		if (ft_isalnum(*name) || *name == '_')
+			name++;
+		else
+			return (false);
+	}
+	return (true);
 }

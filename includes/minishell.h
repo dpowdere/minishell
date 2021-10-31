@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 22:51:47 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 00:24:35 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ enum e_error {
 	ERR_SYNTAX_EOF,
 	ERR_SYNTAX_MATCHING,
 	ERR_SYNTAX_TOKEN,
-	ERR_COMMAND_NOT_FOUND
+	ERR_COMMAND_NOT_FOUND,
+	ERR_ENV_INVALID
 };
 
 # define ERR_CODE_PARSE 258
@@ -52,6 +53,7 @@ enum e_error {
 # define ERR_STR_SYNTAX_MATCHING "unexpected EOF while looking for matching"
 # define ERR_STR_SYNTAX_TOKEN "syntax error near unexpected token"
 # define ERR_STR_COMMAND_NOT_FOUND "command not found"
+# define ERR_STR_ENV_INVALID "not a valid identifier"
 
 enum {
 	ENV_DEEP_COPY_FALSE = false,
@@ -197,5 +199,6 @@ void			*error(enum e_error type, char *extra_message, \
 void			*exit_with_error(enum e_error type, char *extra_message, \
 								t_list *list_to_free, void (*free_fn)(void*));
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
+bool			valid_identifier_name(const char *name);
 
 #endif

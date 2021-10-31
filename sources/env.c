@@ -6,13 +6,11 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 18:40:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/16 15:06:07 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 00:15:13 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-extern char	**environ;
 
 char	**copy_environ(bool deep_copy)
 {
@@ -63,7 +61,7 @@ static int	extend_environ(char *env_var)
 static char	**get_env_ptr(const char *name)
 {
 	char	**cur_env;
-	int		cur_name_len;
+	size_t	cur_name_len;
 
 	cur_env = environ;
 	while (*cur_env)
@@ -80,7 +78,7 @@ int	set_env(const char *name, const char *value)
 {
 	char	**cur_env;
 
-	if (name == NULL || *name == '\0' || ft_strchr(name, '='))
+	if (valid_identifier_name(name) == false)
 	{
 		errno = EINVAL;
 		return (-1);
@@ -100,7 +98,7 @@ int	unset_env(const char *name)
 	char	**cur_env;
 	char	**next_env;
 
-	if (name == NULL || *name == '\0' || ft_strchr(name, '='))
+	if (valid_identifier_name(name) == false)
 	{
 		errno = EINVAL;
 		return (-1);
