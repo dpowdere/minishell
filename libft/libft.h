@@ -92,7 +92,7 @@ void		ft_lstpipeline1(t_list **lst, t_list *(*pipeline)(t_list *));
 void		ft_lstpipeline1_extradata(t_list **lst,
 				t_list *(*pipeline)(t_list *, void *), void *extra_data);
 t_list		*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
-void		ft_lstconv(t_list **lst, void *(*f)(void *));
+t_list		*ft_lstconv(t_list *lst, void *(*f)(void *));
 void		*ft_lstreduce(t_list *lst, void *initial, \
 							void *(*f)(void *, void *));
 void		*ft_lstpopreduce(t_list **lst, void *initial, \

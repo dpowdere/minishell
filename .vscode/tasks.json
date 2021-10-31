@@ -1,0 +1,48 @@
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "cc build minishell",
+      "command": "bash",
+      "args": ["-c", "make re"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "DEBUG_TOKENS": "0",
+          "DEBUG_RAW_CMDS": "0",
+          "DEBUG_COOKED_CMDS": "1",
+          "DEBUG_CMD_COOKING": "1",
+          "PATH": "${env:PATH}:${inputs:getPathCC1}"
+        }
+      },
+      "inputs": [
+        {
+          "id": "getPathCC1",
+          "type": "command",
+          "description": [
+            "При сборке проекта под VS Code с помощью gcc и make ",
+            "gcc не мог найти компилятор в ассемблерный код (сс1). ",
+            "Это внутренняя прога для gcc с полным путем, ",
+            "возвращаемым `gcc -print-prog-name=cc1`. Папку, где ",
+            "она лежит, было решено добавить в $PATH."
+          ],
+          "command": "workbench.action.terminal.sendSequence",
+          "args": {
+            "text": "cc -print-search-dirs | grep programs: | cut -d= -f2"
+          }
+        }
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "showReuseMessage": false
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

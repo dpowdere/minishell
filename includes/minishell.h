@@ -146,7 +146,6 @@ typedef struct s_cooking_cursor
 	int				dont_change_phase;
 	int				inside_double_quotes;
 	int				need_another_traversal;
-	t_list			*star_list;
 	t_state			*state;
 	int				phase_num;
 	enum e_error	error;

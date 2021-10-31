@@ -288,9 +288,84 @@ void	cook_wordpart_find_string_terminator(t_cooking_cursor *cc)
 	cc->write_cursor = cc->cursor;
 }
 
+enum e_phase	next_phase(enum e_phase phase)
+{
+	if (phase == VARIABLE_SUBSTITUTION)
+		phase = PATHNAME_EXPANSION;
+	else if (phase == _VARSUB_OPEN_DOUBLE_QUOTE)
+		phase = _PATHEXP_OPEN_DOUBLE_QUOTE;
+	else if (phase == FIELD_SPLITTING)
+		phase = _PATHEXP_IN_VARIABLE;
+	else if (phase == PATHNAME_EXPANSION)
+		phase = QUOTE_REMOVAL;
+	else if (phase == _PATHEXP_OPEN_DOUBLE_QUOTE)
+		phase = _QREM_OPEN_DOUBLE_QUOTE;
+	else if (phase == _PATHEXP_IN_VARIABLE
+		|| phase == _QREM_OPEN_DOUBLE_QUOTE
+		|| phase == QUOTE_REMOVAL)
+		phase = FINAL;
+	return (phase);
+}
+
+void	*should_expand_pathnames_check(void *initial, void *next)
+{
+	t_part	*part;
+	char	*cursor;
+	int		valid_phase;
+	int		stars_only;
+
+	part = (t_part *)next;
+	valid_phase = (part->phase == PATHNAME_EXPANSION \
+					|| part->phase == _PATHEXP_IN_VARIABLE);
+	stars_only = 1;
+	cursor = part->start;
+	while (stars_only && *cursor != '\0' && cursor < part->exclusive_end)
+		stars_only *= (*cursor++ == '*');
+	*(int *)initial *= valid_phase * stars_only;
+	return (initial);
+}
+
+void	*gather_next_phases(void *initial, void *next)
+{
+	t_part	*part;
+
+	part = (t_part *)next;
+	part->phase = next_phase(part->phase);
+	*(int *)initial += part->phase;
+	return (initial);
+}
+
+void	*convert_to_wordparts(void *data)
+{
+	return (new_part((char *)data, FINAL));
+}
+
 void	cook_wordpart_expand_pathnames(t_cooking_cursor *cc)
 {
-	cook_wordpart_find_string_terminator(cc);
+	int		should_expand;
+	t_list	*star_list;
+
+	should_expand = true;
+	ft_lstreduce(cc->part_list, &should_expand, should_expand_pathnames_check);
+	if (should_expand)
+	{
+		star_list = get_star_list();
+		if (star_list != NULL)
+		{
+			star_list = ft_lstconv(star_list, convert_to_wordparts);
+			ft_lstadd_back(&star_list, cc->word_list->next);
+			ft_lstclear((t_list **)&cc->word_list->content, free);
+			cc->word_list->content = star_list->content;
+			cc->word_list->next = star_list->next;
+			free(star_list);
+			cc->part_list = cc->word_list->content;
+			cc->recycle_wordpart = true;
+			return ;
+		}
+	}
+	ft_lstreduce(cc->part_list, &cc->need_another_traversal, gather_next_phases);
+	cc->dont_change_phase = true;
+	cc->part_list = ft_lstlast(cc->part_list);
 }
 
 void	cook_wordpart_split_into_fields(t_cooking_cursor *cc)
@@ -378,20 +453,7 @@ void	seal_wordpart(t_cooking_cursor *cc)
 			|| cc->part->phase == QUOTE_REMOVAL
 			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE)
 			cc->part->exclusive_end = cc->write_cursor;
-		if (cc->part->phase == VARIABLE_SUBSTITUTION)
-			cc->part->phase = PATHNAME_EXPANSION;
-		else if (cc->part->phase == _VARSUB_OPEN_DOUBLE_QUOTE)
-			cc->part->phase = _PATHEXP_OPEN_DOUBLE_QUOTE;
-		else if (cc->part->phase == FIELD_SPLITTING)
-			cc->part->phase = _PATHEXP_IN_VARIABLE;
-		else if (cc->part->phase == PATHNAME_EXPANSION)
-			cc->part->phase = QUOTE_REMOVAL;
-		else if (cc->part->phase == _PATHEXP_OPEN_DOUBLE_QUOTE)
-			cc->part->phase = _QREM_OPEN_DOUBLE_QUOTE;
-		else if (cc->part->phase == _PATHEXP_IN_VARIABLE
-			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE
-			|| cc->part->phase == QUOTE_REMOVAL)
-			cc->part->phase = FINAL;
+		cc->part->phase = next_phase(cc->part->phase);
 	}
 	cc->need_another_traversal += cc->part->phase;
 }
@@ -490,6 +552,8 @@ void	cook_wordpart(t_cooking_cursor *cc)
 
 int	wordpart_cooking_condition(t_cooking_cursor *cc)
 {
+	extern int	errno;
+
 	return (cc->word_list && cc->part_list && !errno && !cc->error);
 }
 
@@ -565,7 +629,7 @@ t_list	*cook_arg(t_list *word_list, void *state)
 		cook_wordpart(&cc);
 		next_wordpart(&cc, word_list);
 	}
-	ft_lstconv(&word_list, serve);
+	ft_lstconv(word_list, serve);
 	if (DEBUG_CMD_COOKING)
 		printf("\n\n");
 	return (word_list);
@@ -579,8 +643,8 @@ void	*cook_redirect(void *data)
 t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 {
 	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, state);
-	ft_lstconv(&cmd->redirect_in, cook_redirect);
-	ft_lstconv(&cmd->redirect_out, cook_redirect);
+	ft_lstconv(cmd->redirect_in, cook_redirect);
+	ft_lstconv(cmd->redirect_out, cook_redirect);
 	if (errno == ENOMEM)
 		error(ERR_ERRNO, NULL, NULL, NULL);
 	else if (errno == EPROTO)
