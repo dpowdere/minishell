@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 16:57:51 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:51:47 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 # define COMMAND_NAME	"minishell"
 # define PROMPT_STRING	"minishell$ "
 # define SUBSHELL_MAGIC_BYTE '\1'
+# define SUBSHELL_ENV	"MINISHELL_SUBSHELL"
 
 enum e_error {
 	ERR_ERRNO = 0,
@@ -119,73 +120,82 @@ typedef struct s_cmd
 }	t_cmd;
 
 // env.c
-char	**copy_environ(bool deep_copy);
-int		set_env(const char *name, const char *value);
-int		unset_env(const char *name);
+char			**copy_environ(bool deep_copy);
+int				set_env(const char *name, const char *value);
+int				unset_env(const char *name);
 
 // signals.c
-void	setup_signal_handlers(t_state *state);
+void			setup_signal_handlers(t_state *state);
 
 // readline.c
-int		readline_arg(t_state *s);
-int		readline_stdin_non_tty(t_state *s);
-int		readline_stdin_tty(t_state *s);
+int				readline_arg(t_state *s);
+int				readline_stdin_non_tty(t_state *s);
+int				readline_stdin_tty(t_state *s);
 
 // get_tokens.c
-t_list	*get_tokens_list(const char *line, int *exit_status);
+t_list			*get_tokens_list(const char *line, int *exit_status);
+t_list			*get_tokens_list_subshell(char **tokens);
 
 // check_tokens.c
-bool	check_tokens(t_list *tokens_list);
+bool			check_tokens(t_list *tokens_list);
 
 // get_raw_cmds.c
-t_list	*get_cmds_list(t_list *tokens_list);
+t_list			*get_cmds_list(t_list *tokens_list);
+
+// get_raw_cmds_utils.c
+enum e_operator	get_operator_type(const char *line);
+t_list			*popconvert_tokenlst_to_stringlst(t_list **tokens_list);
 
 // get_cooked_cmd.c
-t_cmd	*get_cooked_cmd(t_cmd *cmd);
+t_cmd			*get_cooked_cmd(t_cmd *cmd);
 
 // execute.c
-void	execute(t_list *cmds_list, int *exit_status);
+void			execute(t_list *cmds_list, int *exit_status);
 
 // redirects.c
-bool	redirect_heredoc_create(char *heredoc);
-bool	redirect_files(t_list *redirects_list);
-
-// execute_child.c
-void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc);
-void	execute_child(t_cmd *cmd);
+bool			redirect_heredoc_create(char *heredoc);
+bool			redirect_files(t_list *redirects_list);
 
 // execute_builtin.c
-void	*is_builtin(const char *command);
-bool	execute_builtin(t_cmd *cmd, int *exit_status);
-int		execute_builtin_run(char **args, int current_exit_status);
+void			*is_builtin(const char *command);
+bool			execute_builtin(t_cmd *cmd, int *exit_status);
+int				execute_builtin_run(char **args, int current_exit_status);
+
+// execute_child.c
+void			child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, \
+									char *heredoc);
+void			execute_child(t_cmd *cmd);
+
+// execute_subshell.c
+int				execute_subshell(char **tokens);
 
 // builtins.c
-int		shell_echo(char **args);
-int		shell_pwd(char **args);
-int		shell_cd(char **args);
-int		shell_exit(char **args);
+int				shell_echo(char **args);
+int				shell_pwd(char **args);
+int				shell_cd(char **args);
+int				shell_exit(char **args);
 
 // builtins_env.c
-int		shell_env(char **args);
-int		shell_export(char **args);
-int		shell_unset(char **args);
+int				shell_env(char **args);
+int				shell_export(char **args);
+int				shell_unset(char **args);
 
 // free.c
-void	free_token(void *token_content);
-void	free_redirect(void *redirect_content);
-void	free_cmd(void *cmd_content);
-void	clean_up(t_state *state);
+void			free_token(void *token_content);
+void			free_redirect(void *redirect_content);
+void			free_cmd(void *cmd_content);
+void			clean_up(t_state *state);
 
 // utils.c
-int		ft_ptr_array_len(const void **ptr_array);
-void	**ft_lst_to_ptr_array(t_list *list);
-char	*ft_strjoin_chr(char const *s1, char const *s2, char c);
-int		ft_isspace(int c);
-char	*ft_basename(char *path);
-void	*error(enum e_error type, char *extra_message, \
-				t_list *list_to_free, void (*free_fn)(void*));
-void	*exit_with_error(enum e_error type, char *extra_message, \
-				t_list *list_to_free, void (*free_fn)(void*));
-int		pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
+int				ft_ptr_array_len(const void **ptr_array);
+void			**ft_lst_to_ptr_array(t_list *list);
+char			*ft_strjoin_chr(char const *s1, char const *s2, char c);
+int				ft_isspace(int c);
+char			*ft_basename(char *path);
+void			*error(enum e_error type, char *extra_message, \
+								t_list *list_to_free, void (*free_fn)(void*));
+void			*exit_with_error(enum e_error type, char *extra_message, \
+								t_list *list_to_free, void (*free_fn)(void*));
+int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
 
 #endif

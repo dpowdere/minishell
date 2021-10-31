@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 17:24:57 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 19:50:19 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,8 @@ void	execute_child(t_cmd *cmd)
 		exit(EXIT_FAILURE);
 	if (is_builtin(cmd->args[0]))
 		exit(execute_builtin_run(cmd->args, errno));
+	if (*cmd->args[0] == SUBSHELL_MAGIC_BYTE)
+		exit(execute_subshell(cmd->args));
 	if (ft_strchr(cmd->args[0], '/'))
 	{
 		if (cmd_path_check(cmd->args[0]))

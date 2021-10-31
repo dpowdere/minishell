@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:25:50 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 16:30:19 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:20:49 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,24 @@ static int	interpret(t_state *state)
 
 void	setup_environ(void)
 {
-	extern char	**environ;
+	char	*shlvl_old;
+	char	*shlvl_new;
 
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
 		exit(errno);
+	if (set_env(SUBSHELL_ENV, "0") == -1)
+		exit(errno);
+	shlvl_old = getenv("SHLVL");
+	if (shlvl_old == NULL)
+		shlvl_new = ft_itoa(1);
+	else
+		shlvl_new = ft_itoa(ft_atoi(shlvl_old) + 1);
+	if (shlvl_new == NULL)
+		exit(errno);
+	if (set_env("SHLVL", shlvl_new) == -1)
+		exit(errno);
+	free(shlvl_new);
 }
 
 void	setup_input(t_state *state, int argc, char **argv)

@@ -6,7 +6,7 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/19 19:10:26 by dpowdere         ###   ########.fr        #
+#    Updated: 2021/10/31 19:56:20 by ngragas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,10 +18,12 @@ SRC		=	main			\
 			get_tokens		\
 			check_tokens	\
 			get_raw_cmds	\
+			get_raw_cmds_utils\
 			get_cooked_cmd	\
 			execute			\
-			execute_child	\
 			execute_builtin	\
+			execute_child	\
+			execute_subshell\
 			redirects		\
 			builtins		\
 			builtins_env	\

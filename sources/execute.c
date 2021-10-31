@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:39:48 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 17:08:03 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 17:20:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static bool	execute_fork_wait(t_list *childs_list, int *exit_status)
 		else if (WIFSIGNALED(stat_loc))
 			*exit_status = ERR_CODE_SIGNAL + WTERMSIG(stat_loc);
 		ft_lstremoveif(&childs_list, &child_pid, pid_comparator, free);
-		printf("exit code %d\n", *exit_status); // REMOVE ME LATER
+		fprintf(stderr, "exit code %d\n", *exit_status); // REMOVE ME LATER
 	}
 	if (errno == EINTR)
 	{
