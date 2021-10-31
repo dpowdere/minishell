@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 20:01:22 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/15 21:50:57 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:57:51 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,4 +128,9 @@ void	*exit_with_error(enum e_error type, char *extra_message,
 {
 	error(type, extra_message, list_to_free, free_fn);
 	exit(errno);
+}
+
+int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
+{
+	return (*pid == *pid_to_find);
 }

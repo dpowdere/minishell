@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:57:51 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ typedef struct s_state
 	bool			should_free_line;
 	bool			is_input_interactive;
 	t_readline_func	read_user_line;
-	t_list			*childs_list;
 	int				exit_status;
 }	t_state;
 
@@ -113,6 +112,7 @@ typedef struct s_redirect
 typedef struct s_cmd
 {
 	t_list			*args_list;
+	char			**args;
 	t_list			*redirects;
 	char			*heredoc;
 	enum e_operator	next_operator;
@@ -141,10 +141,10 @@ bool	check_tokens(t_list *tokens_list);
 t_list	*get_cmds_list(t_list *tokens_list);
 
 // get_cooked_cmd.c
-t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state);
+t_cmd	*get_cooked_cmd(t_cmd *cmd);
 
 // execute.c
-void	execute(t_list *cmds_list, t_state *state);
+void	execute(t_list *cmds_list, int *exit_status);
 
 // redirects.c
 bool	redirect_heredoc_create(char *heredoc);
@@ -186,4 +186,6 @@ void	*error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
 void	*exit_with_error(enum e_error type, char *extra_message, \
 				t_list *list_to_free, void (*free_fn)(void*));
+int		pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
+
 #endif

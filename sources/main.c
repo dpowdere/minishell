@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:25:50 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/16 14:42:08 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:30:19 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,9 @@ static int	interpret(t_state *state)
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (1);
-	execute(cmds_list, state);
-	if (errno == ENOMEM)
-		return (1);
-	if (errno)
-		printf("CURRENT ERRNO %d: %s\n", errno, strerror(errno));
-	return (0);
+	execute(cmds_list, &state->exit_status);
+	ft_lstclear(&cmds_list, free_cmd);
+	return (errno != EXIT_SUCCESS);
 }
 
 void	setup_environ(void)
@@ -79,6 +76,8 @@ int	main(int argc, char **argv)
 	while (interpret_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		interpret_error = interpret(&state);
 	clean_up(&state);
+	printf("EXIT STATUS %d\n", state.exit_status);
+	printf("ERRNO %d: %s\n", errno, strerror(errno));
 	if (state.exit_status)
 		return (state.exit_status);
 	else

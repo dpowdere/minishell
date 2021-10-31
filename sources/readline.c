@@ -12,6 +12,7 @@
 
 #include "minishell.h"
 
+// readline() sets errno to 0
 int	readline_stdin_tty(t_state *s)
 {
 	s->line = readline(PROMPT_STRING);

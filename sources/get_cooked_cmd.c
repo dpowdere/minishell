@@ -6,21 +6,24 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 23:09:06 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/21 23:10:04 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/10/31 15:45:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
+t_cmd	*get_cooked_cmd(t_cmd *cmd)
 {
+	cmd->args = (char **)ft_lst_to_ptr_array(cmd->args_list);
+	if (cmd->args == NULL)
+		return (NULL);
+	cmd->args_list = NULL;
 	/* TODO: Cook cmd for minishell consumption, expand env vars,
 	** remove quotes and escape chars, additionally split by words
 	** when appropriate.
 	**
 	** Take $? from state->cmd_retval
 	*/
-	(void)state;
 	return (debug_cooked_cmd(cmd));
 }
 

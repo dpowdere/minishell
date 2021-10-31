@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 18:51:41 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/30 21:07:50 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 15:36:57 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 void	clean_up(t_state *state)
 {
 	(void)state;
-	ft_lstclear(&state->childs_list, free);
 	ft_free_ptr_array((void **)environ);
 }
 
@@ -37,6 +36,7 @@ void	free_cmd(void *cmd_content)
 
 	cmd = (t_cmd *)cmd_content;
 	ft_lstclear(&cmd->args_list, free);
+	ft_free_ptr_array((void **)cmd->args);
 	ft_lstclear(&cmd->redirects, free_redirect);
 	free(cmd->heredoc);
 	free(cmd);

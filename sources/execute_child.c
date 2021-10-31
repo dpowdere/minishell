@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 17:24:57 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,29 +70,27 @@ static void	execute_fail(char *command)
 
 void	execute_child(t_cmd *cmd)
 {
-	char	**args;
 	char	*cmd_path;
 
 	if (redirect_files(cmd->redirects) == false)
 		exit(EXIT_FAILURE);
-	args = (char **)ft_lst_to_ptr_array(cmd->args_list);
-	if (args == NULL)
-		exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
-	if (is_builtin(args[0]))
-		execute_builtin_run(args, errno);
-	else if (ft_strchr(args[0], '/') && cmd_path_check(args[0]) == true)
-		execve(args[0], args, environ);
-	else if (ft_strchr(args[0], '/') == NULL)
+	if (is_builtin(cmd->args[0]))
+		exit(execute_builtin_run(cmd->args, errno));
+	if (ft_strchr(cmd->args[0], '/'))
 	{
-		cmd_path = get_next_env_path(args[0]);
+		if (cmd_path_check(cmd->args[0]))
+			execve(cmd->args[0], cmd->args, environ);
+	}
+	else
+	{
+		cmd_path = get_next_env_path(cmd->args[0]);
 		while (cmd_path)
 		{
-			execve(cmd_path, args, environ);
-			cmd_path = get_next_env_path(args[0]);
+			execve(cmd_path, cmd->args, environ);
+			cmd_path = get_next_env_path(cmd->args[0]);
 		}
 	}
-	execute_fail(args[0]);
-	ft_free_ptr_array((void **)args);
+	execute_fail(cmd->args[0]);
 	exit(errno);
 }
 

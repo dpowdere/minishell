@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:32 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 01:02:52 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,12 +68,6 @@ static bool	backup_restore_stdinout(void)
 
 bool	execute_builtin(t_cmd *cmd, int *exit_status)
 {
-	char	**args;
-
-	args = (char **)ft_lst_to_ptr_array(cmd->args_list);
-	if (args == NULL)
-		return (false);
-	cmd->args_list = NULL;
 	if (cmd->heredoc || cmd->redirects)
 		if (backup_restore_stdinout() == false)
 			return (false);
@@ -83,11 +77,10 @@ bool	execute_builtin(t_cmd *cmd, int *exit_status)
 		return (false);
 	}
 	if (redirect_files(cmd->redirects) == true)
-		*exit_status = execute_builtin_run(args, *exit_status);
+		*exit_status = execute_builtin_run(cmd->args, *exit_status);
 	if (cmd->heredoc || cmd->redirects)
 		if (backup_restore_stdinout() == false)
 			return (false);
-	ft_free_ptr_array((void **)args);
 	return (true);
 }
 
