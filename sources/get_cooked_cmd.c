@@ -706,6 +706,7 @@ t_list	*cook_redirect(t_list *lst, void *state)
 		ft_lstclear(&lst, free_word_with_parts);
 		free(redirect);
 		error(ERR_AMBIGUOUS_REDIRECT, s2, NULL, NULL);
+		update_cmd_exit_status(1, state);
 	}
 	else
 	{
@@ -739,6 +740,7 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 	{
 		free_cmd(cmd);
 		cmd = NULL;
+		update_cmd_exit_status(1, state);
 	}
 	return (cmd);
 }
