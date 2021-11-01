@@ -78,6 +78,8 @@ t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
 
 int	string_cooking_condition(t_cooking_cursor *cc, char *s)
 {
+	extern int	errno;
+
 	if (s == NULL)
 		s = cc->cursor;
 	return (errno == 0 && !cc->finish_phase
@@ -246,7 +248,8 @@ void	cook_double_quotes(t_cooking_cursor *cc, int is_double_quote_open)
 	{
 		if (*cc->cursor == '\\')
 			cook_escape(cc);
-		else if (*cc->cursor == '$')
+		else if (*cc->cursor == '$' && (cc->part->phase == VARIABLE_SUBSTITUTION
+				|| cc->part->phase == _VARSUB_OPEN_DOUBLE_QUOTE))
 			cook_substitute_variable(cc);
 		else
 			step_cpy(cc);
@@ -363,7 +366,8 @@ void	cook_wordpart_expand_pathnames(t_cooking_cursor *cc)
 			return ;
 		}
 	}
-	ft_lstreduce(cc->part_list, &cc->need_another_traversal, gather_next_phases);
+	ft_lstreduce(cc->part_list,
+		&cc->need_another_traversal, gather_next_phases);
 	cc->dont_change_phase = true;
 	cc->part_list = ft_lstlast(cc->part_list);
 }
@@ -582,7 +586,7 @@ void	*populate_arg(void *initial, void *next)
 static inline void	*debug_cooked_string(void *arg)
 {
 	if (DEBUG_CMD_COOKING)
-		printf("\narg[" AEC_RED "%s" AEC_RESET "]", (char *)arg);
+		printf("\nresult[" AEC_RED "%s" AEC_RESET "]", (char *)arg);
 	return (arg);
 }
 
@@ -590,7 +594,6 @@ void	no_free(void *data)
 {
 	(void)data;
 }
-
 
 // Translate parts into final words
 void	*serve(void *data)
@@ -622,7 +625,7 @@ t_list	*cook_arg(t_list *word_list, void *state)
 
 	arg = word_list->content;
 	if (DEBUG_CMD_COOKING)
-		printf("\narg[" AEC_GREEN "%s" AEC_RESET "] -->", (char *)arg);
+		printf("\narg[" AEC_BOLD_GREEN "%s" AEC_RESET "] -->", (char *)arg);
 	word_list->content = new_part(arg, VARIABLE_SUBSTITUTION);
 	if (word_list->content == NULL)
 	{
@@ -662,7 +665,8 @@ void	debug_redirect(t_redirect *r)
 		type = ">>";
 	else if (r->type == OPERATOR_PIPE)
 		type = "|";
-	printf("\nredirect[ %s " AEC_GREEN "%s" AEC_RESET "] -->", type, r->target);
+	printf("\nredirect[[" AEC_GREEN "%s" AEC_RESET "][" AEC_BOLD_GREEN "%s"
+		AEC_RESET "]] -->", type, r->target);
 }
 
 t_list	*cook_redirect(t_list *lst, void *state)
@@ -695,8 +699,6 @@ t_list	*cook_redirect(t_list *lst, void *state)
 		cook_wordpart(&cc);
 		next_wordpart(&cc, lst);
 	}
-	if (DEBUG_CMD_COOKING)
-		printf("\n\n");
 	len = 0;
 	if (ft_lstsize(lst) > 1 || *(size_t *)ft_lstreduce(
 			(t_list *)lst->content, &len, calc_memsize) == 0)
@@ -708,6 +710,8 @@ t_list	*cook_redirect(t_list *lst, void *state)
 	else
 	{
 		ft_lstconv(lst, serve);
+		if (DEBUG_CMD_COOKING)
+			printf("\n\n");
 		redirect->target = lst->content;
 		lst->content = redirect;
 	}
