@@ -676,7 +676,10 @@ t_list	*cook_redirect(t_list *lst, void *state)
 	redirect = lst->content;
 	if (DEBUG_CMD_COOKING)
 		debug_redirect(redirect);
-	lst->content = new_part(redirect->target, VARIABLE_SUBSTITUTION);
+	if (redirect->type == OPERATOR_REDIRECT_IN_STOPWORD)
+		lst->content = new_part(redirect->target, QUOTE_REMOVAL);
+	else
+		lst->content = new_part(redirect->target, VARIABLE_SUBSTITUTION);
 	if (lst->content == NULL)
 	{
 		lst->content = redirect;
