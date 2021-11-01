@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 22:51:13 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 23:26:52 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@
 # include "minishell_debug.h"
 
 # define COMMAND_NAME	"minishell"
-
 # define PROMPT_STRING	"minishell$ "
-# define SUBSHELL_MAGIC_BYTE '\1'
-# define SUBSHELL_ENV	"MINISHELL_SUBSHELL"
+
+# define SUBSHELL_MAGIC_BYTE	'\1'
+# define SUBSHELL_ENV			"MINISHELL_SUBSHELL"
 
 # define ERR_CODE_PARSE				258
 # define ERR_CODE_NOT_EXECUTABLE	126
