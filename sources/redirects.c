@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 20:30:44 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 00:13:39 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 00:59:31 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ bool	redirect_files(t_list *redirects_list)
 		redirect = redirects_list->content;
 		if (redirect_file_create(redirect) == false)
 		{
-			error(ERR_ERRNO, redirect->target, NULL, NULL);
+			error(strerror(errno), redirect->target, NULL, NULL);
 			return (false);
 		}
 		redirects_list = redirects_list->next;

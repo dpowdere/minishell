@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 23:09:06 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/31 15:45:21 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:07:01 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 
 t_cmd	*get_cooked_cmd(t_cmd *cmd)
 {
-	cmd->args = (char **)ft_lst_to_ptr_array(cmd->args_list);
+	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
 		return (NULL);
-	cmd->args_list = NULL;
 	/* TODO: Cook cmd for minishell consumption, expand env vars,
 	** remove quotes and escape chars, additionally split by words
 	** when appropriate.

@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:38:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 21:07:14 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 21:09:07 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ t_list	*get_tokens_list(const char *line, int *exit_status)
 		return (error(ERR_SYNTAX_EOF, NULL, tokens_list, free_token));
 	}
 	else if (line == NULL)
-		return (error(ERR_ERRNO, NULL, tokens_list, free_token));
+		return (error(strerror(errno), NULL, tokens_list, free_token));
 	return (debug_tokens(ft_lstreverse(&tokens_list)));
 }
 
@@ -130,7 +130,7 @@ t_list	*get_tokens_list_subshell(char **tokens)
 		else
 			get_word(*tokens, &tokens_list, &_);
 		if (errno == ENOMEM)
-			return (error(ERR_ERRNO, NULL, tokens_list, free_token));
+			return (error(strerror(errno), NULL, tokens_list, free_token));
 		tokens++;
 	}
 	return (debug_tokens(ft_lstreverse(&tokens_list)));

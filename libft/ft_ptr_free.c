@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_assign_ptr.c                                    :+:      :+:    :+:   */
+/*   ft_ptr_free.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/02 17:45:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/05/02 17:45:58 by ngragas          ###   ########.fr       */
+/*   Created: 2021/04/14 16:54:07 by ngragas           #+#    #+#             */
+/*   Updated: 2021/04/14 16:54:07 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stdlib.h>
 
-void	*ft_assign_ptr(void **dst_ptr, void *src_ptr)
+void	*ft_ptr_free(void *ptr)
 {
-	*dst_ptr = src_ptr;
-	return (*dst_ptr);
+	free(ptr);
+	return (NULL);
 }

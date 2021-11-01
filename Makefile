@@ -6,31 +6,32 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/11/01 18:03:37 by ngragas          ###   ########.fr        #
+#    Updated: 2021/11/01 23:06:15 by ngragas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	minishell
-SRC		=	main			\
-			env				\
-			signals			\
-			readline		\
-			get_tokens		\
-			check_tokens	\
-			get_raw_cmds	\
-			get_raw_cmds_utils\
-			get_cooked_cmd	\
-			execute			\
-			execute_builtin	\
-			execute_child	\
-			execute_subshell\
-			redirects		\
-			builtins		\
-			builtins_env	\
-			free			\
-			debug_tokens	\
-			debug_cmds		\
-			utils
+SRC		=	main				\
+			env					\
+			signals				\
+			readline			\
+			get_tokens			\
+			check_tokens		\
+			get_raw_cmds		\
+			get_raw_cmds_utils	\
+			get_cooked_cmd		\
+			execute				\
+			execute_builtin		\
+			execute_child		\
+			execute_subshell	\
+			redirects			\
+			builtins			\
+			builtins_env		\
+			errors				\
+			free				\
+			utils				\
+			debug_tokens		\
+			debug_cmds
 
 SRC_DIR	=	sources/
 INC_DIR	=	includes/
@@ -82,7 +83,7 @@ $(NAME): $(LIB) $(OBJ)
 $(OBJ): | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c Makefile
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 -include $(DEP)
 
@@ -97,7 +98,7 @@ fclean: clean
 re: fclean all
 
 norm:
-	@norminette $(SRC_DIR)* $(INC_DIR)* $(LIB_DIR)*.[ch]
+	@norminette $(LIB_DIR)*.[ch] $(SRC_DIR)* $(INC_DIR)*
 
 install-deps:
 ifdef ON_LINUX

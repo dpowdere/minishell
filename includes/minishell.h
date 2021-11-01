@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 20:20:22 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 22:51:13 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,27 +31,20 @@
 # include "minishell_debug.h"
 
 # define COMMAND_NAME	"minishell"
+
 # define PROMPT_STRING	"minishell$ "
 # define SUBSHELL_MAGIC_BYTE '\1'
 # define SUBSHELL_ENV	"MINISHELL_SUBSHELL"
 
-enum e_error {
-	ERR_ERRNO = 0,
-	ERR_SYNTAX_EOF,
-	ERR_SYNTAX_MATCHING,
-	ERR_SYNTAX_TOKEN,
-	ERR_COMMAND_NOT_FOUND
-};
+# define ERR_CODE_PARSE				258
+# define ERR_CODE_NOT_EXECUTABLE	126
+# define ERR_CODE_NOT_FOUND			127
+# define ERR_CODE_SIGNAL_OFFSET		128
 
-# define ERR_CODE_PARSE 258
-# define ERR_CODE_NOT_EXECUTABLE 126
-# define ERR_CODE_NOT_FOUND 127
-# define ERR_CODE_SIGNAL_OFFSET 128
-
-# define ERR_STR_SYNTAX_EOF			"syntax error: unexpected end of file"
-# define ERR_STR_SYNTAX_MATCHING	"unexpected EOF while looking for matching"
-# define ERR_STR_SYNTAX_TOKEN		"syntax error near unexpected token"
-# define ERR_STR_COMMAND_NOT_FOUND	"command not found"
+# define ERR_SYNTAX_EOF			"syntax error: unexpected end of file"
+# define ERR_SYNTAX_MATCHING	"unexpected EOF while looking for matching"
+# define ERR_SYNTAX_TOKEN		"syntax error near unexpected token"
+# define ERR_COMMAND_NOT_FOUND	"command not found"
 
 # define ERR_BUILTIN_HOME_NOT_SET 		"HOME not set"
 # define ERR_BUILTIN_ENV_INVALID		"not a valid identifier"
@@ -185,6 +178,13 @@ int				builtin_env(char *builtin_name, char **args);
 int				builtin_export(char *builtin_name, char **args);
 int				builtin_unset(char *builtin_name, char **args);
 
+// error.c
+void			*error(char *error_message, char *extra_message, \
+								t_list *list_to_free, void (*free_fn)(void*));
+void			*exit_with_error(t_list *list_to_free, void (*free_fn)(void*));
+int				error_builtin(char *builtin_name, char *message, \
+								char *extra_message);
+
 // free.c
 void			free_token(void *token_content);
 void			free_redirect(void *redirect_content);
@@ -192,17 +192,6 @@ void			free_cmd(void *cmd_content);
 void			clean_up(t_state *state);
 
 // utils.c
-int				ft_ptr_array_len(void **ptr_array);
-void			**ft_lst_to_ptr_array(t_list *list);
-char			*ft_strjoin_chr(char const *s1, char const *s2, char c);
-int				ft_isspace(int c);
-char			*ft_basename(char *path);
-void			*error(enum e_error type, char *extra_message, \
-								t_list *list_to_free, void (*free_fn)(void*));
-void			*exit_with_error(enum e_error type, char *extra_message, \
-								t_list *list_to_free, void (*free_fn)(void*));
-int				error_builtin(char *builtin_name, char *message, \
-								char *extra_message);
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
 bool			valid_identifier_name(const char *name);
 

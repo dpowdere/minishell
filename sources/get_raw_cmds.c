@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:38:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 21:45:56 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:27:20 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ t_list	*get_cmds_list(t_list *tokens_list)
 		{
 			free(cmd);
 			ft_lstclear(&tokens_list, free_token);
-			return (error(ERR_ERRNO, NULL, cmds_list, free_cmd));
+			return (error(strerror(errno), NULL, cmds_list, free_cmd));
 		}
 		ft_lstadd_front(&cmds_list, cmdlst);
 		tokens_list = get_cmd(tokens_list, cmd);

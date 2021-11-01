@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 22:48:25 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 20:08:09 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static void	execute_fail(char *command)
 		error(ERR_COMMAND_NOT_FOUND, command, NULL, NULL);
 	}
 	else if (errno)
-		error(ERR_ERRNO, command, NULL, NULL);
+		error(strerror(errno), command, NULL, NULL);
 	if (errno == EISDIR)
 		errno = ERR_CODE_NOT_EXECUTABLE;
 }
@@ -102,18 +102,18 @@ void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc)
 	{
 		close(pipe_out_in[0]);
 		if (dup2(pipe_out_in[1], STDOUT_FILENO) == -1)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+			exit_with_error(NULL, NULL);
 		close(pipe_out_in[1]);
 	}
 	if (heredoc)
 	{
 		if (redirect_heredoc_create(heredoc) == false)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+			exit_with_error(NULL, NULL);
 	}
 	else if (fd_for_stdin)
 	{
 		if (dup2(fd_for_stdin, STDIN_FILENO) == -1)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+			exit_with_error(NULL, NULL);
 	}
 	if (fd_for_stdin)
 		close(fd_for_stdin);

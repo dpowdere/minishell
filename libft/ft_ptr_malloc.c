@@ -1,27 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   ft_ptr_malloc.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/09 16:29:16 by ngragas           #+#    #+#             */
-/*   Updated: 2020/11/20 13:19:24 by ngragas          ###   ########.fr       */
+/*   Created: 2021/04/14 15:59:46 by ngragas           #+#    #+#             */
+/*   Updated: 2021/11/01 22:01:55 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_atoi(const char *str)
-{
-	int		num;
-	char	sign;
+#include <stdlib.h>
 
-	num = 0;
-	while (('\t' <= *str && *str <= '\r') || *str == ' ')
-		str++;
-	sign = 1;
-	if (*str == '-' || *str == '+')
-		sign = 44 - *str++;
-	while ('0' <= *str && *str <= '9')
-		num = num * 10 + sign * (*str++ - '0');
-	return (num);
+void	*ft_ptr_malloc(void **ptr, size_t size)
+{
+	*ptr = malloc(size);
+	return (*ptr);
 }

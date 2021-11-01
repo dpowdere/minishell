@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:39:48 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 21:18:30 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 20:15:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static bool	execute_fork_wait(t_list *childs_list, int *exit_status)
 		{
 			if (errno == EINTR)
 				continue ;
-			error(ERR_ERRNO, NULL, childs_list, free);
+			error(strerror(errno), NULL, childs_list, free);
 			return (false);
 		}
 		if (WIFEXITED(stat_loc))
