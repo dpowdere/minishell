@@ -66,11 +66,14 @@ void	*error(enum e_error type, char *extra_message,
 	else if (type == ERR_SYNTAX_TOKEN)
 		ft_putstr_fd(ERR_STR_SYNTAX_TOKEN, STDERR_FILENO);
 	else if (type == ERR_AMBIGUOUS_REDIRECT)
-		ft_putstr_fd(ERR_STR_AMBIGUOUS_REDIRECT, STDERR_FILENO);
+		ft_putstr_fd(extra_message, STDERR_FILENO);
 	if (extra_message)
 	{
 		ft_putstr_fd(": ", STDERR_FILENO);
-		ft_putstr_fd(extra_message, STDERR_FILENO);
+		if (type == ERR_AMBIGUOUS_REDIRECT)
+			ft_putstr_fd(ERR_STR_AMBIGUOUS_REDIRECT, STDERR_FILENO);
+		else
+			ft_putstr_fd(extra_message, STDERR_FILENO);
 	}
 	ft_putstr_fd("\n", STDERR_FILENO);
 	if (list_to_free && free_fn)

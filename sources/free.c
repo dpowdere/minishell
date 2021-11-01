@@ -41,6 +41,8 @@ void	free_cmd(void *cmd_content)
 {
 	t_cmd	*cmd;
 
+	if (cmd_content == NULL)
+		return ;
 	cmd = (t_cmd *)cmd_content;
 	ft_lstclear(&cmd->args_list, free);
 	ft_lstclear(&cmd->redirect_in, free_redirect);

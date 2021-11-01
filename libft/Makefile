@@ -30,7 +30,7 @@ SRCS =	ft_isalpha.c	ft_isdigit.c	ft_isalnum.c	ft_isprint.c	\
 		ft_lstdelone.c	ft_lstclear.c									\
 		ft_lstsort.c	ft_lstreverse.c	ft_lstsize.c					\
 		ft_lstlast.c	ft_lstdetach.c									\
-		ft_lstiter.c	ft_lstmap.c										\
+		ft_lstiter.c	ft_lstmap.c		ft_lstpipeline.c				\
 		ft_wchrto8.c	ft_wstrto8.c									\
 		get_next_line.c	ft_minmax.c		ft_file_exists.c
 OBJS = $(SRCS:.c=.o)

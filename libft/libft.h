@@ -88,6 +88,8 @@ void		ft_lstclear(t_list **lst, void (*del)(void*));
 void		ft_lstiter(t_list *lst, void (*f)(void *));
 void		ft_lstiterix(t_list *lst, void (*f)(void *, int ix, int is_last));
 void		ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list **));
+void		ft_lstpipeline_extradata(t_list **lst,
+				t_list *(*pipeline)(t_list **, void *), void *extra_data);
 void		ft_lstpipeline1(t_list **lst, t_list *(*pipeline)(t_list *));
 void		ft_lstpipeline1_extradata(t_list **lst,
 				t_list *(*pipeline)(t_list *, void *), void *extra_data);

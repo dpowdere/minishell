@@ -148,7 +148,6 @@ typedef struct s_cooking_cursor
 	int				need_another_traversal;
 	t_state			*state;
 	int				phase_num;
-	enum e_error	error;
 }	t_cooking_cursor;
 
 // env.c

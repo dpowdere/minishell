@@ -80,7 +80,7 @@ int	string_cooking_condition(t_cooking_cursor *cc, char *s)
 {
 	if (s == NULL)
 		s = cc->cursor;
-	return (errno == 0 && cc->error == 0 && !cc->finish_phase
+	return (errno == 0 && !cc->finish_phase
 		&& *s != '\0'
 		&& (cc->part->exclusive_end == NULL || s < cc->part->exclusive_end));
 }
@@ -317,8 +317,8 @@ void	*should_expand_pathnames_check(void *initial, void *next)
 	part = (t_part *)next;
 	valid_phase = (part->phase == PATHNAME_EXPANSION \
 					|| part->phase == _PATHEXP_IN_VARIABLE);
-	stars_only = 1;
 	cursor = part->start;
+	stars_only = *cursor != '\0';
 	while (stars_only && *cursor != '\0' && cursor < part->exclusive_end)
 		stars_only *= (*cursor++ == '*');
 	*(int *)initial *= valid_phase * stars_only;
@@ -554,7 +554,7 @@ int	wordpart_cooking_condition(t_cooking_cursor *cc)
 {
 	extern int	errno;
 
-	return (cc->word_list && cc->part_list && !errno && !cc->error);
+	return (cc->word_list && cc->part_list && !errno);
 }
 
 void	*calc_memsize(void *initial, void *next)
@@ -586,27 +586,33 @@ static inline void	*debug_cooked_string(void *arg)
 	return (arg);
 }
 
+void	no_free(void *data)
+{
+	(void)data;
+}
+
+
 // Translate parts into final words
 void	*serve(void *data)
 {
 	t_list	*part_list;
 	size_t	memsize;
-	char	*arg_terminator;
+	char	*string_terminator;
 
 	part_list = (t_list *)data;
 	memsize = 1;
 	ft_lstreduce(part_list, &memsize, calc_memsize);
-	arg_terminator = malloc(memsize);
-	if (arg_terminator == NULL)
+	string_terminator = malloc(memsize);
+	if (string_terminator == NULL)
 	{
-		ft_lstclear(&part_list, free);
+		ft_lstclear(&part_list, no_free);
 		return (NULL);
 	}
 	part_list = ft_lstreverse(&part_list);
-	arg_terminator += memsize - 1;
-	*arg_terminator = '\0';
+	string_terminator += memsize - 1;
+	*string_terminator = '\0';
 	return (debug_cooked_string(
-			ft_lstpopreduce(&part_list, arg_terminator, populate_arg)));
+			ft_lstpopreduce(&part_list, string_terminator, populate_arg)));
 }
 
 t_list	*cook_arg(t_list *word_list, void *state)
@@ -630,24 +636,102 @@ t_list	*cook_arg(t_list *word_list, void *state)
 		next_wordpart(&cc, word_list);
 	}
 	ft_lstconv(word_list, serve);
+	free(arg);
 	if (DEBUG_CMD_COOKING)
 		printf("\n\n");
 	return (word_list);
 }
 
-void	*cook_redirect(void *data)
+void	free_word_with_parts(void *data)
 {
-	return (data);
+	ft_lstclear((t_list **)&data, free);
+}
+
+void	debug_redirect(t_redirect *r)
+{
+	char	*type;
+
+	type = NULL;
+	if (r->type == OPERATOR_REDIRECT_IN)
+		type = "<";
+	else if (r->type == OPERATOR_REDIRECT_IN_STOPWORD)
+		type = "<<";
+	else if (r->type == OPERATOR_REDIRECT_OUT)
+		type = ">";
+	else if (r->type == OPERATOR_REDIRECT_OUT_APPEND)
+		type = ">>";
+	else if (r->type == OPERATOR_PIPE)
+		type = "|";
+	printf("\nredirect[ %s " AEC_GREEN "%s" AEC_RESET "] -->", type, r->target);
+}
+
+t_list	*cook_redirect(t_list *lst, void *state)
+{
+	t_redirect			*redirect;
+	char				*s1;
+	char				*s2;
+	size_t				len;
+	t_cooking_cursor	cc;
+
+	redirect = lst->content;
+	if (DEBUG_CMD_COOKING)
+		debug_redirect(redirect);
+	lst->content = new_part(redirect->target, VARIABLE_SUBSTITUTION);
+	if (lst->content == NULL)
+	{
+		lst->content = redirect;
+		return (lst);
+	}
+	s1 = redirect->target;
+	s2 = ft_strdup(s1);
+	if (s2 == NULL)
+		s2 = s1;
+	cc = get_cooking_cursor(lst, state);
+	while (wordpart_cooking_condition(&cc))
+	{
+		cook_wordpart(&cc);
+		next_wordpart(&cc, lst);
+	}
+	if (DEBUG_CMD_COOKING)
+		printf("\n\n");
+	len = 0;
+	if (ft_lstsize(lst) > 1 || *(size_t *)ft_lstreduce(
+			(t_list *)lst->content, &len, calc_memsize) == 0)
+	{
+		ft_lstclear(&lst, free_word_with_parts);
+		free(redirect);
+		error(ERR_AMBIGUOUS_REDIRECT, s2, NULL, NULL);
+	}
+	else
+	{
+		ft_lstconv(lst, serve);
+		redirect->target = lst->content;
+		lst->content = redirect;
+	}
+	free(s1);
+	if (s2 != s1)
+		free(s2);
+	return (lst);
 }
 
 t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
 {
+	extern int	errno;
+	int			check;
+
+	check = (cmd->args_list != NULL)
+		+ (cmd->redirect_in != NULL) + (cmd->redirect_out != NULL);
 	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, state);
-	ft_lstconv(cmd->redirect_in, cook_redirect);
-	ft_lstconv(cmd->redirect_out, cook_redirect);
+	ft_lstpipeline1_extradata(&cmd->redirect_in, cook_redirect, state);
+	ft_lstpipeline1_extradata(&cmd->redirect_out, cook_redirect, state);
+	cmd = debug_cooked_cmd(cmd);
 	if (errno == ENOMEM)
 		error(ERR_ERRNO, NULL, NULL, NULL);
-	else if (errno == EPROTO)
-		error(ERR_AMBIGUOUS_REDIRECT, NULL, NULL, NULL);
-	return (debug_cooked_cmd(cmd));
+	if (errno || check != (cmd->args_list != NULL)
+		+ (cmd->redirect_in != NULL) + (cmd->redirect_out != NULL))
+	{
+		free_cmd(cmd);
+		cmd = NULL;
+	}
+	return (cmd);
 }
