@@ -23,7 +23,7 @@ char	**ft_split(char const *s, char c)
 		if (*s++ != c && ++count)
 			while (*s && *s != c)
 				s++;
-	if (!ft_assign_ptr((void **)&spl, malloc(sizeof(*spl) * (count + 1))))
+	if (!ft_ptr_assign((void **)&spl, malloc(sizeof(*spl) * (count + 1))))
 		return (NULL);
 	count = 0;
 	while (*r)
@@ -33,8 +33,8 @@ char	**ft_split(char const *s, char c)
 			s = r - 1;
 			while (*r && *r != c)
 				r++;
-			if (!ft_assign_ptr((void **)&spl[count++], ft_substr(s, 0, r - s)))
-				return (ft_free_ptr_array((void **)spl));
+			if (!ft_ptr_assign((void **)&spl[count++], ft_substr(s, 0, r - s)))
+				return (ft_ptr_array_free((void **)spl));
 		}
 	}
 	spl[count] = NULL;

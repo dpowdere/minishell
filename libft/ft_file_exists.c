@@ -10,13 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include "fcntl.h"
+#include <unistd.h>
+#include <fcntl.h>
 
 int	ft_file_exists(char *path)
 {
-	int	fd;
-	int	check;
+	int		fd;
+	ssize_t	check;
 
 	fd = open(path, O_RDONLY);
 	if (fd == -1)

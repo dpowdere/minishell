@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stddef.h>
 
 static int	ft_memcmp_check_8(const void *s1, const void *s2)
 {

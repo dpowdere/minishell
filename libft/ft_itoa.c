@@ -10,12 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stdlib.h>
 
-/*
-** Variable "digits[10]" holds negative sign
-*/
-
+// Variable "digits[10]" holds negative sign
 char	*ft_itoa(int n)
 {
 	char			*str;

@@ -1,19 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_ptr.c                                      :+:      :+:    :+:   */
+/*   ft_isspace.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/14 16:54:07 by ngragas           #+#    #+#             */
-/*   Updated: 2021/04/14 16:54:07 by ngragas          ###   ########.fr       */
+/*   Created: 2021/11/01 21:39:38 by ngragas           #+#    #+#             */
+/*   Updated: 2021/11/01 21:39:38 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-void	*ft_free_ptr(void *ptr)
+int	ft_isspace(int c)
 {
-	free(ptr);
-	return (NULL);
+	c = (unsigned char)c;
+	return (c == ' ' || c == '\n' || c == '\t' || \
+			c == '\v' || c == '\f' || c == '\r');
 }

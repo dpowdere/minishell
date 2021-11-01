@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stddef.h>
 
 static int	ft_strncmp_check_tail(const char *s1, const char *s2, size_t n)
 {

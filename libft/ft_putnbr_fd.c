@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <unistd.h>
 
 void	ft_putnbr_fd(int n, int fd)
 {
@@ -23,11 +23,11 @@ void	ft_putnbr_fd(int n, int fd)
 		write(fd, "0", 1);
 		return ;
 	}
-	sign = (n > 0) - (n < 0);
+	sign = (char)((n > 0) - (n < 0));
 	i = 11;
 	while (n)
 	{
-		digits[--i] = '0' + n % 10 * sign;
+		digits[--i] = (char)('0' + n % 10 * sign);
 		n /= 10;
 	}
 	if (sign < 0)

@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/31 18:34:03 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 21:53:59 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:27:20 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	execute_subshell(char **tokens)
 	tokens_list = get_tokens_list_subshell(tokens + 1);
 	if (errno == ENOMEM)
 		return (EXIT_FAILURE);
-	ft_free_ptr_array((void **)tokens);
+	ft_ptr_array_free((void **)tokens);
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (EXIT_FAILURE);

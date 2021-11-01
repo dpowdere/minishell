@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 18:40:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 00:40:23 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 17:23:22 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 char	**copy_environ(bool deep_copy)
 {
-	const int	env_var_count = ft_ptr_array_len((void **)environ);
-	char		**new_env;
-	int			i;
+	const size_t	env_var_count = ft_ptr_array_len((void **)environ);
+	char			**new_env;
+	size_t			i;
 
 	new_env = malloc((env_var_count + 1 + 1) * sizeof(*new_env));
 	if (new_env == NULL)
@@ -28,7 +28,7 @@ char	**copy_environ(bool deep_copy)
 		{
 			new_env[i] = ft_strdup(environ[i]);
 			if (new_env[i] == NULL)
-				return (ft_free_ptr_array((void **)new_env));
+				return (ft_ptr_array_free((void **)new_env));
 			i++;
 		}
 	}
@@ -41,8 +41,8 @@ char	**copy_environ(bool deep_copy)
 
 static int	extend_environ(char *env_var)
 {
-	const int	env_var_count = ft_ptr_array_len((void **)environ);
-	char		**new_environ;
+	const size_t	env_var_count = ft_ptr_array_len((void **)environ);
+	char			**new_environ;
 
 	if (env_var == NULL)
 		return (-1);

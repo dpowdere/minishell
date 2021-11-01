@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 20:20:22 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 22:13:01 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,6 +185,14 @@ int				builtin_env(char *builtin_name, char **args);
 int				builtin_export(char *builtin_name, char **args);
 int				builtin_unset(char *builtin_name, char **args);
 
+// error.c
+void			*error(enum e_error type, char *extra_message, \
+								t_list *list_to_free, void (*free_fn)(void*));
+void			*exit_with_error(enum e_error type, char *extra_message, \
+								t_list *list_to_free, void (*free_fn)(void*));
+int				error_builtin(char *builtin_name, char *message, \
+								char *extra_message);
+
 // free.c
 void			free_token(void *token_content);
 void			free_redirect(void *redirect_content);
@@ -192,17 +200,6 @@ void			free_cmd(void *cmd_content);
 void			clean_up(t_state *state);
 
 // utils.c
-int				ft_ptr_array_len(void **ptr_array);
-void			**ft_lst_to_ptr_array(t_list *list);
-char			*ft_strjoin_chr(char const *s1, char const *s2, char c);
-int				ft_isspace(int c);
-char			*ft_basename(char *path);
-void			*error(enum e_error type, char *extra_message, \
-								t_list *list_to_free, void (*free_fn)(void*));
-void			*exit_with_error(enum e_error type, char *extra_message, \
-								t_list *list_to_free, void (*free_fn)(void*));
-int				error_builtin(char *builtin_name, char *message, \
-								char *extra_message);
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
 bool			valid_identifier_name(const char *name);
 
