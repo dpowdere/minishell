@@ -159,12 +159,12 @@ void	insert_exit_status(t_cooking_cursor *cc)
 		printf(" exit_status[" AEC_YELLOW "%s" AEC_RESET "]", status);
 	if (cc->write_cursor == cc->part->start)
 	{
-		cc->part->phase = PATHNAME_EXPANSION;
+		cc->part->phase = FINAL;
 		cc->part->start = status;
 		cc->recycle_wordpart = true;
 	}
 	else
-		ft_lstadd_back(&cc->part_list, new_part(status, PATHNAME_EXPANSION));
+		ft_lstadd_back(&cc->part_list, new_part(status, FINAL));
 	if (cc->inside_double_quotes)
 		phase = _VARSUB_OPEN_DOUBLE_QUOTE;
 	else
@@ -318,7 +318,7 @@ void	*should_expand_pathnames_check(void *initial, void *next)
 	valid_phase = (part->phase == PATHNAME_EXPANSION \
 					|| part->phase == _PATHEXP_IN_VARIABLE);
 	cursor = part->start;
-	stars_only = *cursor != '\0';
+	stars_only = *cursor == '*';
 	while (stars_only && *cursor != '\0' && cursor < part->exclusive_end)
 		stars_only *= (*cursor++ == '*');
 	*(int *)initial *= valid_phase * stars_only;
