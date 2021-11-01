@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 20:08:09 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/02 00:46:42 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,25 +96,31 @@ void	execute_child(t_cmd *cmd)
 	exit(errno);
 }
 
-void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc)
+void	child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 {
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{
-		close(pipe_out_in[0]);
+		if (close(pipe_out_in[0]) == -1)
+			exit_with_error(NULL, NULL);
 		if (dup2(pipe_out_in[1], STDOUT_FILENO) == -1)
 			exit_with_error(NULL, NULL);
-		close(pipe_out_in[1]);
+		if (close(pipe_out_in[1]) == -1)
+			exit_with_error(NULL, NULL);
 	}
 	if (heredoc)
 	{
 		if (redirect_heredoc_create(heredoc) == false)
 			exit_with_error(NULL, NULL);
 	}
-	else if (fd_for_stdin)
+	else if (*fd_for_stdin)
 	{
-		if (dup2(fd_for_stdin, STDIN_FILENO) == -1)
+		if (dup2(*fd_for_stdin, STDIN_FILENO) == -1)
 			exit_with_error(NULL, NULL);
 	}
-	if (fd_for_stdin)
-		close(fd_for_stdin);
+	if (*fd_for_stdin)
+	{
+		if (close(*fd_for_stdin) == -1)
+			exit_with_error(NULL, NULL);
+		*fd_for_stdin = 0;
+	}
 }

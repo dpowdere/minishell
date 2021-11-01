@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 23:26:52 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 23:28:41 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ bool			execute_builtin(t_cmd *cmd, int *exit_status);
 int				execute_builtin_run(char **args, int current_exit_status);
 
 // execute_child.c
-void			child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, \
+void			child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, \
 									char *heredoc);
 void			execute_child(t_cmd *cmd);
 
