@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 18:51:41 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/31 15:36:57 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:30:43 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	clean_up(t_state *state)
 {
 	(void)state;
 	ft_free_ptr_array((void **)environ);
+	rl_clear_history();
 }
 
 void	free_token(void *token_content)

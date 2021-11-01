@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 19:50:19 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:48:25 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static bool	cmd_path_check(char *path)
 
 static char	*get_next_env_path(char *basename)
 {
-	static char		path[MAXPATHLEN];
+	static char		path[PATH_MAX];
 	static char		*path_start;
 	static char		*path_end;
 	const size_t	basename_len = ft_strlen(basename);
@@ -37,12 +37,12 @@ static char	*get_next_env_path(char *basename)
 		return (NULL);
 	if (path_start == NULL)
 		path_start = getenv("PATH");
-	if (path_start == NULL || basename_len >= MAXPATHLEN - 1)
+	if (path_start == NULL || basename_len >= PATH_MAX - 1)
 		return (NULL);
 	path_end = ft_strchr(path_start, ':');
 	if (path_end == NULL)
 		path_end = ft_strchr(path_start, '\0');
-	if (path_end - path_start < MAXPATHLEN - (int)basename_len)
+	if (path_end - path_start < PATH_MAX - (int)basename_len)
 	{
 		ft_strlcpy(path, path_start, path_end - path_start + 1);
 		path[path_end - path_start] = '/';

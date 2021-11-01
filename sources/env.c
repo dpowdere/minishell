@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 18:40:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 00:15:13 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 00:40:23 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	**copy_environ(bool deep_copy)
 {
-	const int	env_var_count = ft_ptr_array_len((const void **)environ);
+	const int	env_var_count = ft_ptr_array_len((void **)environ);
 	char		**new_env;
 	int			i;
 
@@ -41,7 +41,7 @@ char	**copy_environ(bool deep_copy)
 
 static int	extend_environ(char *env_var)
 {
-	const int	env_var_count = ft_ptr_array_len((const void **)environ);
+	const int	env_var_count = ft_ptr_array_len((void **)environ);
 	char		**new_environ;
 
 	if (env_var == NULL)

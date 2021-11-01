@@ -6,14 +6,14 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 20:01:22 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 00:28:26 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 20:08:09 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 // TODO: move to libft
-int	ft_ptr_array_len(const void **ptr_array)
+int	ft_ptr_array_len(void **ptr_array)
 {
 	int	len;
 
@@ -71,7 +71,7 @@ int	ft_isspace(int c)
 
 char	*ft_basename(char *path)
 {
-	static char	basename_bss[MAXPATHLEN];
+	static char	basename_bss[PATH_MAX];
 	size_t		end_index;
 	size_t		start_index;
 
@@ -87,7 +87,7 @@ char	*ft_basename(char *path)
 	start_index = end_index - 1;
 	while (start_index > 0 && path[start_index - 1] != '/')
 		start_index--;
-	if (end_index - start_index >= MAXPATHLEN)
+	if (end_index - start_index >= PATH_MAX)
 	{
 		errno = ENAMETOOLONG;
 		return (NULL);
@@ -97,11 +97,25 @@ char	*ft_basename(char *path)
 	return (basename_bss);
 }
 
+int	error_builtin(char *builtin_name, char *message, char *extra_message)
+{
+	ft_putstr_fd(COMMAND_NAME ": ", STDERR_FILENO);
+	ft_putstr_fd(builtin_name, STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
+	ft_putstr_fd(message, STDERR_FILENO);
+	if (extra_message)
+	{
+		ft_putstr_fd(": ", STDERR_FILENO);
+		ft_putstr_fd(extra_message, STDERR_FILENO);
+	}
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (EXIT_FAILURE);
+}
+
 void	*error(enum e_error type, char *extra_message,
 				t_list *list_to_free, void (*free_fn)(void*))
 {
-	ft_putstr_fd(COMMAND_NAME, STDERR_FILENO);
-	ft_putstr_fd(": ", STDERR_FILENO);
+	ft_putstr_fd(COMMAND_NAME ": ", STDERR_FILENO);
 	if (type == ERR_ERRNO)
 		ft_putstr_fd(strerror(errno), STDERR_FILENO);
 	else if (type == ERR_SYNTAX_EOF)
@@ -112,8 +126,6 @@ void	*error(enum e_error type, char *extra_message,
 		ft_putstr_fd(ERR_STR_SYNTAX_TOKEN, STDERR_FILENO);
 	else if (type == ERR_COMMAND_NOT_FOUND)
 		ft_putstr_fd(ERR_STR_COMMAND_NOT_FOUND, STDERR_FILENO);
-	else if (type == ERR_ENV_INVALID)
-		ft_putstr_fd(ERR_STR_ENV_INVALID, STDERR_FILENO);
 	if (extra_message)
 	{
 		ft_putstr_fd(": ", STDERR_FILENO);

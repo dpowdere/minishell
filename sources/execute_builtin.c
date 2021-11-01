@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:32 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 15:36:57 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 17:58:16 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,19 @@
 void	*is_builtin(const char *command)
 {
 	int			i;
-	int			(*builtin_fptr[7])(char **);
+	int			(*builtin_fptr[7])(char *, char **);
 	const char	*builtins[] = {"echo",		"pwd",
 								"cd",		"env",
 								"export",	"unset",
 								"exit",		NULL};
 
-	builtin_fptr[0] = shell_echo;
-	builtin_fptr[1] = shell_pwd;
-	builtin_fptr[2] = shell_cd;
-	builtin_fptr[3] = shell_env;
-	builtin_fptr[4] = shell_export;
-	builtin_fptr[5] = shell_unset;
-	builtin_fptr[6] = shell_exit;
+	builtin_fptr[0] = builtin_echo;
+	builtin_fptr[1] = builtin_pwd;
+	builtin_fptr[2] = builtin_cd;
+	builtin_fptr[3] = builtin_env;
+	builtin_fptr[4] = builtin_export;
+	builtin_fptr[5] = builtin_unset;
+	builtin_fptr[6] = builtin_exit;
 	i = 0;
 	while (builtins[i])
 	{
@@ -78,6 +78,8 @@ bool	execute_builtin(t_cmd *cmd, int *exit_status)
 	}
 	if (redirect_files(cmd->redirects) == true)
 		*exit_status = execute_builtin_run(cmd->args, *exit_status);
+	if (errno != ENOMEM)
+		errno = 0;
 	if (cmd->heredoc || cmd->redirects)
 		if (backup_restore_stdinout() == false)
 			return (false);
@@ -86,10 +88,11 @@ bool	execute_builtin(t_cmd *cmd, int *exit_status)
 
 int	execute_builtin_run(char **args, const int current_exit_status)
 {
-	int	(*builtin_function)(char **);
+	int	(*builtin_function)(char *, char **);
 
 	builtin_function = is_builtin(args[0]);
-	if (builtin_function == shell_exit)
+	if (builtin_function == builtin_exit && args[1] == NULL)
 		exit(current_exit_status);
-	return (builtin_function(args + 1));
+	else
+		return (builtin_function(args[0], args + 1));
 }

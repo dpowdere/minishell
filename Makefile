@@ -6,7 +6,7 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/31 19:56:20 by ngragas          ###   ########.fr        #
+#    Updated: 2021/11/01 18:03:37 by ngragas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -71,10 +71,10 @@ ifdef DEBUG_COOKED_CMDS
   CPPFLAGS	+=	-DDEBUG_COOKED_CMDS=$(DEBUG_COOKED_CMDS)
 endif
 
-all:
-	$(MAKE) $(NAME) -j8
+all: $(NAME)
+bonus: all
 debug: CPPFLAGS	+= -DDEBUG_TOKENS=1 -DDEBUG_RAW_CMDS=1
-debug: $(NAME)
+debug: all
 $(LIB): FORCE
 	$(MAKE) -C $(LIB_DIR)
 $(NAME): $(LIB) $(OBJ)
@@ -105,5 +105,5 @@ ifdef ON_LINUX
 else
 	brew install readline
 endif
-.PHONY: FORCE all clean fclean install-deps re norm
+.PHONY: FORCE all bonus debug clean fclean re norm install-deps
 FORCE:

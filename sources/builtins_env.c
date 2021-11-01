@@ -6,63 +6,98 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/16 15:40:21 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 01:05:43 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 20:49:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	shell_env(char **args)
+int	builtin_env(char *builtin_name, char **args)
 {
 	args = environ;
 	while (*args)
-		printf("%s\n", *args++);
-	return (EXIT_SUCCESS);
-}
-
-static void	invalid_identifier_error(char *name)
-{
-	error(ERR_ENV_INVALID, name, NULL, NULL);
-	errno = 0;
-}
-
-int	shell_export(char **args)
-{
-	char	*name;
-	char	*eq_symbol_pos;
-
-	while (*args)
 	{
-		eq_symbol_pos = ft_strchr(*args, '=');
-		if (eq_symbol_pos)
+		if (printf("%s\n", *args) < 0)
 		{
-			name = ft_strdup(*args);
-			if (name == NULL)
-				return (EXIT_FAILURE);
-			eq_symbol_pos = name + (eq_symbol_pos - *args);
-			*eq_symbol_pos = '\0';
-			if (set_env(name, eq_symbol_pos + 1) == -1)
-			{
-				if (errno == EINVAL)
-					invalid_identifier_error(name);
-				free(name);
-				return (EXIT_FAILURE);
-			}
-			free(name);
+			error_builtin(builtin_name, strerror(errno), NULL);
+			return (EXIT_FAILURE);
 		}
 		args++;
 	}
 	return (EXIT_SUCCESS);
 }
 
-int	shell_unset(char **args)
+static int	builtin_export_list_envs(void)
+{
+	char	**envs;
+
+	envs = environ;
+	while (*envs)
+	{
+		if (printf("export %s\n", *envs) < 0)
+			return (EXIT_FAILURE);
+		envs++;
+	}
+	return (EXIT_SUCCESS);
+}
+
+static int	builtin_export_set_env(char *arg)
+{
+	char	*name;
+	char	*eq_symbol_pos;
+
+	eq_symbol_pos = ft_strchr(arg, '=');
+	if (eq_symbol_pos)
+	{
+		name = ft_strdup(arg);
+		if (name == NULL)
+			return (EXIT_FAILURE);
+		eq_symbol_pos = name + (eq_symbol_pos - arg);
+		*eq_symbol_pos = '\0';
+		if (set_env(name, eq_symbol_pos + 1) == -1)
+		{
+			free(name);
+			return (EXIT_FAILURE);
+		}
+		free(name);
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	builtin_export(char *builtin_name, char **args)
+{
+	if (*args == NULL)
+	{
+		if (builtin_export_list_envs() == EXIT_FAILURE)
+		{
+			error_builtin(builtin_name, strerror(errno), NULL);
+			return (EXIT_FAILURE);
+		}
+		return (EXIT_SUCCESS);
+	}
+	while (*args)
+	{
+		if (builtin_export_set_env(*args) == EXIT_FAILURE)
+		{
+			if (errno == EINVAL)
+				error_builtin(builtin_name, ERR_BUILTIN_ENV_INVALID, *args);
+			else
+				error_builtin(builtin_name, strerror(errno), NULL);
+			return (EXIT_FAILURE);
+		}
+		args++;
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	builtin_unset(char *builtin_name, char **args)
 {
 	while (*args)
 	{
 		if (unset_env(*args) == -1)
 		{
 			if (errno == EINVAL)
-				invalid_identifier_error(*args);
+				error_builtin(builtin_name, ERR_BUILTIN_ENV_INVALID, *args);
 			return (EXIT_FAILURE);
 		}
 		args++;
