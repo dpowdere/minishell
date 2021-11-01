@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 21:31:52 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/21 21:32:06 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/10/30 21:14:13 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@
 static void	debug_next_operator(enum e_operator op)
 {
 	printf("\r" HEADER_TMPL AEC_BOLD, "nxt op");
-	if (op == OPERATOR_REDIRECT_IN)
+	if (op == REDIRECT_IN)
 		printf("<");
-	else if (op == OPERATOR_REDIRECT_IN_STOPWORD)
+	else if (op == REDIRECT_IN_HEREDOC)
 		printf("<<");
-	else if (op == OPERATOR_REDIRECT_OUT)
+	else if (op == REDIRECT_OUT)
 		printf(">");
-	else if (op == OPERATOR_REDIRECT_OUT_APPEND)
+	else if (op == REDIRECT_OUT_APPEND)
 		printf(">>");
 	else if (op == OPERATOR_PIPE)
 		printf("|");
@@ -33,9 +33,9 @@ static void	debug_next_operator(enum e_operator op)
 		printf("||");
 	else if (op == OPERATOR_AND)
 		printf("&&");
-	else if (op == OPERATOR_SUBSHELL_IN)
+	else if (op == SUBSHELL_IN)
 		printf("subshell in '('");
-	else if (op == OPERATOR_SUBSHELL_OUT)
+	else if (op == SUBSHELL_OUT)
 		printf("subshell out ')'");
 	else if (op == OPERATOR_NONE)
 		printf("none");
@@ -47,13 +47,13 @@ static void	debug_redirect(void *data)
 	t_redirect	*r;
 
 	r = (t_redirect *)data;
-	if (r->type == OPERATOR_REDIRECT_IN)
+	if (r->type == REDIRECT_IN)
 		printf(REDIR_TMPL, "<");
-	else if (r->type == OPERATOR_REDIRECT_IN_STOPWORD)
+	else if (r->type == REDIRECT_IN_HEREDOC)
 		printf(REDIR_TMPL, "<<");
-	else if (r->type == OPERATOR_REDIRECT_OUT)
+	else if (r->type == REDIRECT_OUT)
 		printf(REDIR_TMPL, ">");
-	else if (r->type == OPERATOR_REDIRECT_OUT_APPEND)
+	else if (r->type == REDIRECT_OUT_APPEND)
 		printf(REDIR_TMPL, ">>");
 	else if (r->type == OPERATOR_PIPE)
 		printf(REDIR_TMPL, "|");
@@ -70,21 +70,26 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	cmd = (t_cmd *)data;
 	if (ix > 0)
 		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
-	printf("\r" HEADER_TMPL, "args");
 	arg = cmd->args_list;
+	if (!arg)
+		printf("\n");
+	printf(HEADER_TMPL AEC_YELLOW, "cmd");
+	if (*(char *)arg->content == SUBSHELL_MAGIC_BYTE)
+		printf(COMMAND_NAME);
+	else
+		printf("%s", (char *)arg->content);
+	printf(AEC_RESET "\n");
+	arg = arg->next;
+	printf(HEADER_TMPL, "args");
 	while (arg)
 	{
 		printf(AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL,
 			(char *)arg->content, "");
 		arg = arg->next;
 	}
-	printf("\r" HEADER_TMPL, "ins");
-	ft_lstiter(cmd->redirect_in, debug_redirect);
-	if (!cmd->redirect_in)
-		printf("\n");
-	printf("\r" HEADER_TMPL, "outs");
-	ft_lstiter(cmd->redirect_out, debug_redirect);
-	if (!cmd->redirect_out)
+	printf("\r" HEADER_TMPL, "redirs");
+	ft_lstiter(cmd->redirects, debug_redirect);
+	if (!cmd->redirects)
 		printf("\n");
 	debug_next_operator(cmd->next_operator);
 	(void)is_last;
@@ -94,9 +99,9 @@ inline t_list	*debug_raw_cmds(t_list *raw_cmds_list)
 {
 	if (DEBUG_RAW_CMDS)
 	{
-		printf(AEC_BOLD "RAW CMDS" AEC_RESET ": [\n");
+		ft_putstr_fd("RAW CMDS: [\n", STDERR_FILENO);
 		ft_lstiterix(raw_cmds_list, debug_cmd);
-		printf("]\n");
+		ft_putstr_fd("]\n", STDERR_FILENO);
 	}
 	return (raw_cmds_list);
 }
@@ -105,7 +110,7 @@ inline t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd)
 {
 	if (DEBUG_COOKED_CMDS)
 	{
-		printf(AEC_BOLD "COOKED CMD" AEC_RESET ":\n");
+		ft_putstr_fd("COOKED CMD:\n", STDERR_FILENO);
 		debug_cmd((void *)cooked_cmd, 0, true);
 	}
 	return (cooked_cmd);

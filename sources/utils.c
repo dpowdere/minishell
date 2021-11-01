@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/15 20:01:22 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/15 21:50:57 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:57:51 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,23 @@ int	ft_ptr_array_len(const void **ptr_array)
 	while (*ptr_array++)
 		len++;
 	return (len);
+}
+
+void	**ft_lst_to_ptr_array(t_list *list)
+{
+	int		elements;
+	void	**ptr_array;
+	int		i;
+
+	elements = ft_lstsize(list);
+	ptr_array = malloc((elements + 1) * sizeof(*ptr_array));
+	if (ptr_array == NULL)
+		return (NULL);
+	i = 0;
+	while (list)
+		ptr_array[i++] = ft_lstpop(&list);
+	ptr_array[i] = NULL;
+	return (ptr_array);
 }
 
 char	*ft_strjoin_chr(char const *s1, char const *s2, char c)
@@ -52,6 +69,34 @@ int	ft_isspace(int c)
 			c == '\v' || c == '\f' || c == '\r');
 }
 
+char	*ft_basename(char *path)
+{
+	static char	basename_bss[MAXPATHLEN];
+	size_t		end_index;
+	size_t		start_index;
+
+	if (path == NULL || *path == '\0')
+	{
+		basename_bss[0] = '.';
+		basename_bss[1] = '\0';
+		return (basename_bss);
+	}
+	end_index = ft_strlen(path);
+	while (end_index > 1 && path[end_index - 1] == '/')
+		end_index--;
+	start_index = end_index - 1;
+	while (start_index > 0 && path[start_index - 1] != '/')
+		start_index--;
+	if (end_index - start_index >= MAXPATHLEN)
+	{
+		errno = ENAMETOOLONG;
+		return (NULL);
+	}
+	ft_memcpy(basename_bss, path + start_index, end_index - start_index);
+	basename_bss[end_index - start_index] = '\0';
+	return (basename_bss);
+}
+
 void	*error(enum e_error type, char *extra_message,
 				t_list *list_to_free, void (*free_fn)(void*))
 {
@@ -67,6 +112,8 @@ void	*error(enum e_error type, char *extra_message,
 		ft_putstr_fd(ERR_STR_SYNTAX_TOKEN, STDERR_FILENO);
 	else if (type == ERR_AMBIGUOUS_REDIRECT)
 		ft_putstr_fd(extra_message, STDERR_FILENO);
+	else if (type == ERR_COMMAND_NOT_FOUND)
+		ft_putstr_fd(ERR_STR_COMMAND_NOT_FOUND, STDERR_FILENO);
 	if (extra_message)
 	{
 		ft_putstr_fd(": ", STDERR_FILENO);
@@ -79,4 +126,16 @@ void	*error(enum e_error type, char *extra_message,
 	if (list_to_free && free_fn)
 		ft_lstclear(&list_to_free, free_fn);
 	return (NULL);
+}
+
+void	*exit_with_error(enum e_error type, char *extra_message,
+						t_list *list_to_free, void (*free_fn)(void*))
+{
+	error(type, extra_message, list_to_free, free_fn);
+	exit(errno);
+}
+
+int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
+{
+	return (*pid == *pid_to_find);
 }

@@ -34,7 +34,7 @@ char	**ft_split(char const *s, char c)
 			while (*r && *r != c)
 				r++;
 			if (!ft_assign_ptr((void **)&spl[count++], ft_substr(s, 0, r - s)))
-				return (ft_free_ptr_array((void **)spl, count));
+				return (ft_free_ptr_array((void **)spl));
 		}
 	}
 	spl[count] = NULL;

@@ -3,7 +3,10 @@
 *.d
 *.dSYM
 *.dylib
+*.exe
 *.o
+*.out
 *.so
 core*
 minishell
+.idea

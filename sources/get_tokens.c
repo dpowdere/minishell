@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 18:38:40 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/11 18:43:15 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 21:07:14 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #define OPERATOR_CHARS "|<>()"
 
 static bool	add_token(
-		enum e_type type, const char *src, int len, t_list **tokens_list)
+		enum e_type type, const char *src, size_t len, t_list **tokens_list)
 {
 	char	*string;
 	t_token	*token;
@@ -88,7 +88,7 @@ static const char	*get_operator(const char *line, t_list **tokens_list)
 	return (line + operator_len);
 }
 
-t_list	*get_tokens_list(const char *line)
+t_list	*get_tokens_list(const char *line, int *exit_status)
 {
 	t_list	*tokens_list;
 	char	error_unclosed[2];
@@ -109,10 +109,29 @@ t_list	*get_tokens_list(const char *line)
 	if (*error_unclosed && errno != ENOMEM)
 	{
 		error(ERR_SYNTAX_MATCHING, error_unclosed, NULL, NULL);
-		errno = ERR_CODE_PARSE;
+		*exit_status = ERR_CODE_PARSE;
 		return (error(ERR_SYNTAX_EOF, NULL, tokens_list, free_token));
 	}
 	else if (line == NULL)
 		return (error(ERR_ERRNO, NULL, tokens_list, free_token));
+	return (debug_tokens(ft_lstreverse(&tokens_list)));
+}
+
+t_list	*get_tokens_list_subshell(char **tokens)
+{
+	t_list	*tokens_list;
+	char	_;
+
+	tokens_list = NULL;
+	while (*tokens)
+	{
+		if (ft_strchr(OPERATOR_CHARS, **tokens) || !ft_memcmp(*tokens, "&&", 2))
+			get_operator(*tokens, &tokens_list);
+		else
+			get_word(*tokens, &tokens_list, &_);
+		if (errno == ENOMEM)
+			return (error(ERR_ERRNO, NULL, tokens_list, free_token));
+		tokens++;
+	}
 	return (debug_tokens(ft_lstreverse(&tokens_list)));
 }

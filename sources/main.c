@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:25:50 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/16 14:42:08 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 22:20:49 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,28 +17,46 @@ static int	interpret(t_state *state)
 	t_list	*tokens_list;
 	t_list	*cmds_list;
 
-	tokens_list = get_tokens_list(state->line);
+	tokens_list = get_tokens_list(state->line, &state->exit_status);
 	if (state->should_free_line)
 		free(state->line);
+	if (check_tokens(tokens_list) == false)
+	{
+		state->exit_status = ERR_CODE_PARSE;
+		return (0);
+	}
 	if (errno == ENOMEM)
 		return (1);
-	if (check_tokens(tokens_list) == false)
-		return (0);
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (1);
-	execute(cmds_list, state);
+	execute(cmds_list, &state->exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
-	return (0);
+	return (errno != EXIT_SUCCESS);
 }
 
 void	setup_environ(void)
 {
 	extern char	**environ;
+	extern int	errno;
+	char		*shlvl_old;
+	char		*shlvl_new;
 
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
 		exit(errno);
+	if (set_env(SUBSHELL_ENV, "0") == -1)
+		exit(errno);
+	shlvl_old = getenv("SHLVL");
+	if (shlvl_old == NULL)
+		shlvl_new = ft_itoa(1);
+	else
+		shlvl_new = ft_itoa(ft_atoi(shlvl_old) + 1);
+	if (shlvl_new == NULL)
+		exit(errno);
+	if (set_env("SHLVL", shlvl_new) == -1)
+		exit(errno);
+	free(shlvl_new);
 }
 
 void	setup_input(t_state *state, int argc, char **argv)
@@ -62,16 +80,22 @@ void	setup_input(t_state *state, int argc, char **argv)
 
 int	main(int argc, char **argv)
 {
-	t_state	state;
-	int		fatal_error;
+	extern int	errno;
+	t_state		state;
+	int			fatal_error;
 
 	state = (t_state){};
 	setup_environ();
 	setup_input(&state, argc, argv);
 	setup_signal_handlers(&state);
 	fatal_error = 0;
-	while (!fatal_error && state.read_user_line(&state) > READLINE_EOF)
+	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		fatal_error = interpret(&state);
 	clean_up(&state);
-	return (errno);
+	printf("EXIT STATUS %d\n", state.exit_status);
+	printf("ERRNO %d: %s\n", errno, strerror(errno));
+	if (state.exit_status)
+		return (state.exit_status);
+	else
+		return (errno);
 }

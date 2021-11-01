@@ -1,38 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_ptr_array.c                                :+:      :+:    :+:   */
+/*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/02 17:12:33 by ngragas           #+#    #+#             */
-/*   Updated: 2021/05/02 17:13:36 by ngragas          ###   ########.fr       */
+/*   Created: 2021/10/16 15:40:21 by ngragas           #+#    #+#             */
+/*   Updated: 2021/10/16 15:58:25 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "minishell.h"
 
-void	*ft_free_ptr_array(void **array)
+int	shell_echo(char **args)
 {
-	unsigned int	i;
-
-	if (array)
-	{
-		i = 0;
-		while (array[i])
-			free(array[i++]);
-		free(array);
-	}
-	return (NULL);
+	(void)args;
+	printf("echo Not Implemented\n");
+	return (EXIT_SUCCESS);
 }
 
-void	*ft_free_nptr_array(void **array, unsigned int count)
+int	shell_pwd(char **args)
 {
-	unsigned int	i;
+	(void)args;
+	printf("pwd Not Implemented\n");
+	return (EXIT_SUCCESS);
+}
 
-	i = 0;
-	while (i < count)
-		free(array[i++]);
-	free(array);
-	return (NULL);
+int	shell_cd(char **args)
+{
+	(void)args;
+	printf("cd Not Implemented\n");
+	return (EXIT_SUCCESS);
+}
+
+//	dummy exit function
+int	shell_exit(char **args)
+{
+	(void)args;
+	exit(EXIT_SUCCESS);
 }

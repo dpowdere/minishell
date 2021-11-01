@@ -30,7 +30,7 @@ char	**copy_environ(bool deep_copy)
 		{
 			new_env[i] = ft_strdup(environ[i]);
 			if (new_env[i] == NULL)
-				return (ft_free_ptr_array((void **)new_env, i));
+				return (ft_free_ptr_array((void **)new_env));
 			i++;
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 23:09:06 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/21 23:10:04 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/10/31 15:45:21 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ t_list	*new_part(char *start, enum e_phase phase)
 	return (part_list);
 }
 
-t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
+t_cooking_cursor	get_cooking_cursor(t_list *word_list, int *exit_status)
 {
 	t_cooking_cursor	cc;
 
@@ -72,7 +72,7 @@ t_cooking_cursor	get_cooking_cursor(t_list *word_list, t_state *state)
 	cc.part = cc.part_list->content;
 	cc.write_cursor = cc.part->start;
 	cc.cursor = cc.write_cursor;
-	cc.state = state;
+	cc.exit_status = exit_status;
 	return (cc);
 }
 
@@ -155,7 +155,7 @@ void	insert_exit_status(t_cooking_cursor *cc)
 	enum e_phase	phase;
 	char			*status;
 
-	status = get_cmd_exit_status_str(cc->state);
+	status = get_exit_status_str(*cc->exit_status);
 	step(step(cc));
 	if (DEBUG_CMD_COOKING)
 		printf(" exit_status[" AEC_YELLOW "%s" AEC_RESET "]", status);
@@ -618,7 +618,7 @@ void	*serve(void *data)
 			ft_lstpopreduce(&part_list, string_terminator, populate_arg)));
 }
 
-t_list	*cook_arg(t_list *word_list, void *state)
+t_list	*cook_arg(t_list *word_list, void *exit_status)
 {
 	char				*arg;
 	t_cooking_cursor	cc;
@@ -632,7 +632,7 @@ t_list	*cook_arg(t_list *word_list, void *state)
 		word_list->content = arg;
 		return (word_list);
 	}
-	cc = get_cooking_cursor(word_list, state);
+	cc = get_cooking_cursor(word_list, exit_status);
 	while (wordpart_cooking_condition(&cc))
 	{
 		cook_wordpart(&cc);
@@ -655,13 +655,13 @@ void	debug_redirect(t_redirect *r)
 	char	*type;
 
 	type = NULL;
-	if (r->type == OPERATOR_REDIRECT_IN)
+	if (r->type == REDIRECT_IN)
 		type = "<";
-	else if (r->type == OPERATOR_REDIRECT_IN_STOPWORD)
+	else if (r->type == REDIRECT_IN_HEREDOC)
 		type = "<<";
-	else if (r->type == OPERATOR_REDIRECT_OUT)
+	else if (r->type == REDIRECT_OUT)
 		type = ">";
-	else if (r->type == OPERATOR_REDIRECT_OUT_APPEND)
+	else if (r->type == REDIRECT_OUT_APPEND)
 		type = ">>";
 	else if (r->type == OPERATOR_PIPE)
 		type = "|";
@@ -669,7 +669,7 @@ void	debug_redirect(t_redirect *r)
 		AEC_RESET "]] -->", type, r->target);
 }
 
-t_list	*cook_redirect(t_list *lst, void *state)
+t_list	*cook_redirect(t_list *lst, void *exit_status)
 {
 	t_redirect			*redirect;
 	char				*s1;
@@ -680,7 +680,7 @@ t_list	*cook_redirect(t_list *lst, void *state)
 	redirect = lst->content;
 	if (DEBUG_CMD_COOKING)
 		debug_redirect(redirect);
-	if (redirect->type == OPERATOR_REDIRECT_IN_STOPWORD)
+	if (redirect->type == REDIRECT_IN_HEREDOC)
 		lst->content = new_part(redirect->target, QUOTE_REMOVAL);
 	else
 		lst->content = new_part(redirect->target, VARIABLE_SUBSTITUTION);
@@ -693,7 +693,7 @@ t_list	*cook_redirect(t_list *lst, void *state)
 	s2 = ft_strdup(s1);
 	if (s2 == NULL)
 		s2 = s1;
-	cc = get_cooking_cursor(lst, state);
+	cc = get_cooking_cursor(lst, exit_status);
 	while (wordpart_cooking_condition(&cc))
 	{
 		cook_wordpart(&cc);
@@ -706,7 +706,7 @@ t_list	*cook_redirect(t_list *lst, void *state)
 		ft_lstclear(&lst, free_word_with_parts);
 		free(redirect);
 		error(ERR_AMBIGUOUS_REDIRECT, s2, NULL, NULL);
-		update_cmd_exit_status(1, state);
+		*(int *)exit_status = 1;
 	}
 	else
 	{
@@ -722,25 +722,30 @@ t_list	*cook_redirect(t_list *lst, void *state)
 	return (lst);
 }
 
-t_cmd	*get_cooked_cmd(t_cmd *cmd, t_state *state)
+t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 {
 	extern int	errno;
 	int			check;
 
-	check = (cmd->args_list != NULL)
-		+ (cmd->redirect_in != NULL) + (cmd->redirect_out != NULL);
-	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, state);
-	ft_lstpipeline1_extradata(&cmd->redirect_in, cook_redirect, state);
-	ft_lstpipeline1_extradata(&cmd->redirect_out, cook_redirect, state);
+	check = (cmd->args_list != NULL) + (cmd->redirects != NULL);
+	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, exit_status);
+	ft_lstpipeline1_extradata(&cmd->redirects, cook_redirect, exit_status);
 	cmd = debug_cooked_cmd(cmd);
 	if (errno == ENOMEM)
 		error(ERR_ERRNO, NULL, NULL, NULL);
-	if (errno || check != (cmd->args_list != NULL)
-		+ (cmd->redirect_in != NULL) + (cmd->redirect_out != NULL))
+	if (errno || check != (cmd->args_list != NULL) + (cmd->redirects != NULL))
 	{
+		*exit_status = 1;
 		free_cmd(cmd);
-		cmd = NULL;
-		update_cmd_exit_status(1, state);
+		return (NULL);
 	}
+	cmd->args = (char **)ft_lst_to_ptr_array(cmd->args_list);
+	if (cmd->args == NULL)
+	{
+		*exit_status = 1;
+		free_cmd(cmd);
+		return (NULL);
+	}
+	cmd->args_list = NULL;
 	return (cmd);
 }

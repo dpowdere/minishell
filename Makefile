@@ -6,7 +6,7 @@
 #    By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/11 19:10:04 by ngragas           #+#    #+#              #
-#    Updated: 2021/10/22 23:25:08 by dpowdere         ###   ########.fr        #
+#    Updated: 2021/10/31 19:56:20 by ngragas          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,15 @@ SRC		=	main			\
 			get_tokens		\
 			check_tokens	\
 			get_raw_cmds	\
+			get_raw_cmds_utils\
 			get_cooked_cmd	\
 			execute			\
+			execute_builtin	\
+			execute_child	\
+			execute_subshell\
+			redirects		\
+			builtins		\
+			builtins_env	\
 			exit_status		\
 			free			\
 			debug_tokens	\
@@ -53,6 +60,10 @@ ifneq ($(findstring linux,$(shell $(CC) -dumpmachine)),)
   LDFLAGS	:=	-L$(LIB_DIR)
 endif
 
+ifeq ($(OS),Windows_NT)
+  NAME		:=	$(addsuffix .exe, $(NAME))
+endif
+
 ifdef DEBUG_TOKENS
   CPPFLAGS	+=	-DDEBUG_TOKENS=$(DEBUG_TOKENS)
 endif
@@ -68,6 +79,8 @@ endif
 
 all:
 	$(MAKE) $(NAME) -j8
+debug: CPPFLAGS	+= -DDEBUG_TOKENS=1 -DDEBUG_RAW_CMDS=1
+debug: $(NAME)
 $(LIB): FORCE
 	$(MAKE) -C $(LIB_DIR)
 $(NAME): $(LIB) $(OBJ)

@@ -12,18 +12,12 @@
 
 #include "minishell.h"
 
+// readline() sets errno to 0
 int	readline_stdin_tty(t_state *s)
 {
-	static bool	readline_errno_fixed;
-
 	s->line = readline(PROMPT_STRING);
-	if (readline_errno_fixed == false)
-	{
-		errno = 0;
-		readline_errno_fixed = true;
-	}
 	if (s->line == NULL)
-		return (READLINE_ERROR);
+		return (READLINE_EOF);
 	if (*s->line)
 		add_history(s->line);
 	return (READLINE_LINE);
