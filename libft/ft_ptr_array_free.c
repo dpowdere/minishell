@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free_ptr_array.c                                :+:      :+:    :+:   */
+/*   ft_ptr_array_free.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/02 17:12:33 by ngragas           #+#    #+#             */
-/*   Updated: 2021/05/02 17:13:36 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 21:57:36 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stdlib.h>
 
-void	*ft_free_ptr_array(void **array)
+void	*ft_ptr_array_free(void **array)
 {
 	unsigned int	i;
 
@@ -26,9 +26,9 @@ void	*ft_free_ptr_array(void **array)
 	return (NULL);
 }
 
-void	*ft_free_nptr_array(void **array, unsigned int count)
+void	*ft_ptr_array_nfree(void **array, size_t count)
 {
-	unsigned int	i;
+	size_t	i;
 
 	i = 0;
 	while (i < count)

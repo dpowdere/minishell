@@ -1,19 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_malloc_ptr.c                                    :+:      :+:    :+:   */
+/*   ft_ptr_array_len.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/04/14 15:59:46 by ngragas           #+#    #+#             */
-/*   Updated: 2021/04/14 16:00:37 by ngragas          ###   ########.fr       */
+/*   Created: 2021/11/01 21:44:16 by ngragas           #+#    #+#             */
+/*   Updated: 2021/11/01 21:49:09 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <stddef.h>
 
-void	*ft_malloc_ptr(void **ptr, size_t size)
+size_t	ft_ptr_array_len(void **ptr_array)
 {
-	*ptr = malloc(size);
-	return (*ptr);
+	size_t	len;
+
+	len = 0;
+	while (*ptr_array++)
+		len++;
+	return (len);
 }

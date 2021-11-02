@@ -1,27 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   ft_lst_to_ptr_array.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/09 16:29:16 by ngragas           #+#    #+#             */
-/*   Updated: 2020/11/20 13:19:24 by ngragas          ###   ########.fr       */
+/*   Created: 2021/11/01 22:40:54 by ngragas           #+#    #+#             */
+/*   Updated: 2021/11/01 22:40:54 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_atoi(const char *str)
-{
-	int		num;
-	char	sign;
+#include "libft.h"
 
-	num = 0;
-	while (('\t' <= *str && *str <= '\r') || *str == ' ')
-		str++;
-	sign = 1;
-	if (*str == '-' || *str == '+')
-		sign = 44 - *str++;
-	while ('0' <= *str && *str <= '9')
-		num = num * 10 + sign * (*str++ - '0');
-	return (num);
+void	**ft_lst_to_ptr_array(t_list **list)
+{
+	int		elements;
+	void	**ptr_array;
+	int		i;
+
+	elements = ft_lstsize(*list);
+	ptr_array = malloc((elements + 1) * sizeof(*ptr_array));
+	if (ptr_array == NULL)
+		return (NULL);
+	i = 0;
+	while (*list)
+		ptr_array[i++] = ft_lstpop(list);
+	ptr_array[i] = NULL;
+	return (ptr_array);
 }

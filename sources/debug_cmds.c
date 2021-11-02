@@ -6,7 +6,7 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 21:31:52 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/30 21:14:13 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/01 23:02:37 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,28 +64,24 @@ static void	debug_redirect(void *data)
 
 static void	debug_cmd(void *data, int ix, int is_last)
 {
-	t_cmd	*cmd;
-	t_list	*arg;
+	const t_cmd		*cmd = data;
+	const t_list	*args = cmd->args_list;
 
-	cmd = (t_cmd *)data;
 	if (ix > 0)
 		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
-	arg = cmd->args_list;
-	if (!arg)
-		printf("\n");
 	printf(HEADER_TMPL AEC_YELLOW, "cmd");
-	if (*(char *)arg->content == SUBSHELL_MAGIC_BYTE)
+	if (*(char *)args->content == SUBSHELL_MAGIC_BYTE)
 		printf(COMMAND_NAME);
 	else
-		printf("%s", (char *)arg->content);
+		printf("%s", (char *)args->content);
 	printf(AEC_RESET "\n");
-	arg = arg->next;
+	args = args->next;
 	printf(HEADER_TMPL, "args");
-	while (arg)
+	while (args)
 	{
-		printf(AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL,
-			(char *)arg->content, "");
-		arg = arg->next;
+		printf(AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL, \
+				(char *)args->content, "");
+		args = args->next;
 	}
 	printf("\r" HEADER_TMPL, "redirs");
 	ft_lstiter(cmd->redirects, debug_redirect);

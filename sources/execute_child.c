@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/30 18:21:16 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 19:50:19 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/02 00:46:42 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static bool	cmd_path_check(char *path)
 
 static char	*get_next_env_path(char *basename)
 {
-	static char		path[MAXPATHLEN];
+	static char		path[PATH_MAX];
 	static char		*path_start;
 	static char		*path_end;
 	const size_t	basename_len = ft_strlen(basename);
@@ -37,12 +37,12 @@ static char	*get_next_env_path(char *basename)
 		return (NULL);
 	if (path_start == NULL)
 		path_start = getenv("PATH");
-	if (path_start == NULL || basename_len >= MAXPATHLEN - 1)
+	if (path_start == NULL || basename_len >= PATH_MAX - 1)
 		return (NULL);
 	path_end = ft_strchr(path_start, ':');
 	if (path_end == NULL)
 		path_end = ft_strchr(path_start, '\0');
-	if (path_end - path_start < MAXPATHLEN - (int)basename_len)
+	if (path_end - path_start < PATH_MAX - (int)basename_len)
 	{
 		ft_strlcpy(path, path_start, path_end - path_start + 1);
 		path[path_end - path_start] = '/';
@@ -63,7 +63,7 @@ static void	execute_fail(char *command)
 		error(ERR_COMMAND_NOT_FOUND, command, NULL, NULL);
 	}
 	else if (errno)
-		error(ERR_ERRNO, command, NULL, NULL);
+		error(strerror(errno), command, NULL, NULL);
 	if (errno == EISDIR)
 		errno = ERR_CODE_NOT_EXECUTABLE;
 }
@@ -97,25 +97,31 @@ void	execute_child(t_cmd *cmd)
 	exit(errno);
 }
 
-void	child_pipes_setup(int pipe_out_in[2], int fd_for_stdin, char *heredoc)
+void	child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 {
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{
-		close(pipe_out_in[0]);
+		if (close(pipe_out_in[0]) == -1)
+			exit_with_error(NULL, NULL);
 		if (dup2(pipe_out_in[1], STDOUT_FILENO) == -1)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
-		close(pipe_out_in[1]);
+			exit_with_error(NULL, NULL);
+		if (close(pipe_out_in[1]) == -1)
+			exit_with_error(NULL, NULL);
 	}
 	if (heredoc)
 	{
 		if (redirect_heredoc_create(heredoc) == false)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+			exit_with_error(NULL, NULL);
 	}
-	else if (fd_for_stdin)
+	else if (*fd_for_stdin)
 	{
-		if (dup2(fd_for_stdin, STDIN_FILENO) == -1)
-			exit_with_error(ERR_ERRNO, NULL, NULL, NULL);
+		if (dup2(*fd_for_stdin, STDIN_FILENO) == -1)
+			exit_with_error(NULL, NULL);
 	}
-	if (fd_for_stdin)
-		close(fd_for_stdin);
+	if (*fd_for_stdin)
+	{
+		if (close(*fd_for_stdin) == -1)
+			exit_with_error(NULL, NULL);
+		*fd_for_stdin = 0;
+	}
 }

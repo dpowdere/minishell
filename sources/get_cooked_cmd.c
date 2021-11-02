@@ -6,12 +6,13 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 23:09:06 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/10/31 15:45:21 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/10/31 16:07:01 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <dirent.h>
 #include <stddef.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -705,7 +706,7 @@ t_list	*cook_redirect(t_list *lst, void *exit_status)
 	{
 		ft_lstclear(&lst, free_word_with_parts);
 		free(redirect);
-		error(ERR_AMBIGUOUS_REDIRECT, s2, NULL, NULL);
+		error(s2, ERR_AMBIGUOUS_REDIRECT, NULL, NULL);
 		*(int *)exit_status = 1;
 	}
 	else
@@ -732,14 +733,14 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 	ft_lstpipeline1_extradata(&cmd->redirects, cook_redirect, exit_status);
 	cmd = debug_cooked_cmd(cmd);
 	if (errno == ENOMEM)
-		error(ERR_ERRNO, NULL, NULL, NULL);
+		error(strerror(errno), NULL, NULL, NULL);
 	if (errno || check != (cmd->args_list != NULL) + (cmd->redirects != NULL))
 	{
 		*exit_status = 1;
 		free_cmd(cmd);
 		return (NULL);
 	}
-	cmd->args = (char **)ft_lst_to_ptr_array(cmd->args_list);
+	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
 	{
 		*exit_status = 1;
