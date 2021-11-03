@@ -234,6 +234,8 @@ void			clean_up(t_state *state);
 
 // utils.c
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
+bool			is_identhead(char c);
+bool			is_identtail(char c);
 bool			valid_identifier_name(const char *name);
 
 #endif

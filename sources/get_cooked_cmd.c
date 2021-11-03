@@ -22,8 +22,6 @@
 #define DOUBLE_QUOTE_IS_NOT_OPEN	0
 #define DOUBLE_QUOTE_IS_OPEN		1
 
-#define ID_START "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-#define ID_OTH "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
 #define DOUBLE_QUOTE_ESCAPES "\"\\$\n"
 #define IFS_SPACES " \t\n"
 
@@ -192,13 +190,13 @@ void	cook_substitute_variable(t_cooking_cursor *cc)
 		insert_exit_status(cc);
 		return ;
 	}
-	if (!string_cooking_condition(cc, start) || !ft_strchr(ID_START, *start))
+	if (!string_cooking_condition(cc, start) || !is_identhead(*start))
 	{
 		step_cpy(cc);
 		return ;
 	}
 	step(cc);
-	while (string_cooking_condition(cc, NULL) && ft_strchr(ID_OTH, *cc->cursor))
+	while (string_cooking_condition(cc, NULL) && is_identtail(*cc->cursor))
 		step(cc);
 	tmp = ft_calloc(cc->cursor - start + 1, sizeof(char));
 	if (tmp == NULL)
