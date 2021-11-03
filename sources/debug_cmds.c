@@ -18,7 +18,7 @@
 
 static void	debug_next_operator(enum e_operator op)
 {
-	printf("\r" HEADER_TMPL AEC_BOLD, "nxt op");
+	printf("\r" HEADER_TMPL AEC_BOLD, "next op");
 	if (op == REDIRECT_IN)
 		printf("<");
 	else if (op == REDIRECT_IN_HEREDOC)
@@ -108,6 +108,11 @@ inline t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd)
 	{
 		ft_putstr_fd("COOKED CMD:\n", STDERR_FILENO);
 		debug_cmd((void *)cooked_cmd, 0, true);
+		if (cooked_cmd->heredoc)
+		{
+			printf(HEADER_TMPL AEC_BOLD, "heredoc");
+			printf(AEC_YELLOW "\n" "%s" AEC_RESET "\n", cooked_cmd->heredoc);
+		}
 	}
 	return (cooked_cmd);
 }

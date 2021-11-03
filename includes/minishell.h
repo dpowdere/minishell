@@ -33,6 +33,7 @@
 
 # define COMMAND_NAME	"minishell"
 # define PROMPT_STRING	"\x1b[32mminishell\x1b[0m$ "
+# define HEREDOC_PROMPT_STRING	"heredoc> "
 
 # define SUBSHELL_MAGIC_BYTE	'\1'
 # define SUBSHELL_ENV			"MINISHELL_SUBSHELL"

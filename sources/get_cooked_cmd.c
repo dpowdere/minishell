@@ -671,13 +671,59 @@ void	debug_redirect(t_redirect *r)
 		AEC_RESET "]] -->", type, r->target);
 }
 
+void	*calc_heredoc_len(void *initial, void *next)
+{
+	*(size_t *)initial += ft_strlen(next) + 1;
+	return (initial);
+}
+
+void	*populate_heredoc(void *initial, void *next)
+{
+	size_t		len;
+
+	len = ft_strlen((char *)next);
+	*((char *)initial - 1) = '\n';
+	initial = (char *)initial - len - 1;
+	ft_memcpy(initial, (char *)next, len);
+	free(next);
+	return (initial);
+}
+
 void	read_heredoc(t_cmd *cmd, const char *terminator)
 {
-	(void)cmd;
-	ft_putstr_fd("warning: here-document delimited ", STDERR_FILENO);
-	ft_putstr_fd("by end-of-file (wanted `", STDERR_FILENO);
-	ft_putstr_fd((char *)terminator, STDERR_FILENO);
-	ft_putendl_fd("')", STDERR_FILENO);
+	t_list	*lst;
+	char	*line;
+	size_t	len;
+
+	lst = NULL;
+	free(cmd->heredoc);
+	while (true)
+	{
+		line = readline(HEREDOC_PROMPT_STRING);
+		if (!line || ft_strncmp(line, terminator, ft_strlen(line)) == 0)
+		{
+			if (line == NULL)
+			{
+				ft_putstr_fd("warning: here-document delimited ", 2);
+				ft_putstr_fd("by end-of-file (wanted `", STDERR_FILENO);
+				ft_putstr_fd((char *)terminator, STDERR_FILENO);
+				ft_putendl_fd("')", STDERR_FILENO);
+			}
+			len = 1;
+			ft_lstreduce(lst, &len, calc_heredoc_len);
+			cmd->heredoc = malloc(len);
+			if (cmd->heredoc == NULL)
+			{
+				ft_lstclear(&lst, free);
+				break ;
+			}
+			*(cmd->heredoc + len - 1) = '\0';
+			ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
+			break ;
+		}
+		else
+			ft_lstadd_front(&lst, ft_lstnew(line));
+	}
 }
 
 t_list	*cook_redirect(t_list *lst, void *xd)
