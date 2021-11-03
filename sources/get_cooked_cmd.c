@@ -797,8 +797,8 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 	check = (cmd->args_list != NULL) + (cmd->redirects != NULL);
 	xd.cmd = cmd;
 	xd.exit_status = exit_status;
-	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, exit_status);
-	ft_lstpipeline1_extradata(&cmd->redirects, cook_redirect, &xd);
+	ft_lstpipeline_xd(&cmd->args_list, cook_arg, exit_status);
+	ft_lstpipeline_xd(&cmd->redirects, cook_redirect, &xd);
 	cmd = debug_cooked_cmd(cmd);
 	if (errno == ENOMEM)
 		error(strerror(errno), NULL, NULL, NULL);
@@ -808,7 +808,7 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 		free_cmd(cmd);
 		return (NULL);
 	}
-	ft_lstpipeline1(&cmd->redirects, remove_heredoc_redirects);
+	ft_lstpipeline(&cmd->redirects, remove_heredoc_redirects);
 	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
 	{

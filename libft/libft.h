@@ -94,11 +94,11 @@ void			ft_lstdelone(t_list *lst, void (*del)(void*));
 void			ft_lstclear(t_list **lst, void (*del)(void*));
 void			ft_lstiter(t_list *lst, void (*f)(void *));
 void			ft_lstiterix(t_list *lst, void (*f)(void *, int, int));
-void			ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list **));
-void			ft_lstpipeline_extradata(t_list **lst,
+void			ft_lststream(t_list **lst, t_list *(*pipeline)(t_list **));
+void			ft_lststream_xd(t_list **lst,
 					t_list *(*pipeline)(t_list **, void *), void *extra_data);
-void			ft_lstpipeline1(t_list **lst, t_list *(*pipeline)(t_list *));
-void			ft_lstpipeline1_extradata(t_list **lst,
+void			ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list *));
+void			ft_lstpipeline_xd(t_list **lst,
 					t_list *(*pipeline)(t_list *, void *), void *extra_data);
 t_list			*ft_lstmap(t_list *lst, void *(*f)(void *), \
 							void (*del)(void *));
