@@ -155,6 +155,12 @@ typedef struct s_cooking_cursor
 	int		phase_num;
 }	t_cooking_cursor;
 
+typedef struct s_cooking_extradata
+{
+	t_cmd	*cmd;
+	int		*exit_status;
+}	t_xd;
+
 // env.c
 char			**copy_environ(bool deep_copy);
 int				set_env(const char *name, const char *value);

@@ -15,6 +15,7 @@
 # include <stdbool.h>
 # include <stdint.h>
 # include <stdlib.h>
+# include <sys/types.h>
 # include <unistd.h>
 
 typedef struct s_list
@@ -110,6 +111,7 @@ void			**ft_lst_to_ptr_array(t_list **list);
 
 int				ft_wchrto8(char *dst_utf8, wchar_t src_utf32);
 size_t			ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n);
+ssize_t			ft_write(int fd, const void *buf, size_t size);
 
 int				ft_min(int a, int b);
 int				ft_max(int a, int b);
