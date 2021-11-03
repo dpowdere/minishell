@@ -27,6 +27,8 @@
 #define DOUBLE_QUOTE_ESCAPES "\"\\$\n"
 #define IFS_SPACES " \t\n"
 
+// TODO: Sort star expanded pathnames in lexicographical order like in bash,
+// not just in ASCII order.
 t_list	*get_star_list(void)
 {
 	DIR				*dp;
@@ -42,6 +44,7 @@ t_list	*get_star_list(void)
 			ft_lstadd_front(&lst, ft_lstnew(dir_entry->d_name));
 		dir_entry = readdir(dp);
 	}
+	ft_lstsort(&lst, ft_strcmp);
 	return (lst);
 }
 
