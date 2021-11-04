@@ -56,7 +56,7 @@ void	setup_signal_handlers(t_state *state)
 	}
 }
 
-void	setup_child_signal_handlers(void)
+bool	setup_child_signal_handlers(void)
 {
 	struct sigaction	sigact;
 
@@ -65,5 +65,6 @@ void	setup_child_signal_handlers(void)
 	if (sigaction(SIGQUIT, &sigact, NULL) < 0
 		|| sigaction(SIGTERM, &sigact, NULL) < 0
 		|| sigaction(SIGINT, &sigact, NULL) < 0)
-		exit_with_error(NULL, NULL);
+		return (false);
+	return (true);
 }

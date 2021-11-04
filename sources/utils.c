@@ -12,6 +12,30 @@
 
 #include "minishell.h"
 
+int	get_exit_status(int stat_loc)
+{
+	if (WIFEXITED(stat_loc))
+		return (WEXITSTATUS(stat_loc));
+	else if (WIFSIGNALED(stat_loc))
+		return (ERR_CODE_SIGNAL_OFFSET + WTERMSIG(stat_loc));
+	else
+		return (EXIT_SUCCESS);
+}
+
+bool	file_exists(char *path)
+{
+	struct stat	command_info;
+
+	if (stat(path, &command_info) == -1)
+		return (false);
+	if (S_ISDIR(command_info.st_mode))
+	{
+		errno = EISDIR;
+		return (false);
+	}
+	return (true);
+}
+
 int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
 {
 	return (*pid == *pid_to_find);

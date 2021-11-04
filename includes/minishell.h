@@ -169,7 +169,7 @@ int				unset_env(const char *name);
 
 // signals.c
 void			setup_signal_handlers(t_state *state);
-void			setup_child_signal_handlers(void);
+bool			setup_child_signal_handlers(void);
 
 // readline.c
 int				readline_arg(t_state *s);
@@ -206,9 +206,7 @@ bool			execute_builtin(t_cmd *cmd, int *exit_status);
 int				execute_builtin_run(char **args, int current_exit_status);
 
 // execute_child.c
-void			child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, \
-									char *heredoc);
-void			execute_child(t_cmd *cmd);
+pid_t			execute_fork(t_cmd *cmd);
 
 // execute_subshell.c
 int				execute_subshell(char **tokens);
@@ -241,6 +239,8 @@ void			free_cmd(void *cmd_content);
 void			clean_up(t_state *state);
 
 // utils.c
+int				get_exit_status(int stat_loc);
+bool			file_exists(char *path);
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
 bool			is_identhead(char c);
 bool			is_identtail(char c);
