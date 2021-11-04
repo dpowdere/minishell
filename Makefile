@@ -19,6 +19,7 @@ SRC		=	main				\
 			check_tokens		\
 			get_raw_cmds		\
 			get_raw_cmds_utils	\
+			heredoc				\
 			get_cooked_cmd		\
 			execute				\
 			execute_builtin		\

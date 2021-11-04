@@ -30,6 +30,7 @@ static int	interpret(t_state *state)
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (1);
+	cmds_list = input_heredocs(cmds_list);
 	execute(cmds_list, &state->exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
 	return (errno != EXIT_SUCCESS);

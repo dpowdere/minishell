@@ -190,6 +190,9 @@ t_list			*get_cmds_list(t_list *tokens_list);
 enum e_operator	get_operator_type(const char *line);
 t_list			*popconvert_tokenlst_to_stringlst(t_list **tokens_list);
 
+// heredoc.c
+t_list			*input_heredocs(t_list *cmds_list);
+
 // get_cooked_cmd.c
 t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);
 
