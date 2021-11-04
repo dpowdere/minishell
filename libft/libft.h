@@ -15,6 +15,7 @@
 # include <stdbool.h>
 # include <stdint.h>
 # include <stdlib.h>
+# include <sys/types.h>
 # include <unistd.h>
 
 typedef struct s_list
@@ -35,6 +36,7 @@ char			*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 
 size_t			ft_strlen(const char *s);
 int				ft_strncmp(const char *s1, const char *s2, size_t n);
+int				ft_strcmp(const char *s1, const char *s2);
 int				ft_memcmp(const void *s1, const void *s2, size_t n);
 
 void			*ft_memchr(const void *s, int c, size_t n);
@@ -92,11 +94,11 @@ void			ft_lstdelone(t_list *lst, void (*del)(void*));
 void			ft_lstclear(t_list **lst, void (*del)(void*));
 void			ft_lstiter(t_list *lst, void (*f)(void *));
 void			ft_lstiterix(t_list *lst, void (*f)(void *, int, int));
-void			ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list **));
-void			ft_lstpipeline_extradata(t_list **lst,
+void			ft_lststream(t_list **lst, t_list *(*pipeline)(t_list **));
+void			ft_lststream_xd(t_list **lst,
 					t_list *(*pipeline)(t_list **, void *), void *extra_data);
-void			ft_lstpipeline1(t_list **lst, t_list *(*pipeline)(t_list *));
-void			ft_lstpipeline1_extradata(t_list **lst,
+void			ft_lstpipeline(t_list **lst, t_list *(*pipeline)(t_list *));
+void			ft_lstpipeline_xd(t_list **lst,
 					t_list *(*pipeline)(t_list *, void *), void *extra_data);
 t_list			*ft_lstmap(t_list *lst, void *(*f)(void *), \
 							void (*del)(void *));
@@ -109,6 +111,7 @@ void			**ft_lst_to_ptr_array(t_list **list);
 
 int				ft_wchrto8(char *dst_utf8, wchar_t src_utf32);
 size_t			ft_wstrto8(char *dst_utf8, const wchar_t *src_utf32, size_t n);
+ssize_t			ft_write(int fd, const void *buf, size_t size);
 
 int				ft_min(int a, int b);
 int				ft_max(int a, int b);

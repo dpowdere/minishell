@@ -21,7 +21,7 @@ static bool	sort(t_list **begin, t_list *cur, t_list *next, int (*cmp)())
 	sorted = true;
 	while (next)
 	{
-		if ((*cmp)(cur->content, next->content) != 0)
+		if ((*cmp)(cur->content, next->content) > 0)
 		{
 			sorted = false;
 			if (prev)
@@ -43,7 +43,7 @@ static bool	sort(t_list **begin, t_list *cur, t_list *next, int (*cmp)())
 
 void	ft_lstsort(t_list **lst, int (*cmp)())
 {
-	if (!cmp || !*lst)
+	if (!cmp || !lst || !*lst)
 		return ;
 	while (sort(lst, *lst, (*lst)->next, cmp) == false)
 		;

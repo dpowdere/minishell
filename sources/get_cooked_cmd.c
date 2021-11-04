@@ -22,11 +22,11 @@
 #define DOUBLE_QUOTE_IS_NOT_OPEN	0
 #define DOUBLE_QUOTE_IS_OPEN		1
 
-#define ID_START "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-#define ID_OTH "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789"
 #define DOUBLE_QUOTE_ESCAPES "\"\\$\n"
 #define IFS_SPACES " \t\n"
 
+// TODO: Sort star expanded pathnames in lexicographical order like in bash,
+// not just in ASCII order.
 t_list	*get_star_list(void)
 {
 	DIR				*dp;
@@ -42,6 +42,7 @@ t_list	*get_star_list(void)
 			ft_lstadd_front(&lst, ft_lstnew(dir_entry->d_name));
 		dir_entry = readdir(dp);
 	}
+	ft_lstsort(&lst, ft_strcmp);
 	return (lst);
 }
 
@@ -189,13 +190,13 @@ void	cook_substitute_variable(t_cooking_cursor *cc)
 		insert_exit_status(cc);
 		return ;
 	}
-	if (!string_cooking_condition(cc, start) || !ft_strchr(ID_START, *start))
+	if (!string_cooking_condition(cc, start) || !is_identhead(*start))
 	{
 		step_cpy(cc);
 		return ;
 	}
 	step(cc);
-	while (string_cooking_condition(cc, NULL) && ft_strchr(ID_OTH, *cc->cursor))
+	while (string_cooking_condition(cc, NULL) && is_identtail(*cc->cursor))
 		step(cc);
 	tmp = ft_calloc(cc->cursor - start + 1, sizeof(char));
 	if (tmp == NULL)
@@ -670,7 +671,62 @@ void	debug_redirect(t_redirect *r)
 		AEC_RESET "]] -->", type, r->target);
 }
 
-t_list	*cook_redirect(t_list *lst, void *exit_status)
+void	*calc_heredoc_len(void *initial, void *next)
+{
+	*(size_t *)initial += ft_strlen(next) + 1;
+	return (initial);
+}
+
+void	*populate_heredoc(void *initial, void *next)
+{
+	size_t		len;
+
+	len = ft_strlen((char *)next);
+	*((char *)initial - 1) = '\n';
+	initial = (char *)initial - len - 1;
+	ft_memcpy(initial, (char *)next, len);
+	free(next);
+	return (initial);
+}
+
+void	read_heredoc(t_cmd *cmd, const char *terminator)
+{
+	t_list	*lst;
+	char	*line;
+	size_t	len;
+
+	lst = NULL;
+	free(cmd->heredoc);
+	while (true)
+	{
+		line = readline(HEREDOC_PROMPT_STRING);
+		if (!line || ft_strncmp(line, terminator, ft_strlen(line)) == 0)
+		{
+			if (line == NULL)
+			{
+				ft_putstr_fd("warning: here-document delimited ", 2);
+				ft_putstr_fd("by end-of-file (wanted `", STDERR_FILENO);
+				ft_putstr_fd((char *)terminator, STDERR_FILENO);
+				ft_putendl_fd("')", STDERR_FILENO);
+			}
+			len = 1;
+			ft_lstreduce(lst, &len, calc_heredoc_len);
+			cmd->heredoc = malloc(len);
+			if (cmd->heredoc == NULL)
+			{
+				ft_lstclear(&lst, free);
+				break ;
+			}
+			*(cmd->heredoc + len - 1) = '\0';
+			ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
+			break ;
+		}
+		else
+			ft_lstadd_front(&lst, ft_lstnew(line));
+	}
+}
+
+t_list	*cook_redirect(t_list *lst, void *xd)
 {
 	t_redirect			*redirect;
 	char				*s1;
@@ -694,7 +750,7 @@ t_list	*cook_redirect(t_list *lst, void *exit_status)
 	s2 = ft_strdup(s1);
 	if (s2 == NULL)
 		s2 = s1;
-	cc = get_cooking_cursor(lst, exit_status);
+	cc = get_cooking_cursor(lst, ((t_xd *)xd)->exit_status);
 	while (wordpart_cooking_condition(&cc))
 	{
 		cook_wordpart(&cc);
@@ -707,7 +763,7 @@ t_list	*cook_redirect(t_list *lst, void *exit_status)
 		ft_lstclear(&lst, free_word_with_parts);
 		free(redirect);
 		error(s2, ERR_AMBIGUOUS_REDIRECT, NULL, NULL);
-		*(int *)exit_status = 1;
+		*(int *)((t_xd *)xd)->exit_status = 1;
 	}
 	else
 	{
@@ -720,6 +776,15 @@ t_list	*cook_redirect(t_list *lst, void *exit_status)
 	free(s1);
 	if (s2 != s1)
 		free(s2);
+	if (redirect->type == REDIRECT_IN_HEREDOC)
+		read_heredoc(((t_xd *)xd)->cmd, redirect->target);
+	return (lst);
+}
+
+t_list	*remove_heredoc_redirects(t_list *lst)
+{
+	if (((t_redirect *)lst->content)->type == REDIRECT_IN_HEREDOC)
+		free_redirect(ft_lstpop(&lst));
 	return (lst);
 }
 
@@ -727,10 +792,13 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 {
 	extern int	errno;
 	int			check;
+	t_xd		xd;
 
 	check = (cmd->args_list != NULL) + (cmd->redirects != NULL);
-	ft_lstpipeline1_extradata(&cmd->args_list, cook_arg, exit_status);
-	ft_lstpipeline1_extradata(&cmd->redirects, cook_redirect, exit_status);
+	xd.cmd = cmd;
+	xd.exit_status = exit_status;
+	ft_lstpipeline_xd(&cmd->args_list, cook_arg, exit_status);
+	ft_lstpipeline_xd(&cmd->redirects, cook_redirect, &xd);
 	cmd = debug_cooked_cmd(cmd);
 	if (errno == ENOMEM)
 		error(strerror(errno), NULL, NULL, NULL);
@@ -740,6 +808,7 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 		free_cmd(cmd);
 		return (NULL);
 	}
+	ft_lstpipeline(&cmd->redirects, remove_heredoc_redirects);
 	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
 	{

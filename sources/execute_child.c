@@ -99,6 +99,7 @@ void	execute_child(t_cmd *cmd)
 
 void	child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 {
+	setup_child_signal_handlers();
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{
 		if (close(pipe_out_in[0]) == -1)
@@ -108,11 +109,8 @@ void	child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 		if (close(pipe_out_in[1]) == -1)
 			exit_with_error(NULL, NULL);
 	}
-	if (heredoc)
-	{
-		if (redirect_heredoc_create(heredoc) == false)
-			exit_with_error(NULL, NULL);
-	}
+	if (heredoc && redirect_heredoc_create(heredoc) == false)
+		exit_with_error(NULL, NULL);
 	else if (*fd_for_stdin)
 	{
 		if (dup2(*fd_for_stdin, STDIN_FILENO) == -1)

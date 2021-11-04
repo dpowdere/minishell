@@ -33,6 +33,7 @@
 
 # define COMMAND_NAME	"minishell"
 # define PROMPT_STRING	"\x1b[32mminishell\x1b[0m$ "
+# define HEREDOC_PROMPT_STRING	"heredoc> "
 
 # define SUBSHELL_MAGIC_BYTE	'\1'
 # define SUBSHELL_ENV			"MINISHELL_SUBSHELL"
@@ -155,6 +156,12 @@ typedef struct s_cooking_cursor
 	int		phase_num;
 }	t_cooking_cursor;
 
+typedef struct s_cooking_extradata
+{
+	t_cmd	*cmd;
+	int		*exit_status;
+}	t_xd;
+
 // env.c
 char			**copy_environ(bool deep_copy);
 int				set_env(const char *name, const char *value);
@@ -162,6 +169,7 @@ int				unset_env(const char *name);
 
 // signals.c
 void			setup_signal_handlers(t_state *state);
+void			setup_child_signal_handlers(void);
 
 // readline.c
 int				readline_arg(t_state *s);
@@ -234,6 +242,8 @@ void			clean_up(t_state *state);
 
 // utils.c
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
+bool			is_identhead(char c);
+bool			is_identtail(char c);
 bool			valid_identifier_name(const char *name);
 
 #endif

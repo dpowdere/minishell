@@ -18,7 +18,7 @@ bool	redirect_heredoc_create(char *heredoc)
 
 	if (heredoc)
 		if (pipe(pipe_out_in) == -1
-			|| write(pipe_out_in[1], heredoc, ft_strlen(heredoc)) == -1
+			|| ft_write(pipe_out_in[1], heredoc, ft_strlen(heredoc)) == -1
 			|| dup2(pipe_out_in[0], STDIN_FILENO) == -1
 			|| close(pipe_out_in[0]) == -1
 			|| close(pipe_out_in[1]) == -1)

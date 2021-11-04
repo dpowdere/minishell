@@ -92,8 +92,11 @@ int	main(int argc, char **argv)
 	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		fatal_error = interpret(&state);
 	clean_up(&state);
-	printf("EXIT STATUS %d\n", state.exit_status);
-	printf("ERRNO %d: %s\n", errno, strerror(errno));
+	if (DEBUG_EXIT_STATUS)
+	{
+		printf("EXIT STATUS %d\n", state.exit_status);
+		printf("ERRNO %d: %s\n", errno, strerror(errno));
+	}
 	if (state.exit_status)
 		return (state.exit_status);
 	else

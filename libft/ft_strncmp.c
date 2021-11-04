@@ -62,6 +62,20 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	return (ft_strncmp_check_tail(s1, s2, n));
 }
 
+int	ft_strcmp(const char *s1, const char *s2)
+{
+	if (!s1 || !s2)
+		return ((int)(s1 - s2));
+	while (*s1 && *s2)
+	{
+		if (*s1 != *s2)
+			break ;
+		++s1;
+		++s2;
+	}
+	return (*s1 - *s2);
+}
+
 /*
 ** int	ft_strncmp(const char *s1, const char *s2, size_t n)
 ** {

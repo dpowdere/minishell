@@ -39,7 +39,7 @@ SRCS	=	ft_isspace.c	ft_isprint.c	ft_isascii.c					\
 			ft_lstinsert.c	ft_lstdetach.c									\
 			ft_lst_to_ptr_array.c											\
 																			\
-			ft_wchrto8.c	ft_wstrto8.c									\
+			ft_wchrto8.c		ft_wstrto8.c	ft_write.c					\
 			ft_file_exists.c	ft_basename.c								\
 			get_next_line.c
 
