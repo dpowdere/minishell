@@ -45,7 +45,7 @@ void	setup_signal_handlers(t_state *state)
 	on_quit.sa_handler = SIG_IGN;
 	on_int.sa_handler = sigint_handler;
 	if (!state->is_input_interactive)
-		(void)0; // TODO: Setup signal handlers for non interactive mode"
+		return ;
 	if (sigaction(SIGQUIT, &on_quit, NULL) < 0
 		|| sigaction(SIGTERM, &on_quit, NULL) < 0
 		|| sigaction(SIGINT, &on_int, NULL) < 0)
@@ -54,4 +54,16 @@ void	setup_signal_handlers(t_state *state)
 		clean_up(state);
 		exit(errno);
 	}
+}
+
+void	setup_child_signal_handlers(void)
+{
+	struct sigaction	sigact;
+
+	sigact = (struct sigaction){};
+	sigact.sa_handler = SIG_DFL;
+	if (sigaction(SIGQUIT, &sigact, NULL) < 0
+		|| sigaction(SIGTERM, &sigact, NULL) < 0
+		|| sigaction(SIGINT, &sigact, NULL) < 0)
+		exit_with_error(NULL, NULL);
 }

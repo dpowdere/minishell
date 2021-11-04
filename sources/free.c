@@ -46,7 +46,6 @@ void	clean_up(t_state *state)
 {
 	extern char	**environ;
 
-	(void)state;
 	ft_ptr_array_free((void **)environ);
 	rl_clear_history();
 	if (state->is_input_interactive)

@@ -169,6 +169,7 @@ int				unset_env(const char *name);
 
 // signals.c
 void			setup_signal_handlers(t_state *state);
+void			setup_child_signal_handlers(void);
 
 // readline.c
 int				readline_arg(t_state *s);
