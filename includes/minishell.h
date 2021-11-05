@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/11 17:33:58 by ngragas           #+#    #+#             */
-/*   Updated: 2021/11/01 23:28:41 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/05 22:03:08 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@
 # define ERR_SYNTAX_TOKEN		"syntax error near unexpected token"
 # define ERR_AMBIGUOUS_REDIRECT	"ambiguous redirect"
 # define ERR_COMMAND_NOT_FOUND	"command not found"
+# define ERR_HEREDOC_EOF		"warning: here-document delimited "\
+								"by end-of-file, wanted"
 
 # define ERR_BUILTIN_HOME_NOT_SET 		"HOME not set"
 # define ERR_BUILTIN_ENV_INVALID		"not a valid identifier"
@@ -187,13 +189,15 @@ bool			check_tokens(t_list *tokens_list);
 
 // get_raw_cmds.c
 t_list			*get_cmds_list(t_list *tokens_list);
-
 // get_raw_cmds_utils.c
 enum e_operator	get_operator_type(const char *line);
 t_list			*popconvert_tokenlst_to_stringlst(t_list **tokens_list);
 
 // heredoc.c
 void			*input_heredocs(void *cmd_data, void *extra_data);
+// heredoc_utils.c
+void			*calc_heredoc_len(void *initial, void *next);
+void			*populate_heredoc(void *initial, void *next);
 
 // get_cooked_cmd.c
 t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);

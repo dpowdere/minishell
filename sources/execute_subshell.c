@@ -6,7 +6,7 @@
 /*   By: ngragas <ngragas@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/31 18:34:03 by ngragas           #+#    #+#             */
-/*   Updated: 2021/10/31 22:27:20 by ngragas          ###   ########.fr       */
+/*   Updated: 2021/11/05 22:15:08 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ int	execute_subshell(char **tokens)
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (EXIT_FAILURE);
+	cmds_list = ft_lstconv_xd(cmds_list, input_heredocs, &exit_status);
 	execute(cmds_list, &exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
 	return (exit_status);

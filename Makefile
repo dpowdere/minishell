@@ -20,6 +20,7 @@ SRC		=	main				\
 			get_raw_cmds		\
 			get_raw_cmds_utils	\
 			heredoc				\
+			heredoc_utils		\
 			cooking_cursor		\
 			cook_field_splitting\
 			cook_quotes			\
