@@ -28,9 +28,10 @@ void	*error(char *error_message, char *extra_message,
 	return (NULL);
 }
 
-void	*exit_with_error(t_list *list_to_free, void (*free_fn)(void*))
+void	exit_with_error(t_list *list_to_free, void (*free_fn)(void*))
 {
 	error(strerror(errno), NULL, list_to_free, free_fn);
+	clean_up();
 	exit(errno);
 }
 

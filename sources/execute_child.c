@@ -60,13 +60,13 @@ static void	execute_child(t_cmd *cmd)
 	char		*cmd_path;
 
 	if (setup_child_signal_handlers() == false)
-		exit(EXIT_FAILURE);
+		exit_with_clean(errno);
 	if (redirect_files(cmd->redirects) == false)
-		exit(EXIT_FAILURE);
+		exit_with_clean(errno);
 	if (is_builtin(cmd->args[0]))
-		exit(execute_builtin_run(cmd->args, errno));
+		exit_with_clean(execute_builtin_run(cmd->args, errno));
 	if (*cmd->args[0] == SUBSHELL_MAGIC_BYTE)
-		exit(execute_subshell(cmd->args));
+		exit_with_clean(execute_subshell(cmd->args));
 	if (ft_strchr(cmd->args[0], '/'))
 	{
 		if (file_exists(cmd->args[0]))
@@ -79,10 +79,12 @@ static void	execute_child(t_cmd *cmd)
 			execve(cmd_path, cmd->args, environ);
 	}
 	execute_fail(cmd->args[0]);
+	clean_up();
 	exit(errno);
 }
 
-static void	child_pipes_setup(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
+static void	child_pipes_setup
+(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 {
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{

@@ -44,18 +44,18 @@ void	setup_environ(void)
 
 	environ = copy_environ(ENV_DEEP_COPY_TRUE);
 	if (environ == NULL)
-		exit(errno);
+		exit_with_clean(errno);
 	if (set_env(SUBSHELL_ENV, "0") == -1)
-		exit(errno);
+		exit_with_clean(errno);
 	shlvl_old = getenv("SHLVL");
 	if (shlvl_old == NULL)
 		shlvl_new = ft_itoa(1);
 	else
 		shlvl_new = ft_itoa(ft_atoi(shlvl_old) + 1);
 	if (shlvl_new == NULL)
-		exit(errno);
+		exit_with_clean(errno);
 	if (set_env("SHLVL", shlvl_new) == -1)
-		exit(errno);
+		exit_with_clean(errno);
 	free(shlvl_new);
 }
 
@@ -66,6 +66,7 @@ void	setup_input(t_state *state, int argc, char **argv)
 	state->should_free_line = DO_FREE_LINE;
 	if (isatty(STDIN_FILENO))
 	{
+		rl_change_environment = 0;
 		state->read_user_line = readline_stdin_tty;
 		state->is_input_interactive = true;
 	}
@@ -91,12 +92,13 @@ int	main(int argc, char **argv)
 	fatal_error = 0;
 	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 		fatal_error = interpret(&state);
-	clean_up(&state);
+	clean_up();
 	if (DEBUG_EXIT_STATUS)
 	{
 		printf("EXIT STATUS %d\n", state.exit_status);
 		printf("ERRNO %d: %s\n", errno, strerror(errno));
 	}
+	ft_putchar_fd('\n', STDOUT_FILENO);
 	if (state.exit_status)
 		return (state.exit_status);
 	else

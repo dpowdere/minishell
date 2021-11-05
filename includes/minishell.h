@@ -225,7 +225,7 @@ int				builtin_unset(char *builtin_name, char **args);
 // error.c
 void			*error(char *error_message, char *extra_message, \
 								t_list *list_to_free, void (*free_fn)(void*));
-void			*exit_with_error(t_list *list_to_free, void (*free_fn)(void*));
+void			exit_with_error(t_list *list_to_free, void (*free_fn)(void*));
 int				error_builtin(char *builtin_name, char *message, \
 								char *extra_message);
 
@@ -236,7 +236,8 @@ char			*get_exit_status_str(int exit_status);
 void			free_token(void *token_content);
 void			free_redirect(void *redirect_content);
 void			free_cmd(void *cmd_content);
-void			clean_up(t_state *state);
+void			clean_up(void);
+void			exit_with_clean(int return_value);
 
 // utils.c
 int				get_exit_status(int stat_loc);
