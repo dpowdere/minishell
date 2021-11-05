@@ -12,6 +12,18 @@
 
 #include "minishell.h"
 
+void	cook(t_list *lst, int *exit_status)
+{
+	t_cc	cc;
+
+	cc = get_cooking_cursor(lst, exit_status);
+	while (wordpart_cooking_condition(&cc))
+	{
+		cook_wordpart(&cc);
+		next_wordpart(&cc, lst);
+	}
+}
+
 int	string_cooking_condition(t_cc *cc, char *s)
 {
 	extern int	errno;

@@ -233,6 +233,7 @@ void			cook_substitute_variable(t_cc *cc);
 void			*serve(void *data);
 void			*calc_memsize(void *initial, void *next);
 // cook_utils.c
+void			cook(t_list *lst, int *exit_status);
 int				string_cooking_condition(t_cc *cc, char *s);
 int				wordpart_cooking_condition(t_cc *cc);
 enum e_phase	next_phase(enum e_phase phase);
