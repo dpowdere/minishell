@@ -71,7 +71,6 @@ t_list	*cook_heredoc_terminator(t_list *lst, t_cmd *cmd,
 									t_redirect *redirect, int *exit_status)
 {
 	char	*raw_terminator;
-	t_cc	cc;
 
 	if (DEBUG_CMD_COOKING)
 		debug_redirect(redirect);
@@ -88,12 +87,7 @@ t_list	*cook_heredoc_terminator(t_list *lst, t_cmd *cmd,
 		lst->content = redirect;
 		return (lst);
 	}
-	cc = get_cooking_cursor(lst, exit_status);
-	while (wordpart_cooking_condition(&cc))
-	{
-		cook_wordpart(&cc);
-		next_wordpart(&cc, lst);
-	}
+	cook(lst, exit_status);
 	cmd->heredoc_expand_vars = !ft_strcmp(redirect->target, raw_terminator);
 	if (DEBUG_CMD_COOKING)
 		printf("\n\n");

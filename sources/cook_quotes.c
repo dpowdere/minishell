@@ -45,6 +45,14 @@ void	cook_single_quotes(t_cc *cc)
 		step_cpy(cc);
 }
 
+static inline void	step_or_cpy_if(int is_quote_removal_phase, t_cc *cc)
+{
+	if (is_quote_removal_phase)
+		step(cc);
+	else
+		step_cpy(cc);
+}
+
 void	cook_double_quotes(t_cc *cc, int is_double_quote_open)
 {
 	extern int	errno;
@@ -54,12 +62,7 @@ void	cook_double_quotes(t_cc *cc, int is_double_quote_open)
 			|| cc->part->phase == _QREM_OPEN_DOUBLE_QUOTE);
 	cc->inside_double_quotes = true;
 	if (!is_double_quote_open)
-	{
-		if (qrem)
-			step(cc);
-		else
-			step_cpy(cc);
-	}
+		step_or_cpy_if(qrem, cc);
 	while (string_cooking_condition(cc, NULL) && *cc->cursor != '"')
 	{
 		if (*cc->cursor == '\\')
@@ -71,11 +74,6 @@ void	cook_double_quotes(t_cc *cc, int is_double_quote_open)
 			step_cpy(cc);
 	}
 	if (string_cooking_condition(cc, NULL))
-	{
-		if (qrem)
-			step(cc);
-		else
-			step_cpy(cc);
-	}
+		step_or_cpy_if(qrem, cc);
 	cc->inside_double_quotes = false;
 }

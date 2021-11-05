@@ -14,30 +14,56 @@
 
 #define IFS_SPACES " \t\n"
 
-void	cook_wordpart_split_into_fields(t_cc *cc)
+static void	when_field_should_be_concatenated_with_prev_wordpart(t_cc *cc)
 {
 	t_list	*lst;
 
+	lst = ft_lstdetach((t_list **)&cc->word_list->content, cc->part_list);
+	cc->part->start = cc->cursor;
+	cc->part->exclusive_end = NULL;
+	if (cc->word_list->content == NULL)
+	{
+		cc->recycle_wordpart = true;
+		cc->word_list->content = lst;
+	}
+	else
+	{
+		ft_lstadd_back(&cc->word_list, ft_lstnew(lst));
+		cc->part_list = ft_lstlast((t_list *)cc->word_list->content);
+		cc->dont_change_phase = true;
+	}
+	cc->finish_phase = true;
+}
+
+static void	when_field_should_form_new_word(t_cc *cc)
+{
+	t_list	*lst;
+
+	cc->finish_phase = true;
+	if (*cc->cursor == '\0' && cc->part_list->next == NULL)
+		return ;
+	else if (*cc->cursor == '\0' && cc->part_list->next != NULL)
+	{
+		ft_lstadd_back(&cc->word_list, ft_lstnew(cc->part_list->next));
+		cc->part_list->next = NULL;
+	}
+	else
+	{
+		lst = ft_lstnew(lstnew_wordpart(cc->cursor, FIELD_SPLITTING));
+		((t_list *)lst->content)->next = cc->part_list->next;
+		cc->part_list->next = NULL;
+		ft_lstadd_back(&cc->word_list, lst);
+	}
+}
+
+void	cook_wordpart_split_into_fields(t_cc *cc)
+{
 	while (string_cooking_condition(cc, NULL)
 		&& ft_strchr(IFS_SPACES, *cc->cursor))
 		step(cc);
 	if (cc->cursor != cc->write_cursor)
 	{
-		lst = ft_lstdetach((t_list **)&cc->word_list->content, cc->part_list);
-		cc->part->start = cc->cursor;
-		cc->part->exclusive_end = NULL;
-		if (cc->word_list->content == NULL)
-		{
-			cc->recycle_wordpart = true;
-			cc->word_list->content = lst;
-		}
-		else
-		{
-			ft_lstadd_back(&cc->word_list, ft_lstnew(lst));
-			cc->part_list = ft_lstlast((t_list *)cc->word_list->content);
-			cc->dont_change_phase = true;
-		}
-		cc->finish_phase = true;
+		when_field_should_be_concatenated_with_prev_wordpart(cc);
 		return ;
 	}
 	while (string_cooking_condition(cc, NULL))
@@ -49,21 +75,7 @@ void	cook_wordpart_split_into_fields(t_cc *cc)
 			while (string_cooking_condition(cc, NULL)
 				&& ft_strchr(IFS_SPACES, *cc->cursor))
 				step(cc);
-			cc->finish_phase = true;
-			if (*cc->cursor == '\0' && cc->part_list->next == NULL)
-				return ;
-			else if (*cc->cursor == '\0' && cc->part_list->next != NULL)
-			{
-				ft_lstadd_back(&cc->word_list, ft_lstnew(cc->part_list->next));
-				cc->part_list->next = NULL;
-			}
-			else
-			{
-				lst = ft_lstnew(lstnew_wordpart(cc->cursor, FIELD_SPLITTING));
-				((t_list *)lst->content)->next = cc->part_list->next;
-				cc->part_list->next = NULL;
-				ft_lstadd_back(&cc->word_list, lst);
-			}
+			when_field_should_form_new_word(cc);
 			return ;
 		}
 	}

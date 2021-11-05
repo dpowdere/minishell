@@ -15,7 +15,6 @@
 t_list	*cook_arg(t_list *word_list, void *exit_status)
 {
 	char	*arg;
-	t_cc	cc;
 
 	arg = word_list->content;
 	if (DEBUG_CMD_COOKING)
@@ -26,12 +25,7 @@ t_list	*cook_arg(t_list *word_list, void *exit_status)
 		word_list->content = arg;
 		return (word_list);
 	}
-	cc = get_cooking_cursor(word_list, exit_status);
-	while (wordpart_cooking_condition(&cc))
-	{
-		cook_wordpart(&cc);
-		next_wordpart(&cc, word_list);
-	}
+	cook(word_list, exit_status);
 	ft_lstconv(word_list, serve);
 	free(arg);
 	if (DEBUG_CMD_COOKING)
@@ -39,11 +33,17 @@ t_list	*cook_arg(t_list *word_list, void *exit_status)
 	return (word_list);
 }
 
+static void	*free_return(t_cmd *cmd, int *exit_status)
+{
+	*exit_status = 1;
+	free_cmd(cmd);
+	return (NULL);
+}
+
 t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 {
-	extern int	errno;
-	int			check;
-	t_xd		xd;
+	int		check;
+	t_xd	xd;
 
 	check = (cmd->args_list != NULL) + (cmd->redirects != NULL);
 	xd.cmd = cmd;
@@ -54,18 +54,10 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 	if (errno == ENOMEM)
 		error(strerror(errno), NULL, NULL, NULL);
 	if (errno || check != (cmd->args_list != NULL) + (cmd->redirects != NULL))
-	{
-		*exit_status = 1;
-		free_cmd(cmd);
-		return (NULL);
-	}
+		return (free_return(cmd, exit_status));
 	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
-	{
-		*exit_status = 1;
-		free_cmd(cmd);
-		return (NULL);
-	}
+		return (free_return(cmd, exit_status));
 	cmd->args_list = NULL;
 	return (cmd);
 }

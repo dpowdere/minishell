@@ -12,38 +12,10 @@
 
 #include "minishell.h"
 
-void	cook_substitute_variable(t_cc *cc)
+static void	update_wordparts(t_cc *cc, char *start)
 {
 	enum e_phase	phase;
-	char			*start;
-	char			*tmp;
 
-	start = cc->cursor + 1;
-	if (*start == '?')
-	{
-		insert_exit_status(cc);
-		return ;
-	}
-	if (!string_cooking_condition(cc, start) || !is_identhead(*start))
-	{
-		step_cpy(cc);
-		return ;
-	}
-	step(cc);
-	while (string_cooking_condition(cc, NULL) && is_identtail(*cc->cursor))
-		step(cc);
-	tmp = ft_calloc(cc->cursor - start + 1, sizeof(char));
-	if (tmp == NULL)
-		return ;
-	ft_strlcpy(tmp, start, cc->cursor - start + 1);
-	start = getenv(tmp);
-	if (DEBUG_CMD_COOKING)
-	{
-		printf(" env[%s=" AEC_YELLOW "%s" AEC_RESET "]", tmp, start);
-	}
-	free(tmp);
-	if (start == NULL || ft_strlen(start) == 0)
-		return ;
 	if (cc->inside_double_quotes)
 		phase = FINAL;
 	else
@@ -63,4 +35,30 @@ void	cook_substitute_variable(t_cc *cc)
 	if (*cc->cursor != '\0')
 		ft_lstadd_back(&cc->part_list, lstnew_wordpart(cc->cursor, phase));
 	cc->finish_phase = true;
+}
+
+void	cook_substitute_variable(t_cc *cc)
+{
+	char			*start;
+	char			*tmp;
+
+	start = cc->cursor + 1;
+	if (*start == '?')
+		return ((void)insert_exit_status(cc));
+	if (!string_cooking_condition(cc, start) || !is_identhead(*start))
+		return ((void)step_cpy(cc));
+	step(cc);
+	while (string_cooking_condition(cc, NULL) && is_identtail(*cc->cursor))
+		step(cc);
+	tmp = ft_calloc(cc->cursor - start + 1, sizeof(char));
+	if (tmp == NULL)
+		return ;
+	ft_strlcpy(tmp, start, cc->cursor - start + 1);
+	start = getenv(tmp);
+	if (DEBUG_CMD_COOKING)
+		printf(" env[%s=" AEC_YELLOW "%s" AEC_RESET "]", tmp, start);
+	free(tmp);
+	if (start == NULL || ft_strlen(start) == 0)
+		return ;
+	update_wordparts(cc, start);
 }
