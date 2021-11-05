@@ -62,6 +62,8 @@ void	setup_environ(void)
 
 void	setup_input(t_state *state, int argc, char **argv)
 {
+	extern int	errno;
+
 	state->argc = argc;
 	state->argv = argv;
 	state->should_free_line = DO_FREE_LINE;
@@ -78,6 +80,8 @@ void	setup_input(t_state *state, int argc, char **argv)
 	}
 	else
 		state->read_user_line = readline_stdin_non_tty;
+	if (errno == ENOTTY)
+		errno = 0;
 }
 
 int	main(int argc, char **argv)
