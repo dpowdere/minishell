@@ -49,8 +49,7 @@
 # define ERR_SYNTAX_TOKEN		"syntax error near unexpected token"
 # define ERR_AMBIGUOUS_REDIRECT	"ambiguous redirect"
 # define ERR_COMMAND_NOT_FOUND	"command not found"
-# define ERR_HEREDOC_EOF		"warning: here-document delimited "\
-								"by end-of-file, wanted"
+# define ERR_HEREDOC_EOF	"warning: here-document delimited by EOF, wanted"
 
 # define ERR_BUILTIN_HOME_NOT_SET 		"HOME not set"
 # define ERR_BUILTIN_ENV_INVALID		"not a valid identifier"

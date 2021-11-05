@@ -83,8 +83,8 @@ static void	execute_child(t_cmd *cmd)
 	exit(errno);
 }
 
-static void	child_pipes_setup
-(int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
+static void	child_pipes_setup(
+		int pipe_out_in[2], int *fd_for_stdin, char *heredoc)
 {
 	if (pipe_out_in[0] || pipe_out_in[1])
 	{
