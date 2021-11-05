@@ -12,7 +12,7 @@
 
 NAME	= libft.a
 CFLAGS	= -Wall -Wextra -Werror
-HEADER	= libft.h
+HEADER	= libft.h	get_next_line.h
 SRCS	=	ft_isspace.c	ft_isprint.c	ft_isascii.c					\
 			ft_isdigit.c	ft_isalpha.c	ft_isalnum.c					\
 			ft_toupper.c	ft_tolower.c	ft_strmapi.c					\
