@@ -92,9 +92,6 @@ int	execute_builtin_run(char **args, const int current_exit_status)
 
 	builtin_function = is_builtin(args[0]);
 	if (builtin_function == builtin_exit && args[1] == NULL)
-	{
-		ft_putchar_fd('\n', STDOUT_FILENO);
 		exit_with_clean(current_exit_status);
-	}
 	return (builtin_function(args[0], args + 1));
 }

@@ -103,7 +103,6 @@ int	main(int argc, char **argv)
 		printf("EXIT STATUS %d\n", state.exit_status);
 		printf("ERRNO %d: %s\n", errno, strerror(errno));
 	}
-	ft_putchar_fd('\n', STDOUT_FILENO);
 	if (state.exit_status)
 		return (state.exit_status);
 	else
