@@ -82,6 +82,8 @@ void			ft_lstadd_back(t_list **lst, t_list *new);
 void			ft_lstinsert(t_list **lst, t_list *new);
 void			*ft_lstpop(t_list **lst);
 t_list			*ft_lstpopconv(t_list **lst, void *(*f)(void *));
+t_list			*ft_lstpopconv_xd(t_list **lst,
+					void *(*f)(void *, void *), void *extra_data);
 t_list			*ft_lstdetach(t_list **lst, t_list *detachable_link);
 void			ft_lstremove(t_list **begin, t_list *to_delete);
 void			ft_lstremoveif(t_list **begin, void *data_ref, int (*cmp)(), \
@@ -103,6 +105,8 @@ void			ft_lstpipeline_xd(t_list **lst,
 t_list			*ft_lstmap(t_list *lst, void *(*f)(void *), \
 							void (*del)(void *));
 t_list			*ft_lstconv(t_list *lst, void *(*f)(void *));
+t_list			*ft_lstconv_xd(t_list *lst,
+					void *(*f)(void *, void *), void *extra_data);
 void			*ft_lstreduce(t_list *lst, void *initial, \
 							void *(*f)(void *, void *));
 void			*ft_lstpopreduce(t_list **lst, void *initial, \

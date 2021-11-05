@@ -17,6 +17,7 @@
 # include <fcntl.h>
 # include <limits.h>
 # include <signal.h>
+# include <stddef.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -117,6 +118,7 @@ typedef struct s_cmd
 	char			**args;
 	t_list			*redirects;
 	char			*heredoc;
+	bool			heredoc_expand_vars;
 	enum e_operator	next_operator;
 }	t_cmd;
 
@@ -154,7 +156,7 @@ typedef struct s_cooking_cursor
 	int		need_another_traversal;
 	int		*exit_status;
 	int		phase_num;
-}	t_cooking_cursor;
+}	t_cc;
 
 typedef struct s_cooking_extradata
 {
@@ -191,10 +193,45 @@ enum e_operator	get_operator_type(const char *line);
 t_list			*popconvert_tokenlst_to_stringlst(t_list **tokens_list);
 
 // heredoc.c
-t_list			*input_heredocs(t_list *cmds_list);
+void			*input_heredocs(void *cmd_data, void *extra_data);
 
 // get_cooked_cmd.c
 t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);
+t_list			*cook_arg(t_list *word_list, void *exit_status);
+// cook_redirect.c
+t_list			*cook_redirect(t_list *lst, void *exit_status);
+// cooking_cursor.c
+t_cc			get_cooking_cursor(t_list *word_list, int *exit_status);
+t_cc			*final_cpy(t_cc *cc);
+t_cc			*step(t_cc *cc);
+t_cc			*step_cpy(t_cc *cc);
+void			tune_cursors(t_cc *cc);
+// cook_field_splitting.c
+void			cook_wordpart_split_into_fields(t_cc *cc);
+// cook_wordpart.c
+void			cook_wordpart(t_cc *cc);
+void			cook_wordpart_main(t_cc *cc, int is_double_quote_open);
+void			cook_wordpart_find_string_terminator(t_cc *cc);
+// cook_wordpart_utils.c
+t_list			*lstnew_wordpart(char *start, enum e_phase phase);
+void			next_wordpart(t_cc *cc, t_list *word_list);
+void			seal_wordpart(t_cc *cc);
+// cook_star.c
+void			cook_wordpart_expand_pathnames(t_cc *cc);
+void			*should_expand_pathnames_check(void *initial, void *next);
+// cook_quotes.c
+void			cook_escape(t_cc *cc);
+void			cook_single_quotes(t_cc *cc);
+void			cook_double_quotes(t_cc *cc, int is_double_quote_open);
+// cook_variables.c
+void			cook_substitute_variable(t_cc *cc);
+// cook_serve.c
+void			*serve(void *data);
+void			*calc_memsize(void *initial, void *next);
+// cook_utils.c
+int				string_cooking_condition(t_cc *cc, char *s);
+int				wordpart_cooking_condition(t_cc *cc);
+enum e_phase	next_phase(enum e_phase phase);
 
 // execute.c
 void			execute(t_list *cmds_list, int *exit_status);
@@ -236,6 +273,7 @@ int				error_builtin(char *builtin_name, char *message, \
 
 // exit_status.c
 char			*get_exit_status_str(int exit_status);
+void			insert_exit_status(t_cc *cc);
 
 // free.c
 void			free_token(void *token_content);

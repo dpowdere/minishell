@@ -20,6 +20,16 @@ SRC		=	main				\
 			get_raw_cmds		\
 			get_raw_cmds_utils	\
 			heredoc				\
+			cooking_cursor		\
+			cook_field_splitting\
+			cook_quotes			\
+			cook_redirect		\
+			cook_serve			\
+			cook_star			\
+			cook_utils			\
+			cook_variables		\
+			cook_wordpart		\
+			cook_wordpart_utils	\
 			get_cooked_cmd		\
 			execute				\
 			execute_builtin		\
@@ -33,6 +43,7 @@ SRC		=	main				\
 			free				\
 			utils				\
 			debug_tokens		\
+			debug_cooking		\
 			debug_cmds
 
 SRC_DIR	=	sources/
