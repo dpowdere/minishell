@@ -27,7 +27,7 @@ static void	suppress_ctrl_chars_echo(void)
 {
 	struct termios	tty_attrs;
 
-	tcgetattr(STDOUT_FILENO, &tty_attrs);
+	tcgetattr(STDIN_FILENO, &tty_attrs);
 	tty_attrs.c_lflag &= ~ECHOCTL;
 	tcsetattr(STDIN_FILENO, TCSANOW, &tty_attrs);
 }
