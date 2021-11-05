@@ -6,29 +6,11 @@
 /*   By: dpowdere <dpowdere@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/04 22:53:28 by dpowdere          #+#    #+#             */
-/*   Updated: 2021/11/04 22:54:54 by dpowdere         ###   ########.fr       */
+/*   Updated: 2021/11/05 22:07:13 by ngragas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	*calc_heredoc_len(void *initial, void *next)
-{
-	*(size_t *)initial += ft_strlen(next) + 1;
-	return (initial);
-}
-
-void	*populate_heredoc(void *initial, void *next)
-{
-	size_t		len;
-
-	len = ft_strlen((char *)next);
-	*((char *)initial - 1) = '\n';
-	initial = (char *)initial - len - 1;
-	ft_memcpy(initial, (char *)next, len);
-	free(next);
-	return (initial);
-}
 
 void	input_heredoc(t_cmd *cmd, const char *terminator)
 {
@@ -41,30 +23,22 @@ void	input_heredoc(t_cmd *cmd, const char *terminator)
 	while (true)
 	{
 		line = readline(HEREDOC_PROMPT_STRING);
-		if (!line || ft_strncmp(line, terminator, ft_strlen(line)) == 0)
-		{
-			if (line == NULL)
-			{
-				ft_putstr_fd("warning: here-document delimited ", 2);
-				ft_putstr_fd("by end-of-file (wanted `", STDERR_FILENO);
-				ft_putstr_fd((char *)terminator, STDERR_FILENO);
-				ft_putendl_fd("')", STDERR_FILENO);
-			}
-			len = 1;
-			ft_lstreduce(lst, &len, calc_heredoc_len);
-			cmd->heredoc = malloc(len);
-			if (cmd->heredoc == NULL)
-			{
-				ft_lstclear(&lst, free);
-				break ;
-			}
-			*(cmd->heredoc + len - 1) = '\0';
-			ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
+		if (!line || !ft_strncmp(line, terminator, ft_strlen(terminator) + 1))
 			break ;
-		}
-		else
-			ft_lstadd_front(&lst, ft_lstnew(line));
+		ft_lstadd_front(&lst, ft_lstnew(line));
+		if (lst == NULL)
+			exit_with_error(NULL, NULL);
 	}
+	if (line == NULL)
+		error(ERR_HEREDOC_EOF, (char *)terminator, NULL, NULL);
+	free(line);
+	len = 1;
+	ft_lstreduce(lst, &len, calc_heredoc_len);
+	cmd->heredoc = malloc(len);
+	if (cmd->heredoc == NULL)
+		return ((void)ft_lstclear(&lst, free));
+	*(cmd->heredoc + len - 1) = '\0';
+	ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
 }
 
 t_list	*cook_heredoc_terminator(t_list *lst, t_cmd *cmd,
