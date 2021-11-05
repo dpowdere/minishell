@@ -29,8 +29,27 @@ t_list	*ft_lstpopconv(t_list **lst, void *(*f)(void *))
 	t_list	*converted_item;
 
 	converted_item = *lst;
-	converted_item->content = f((*lst)->content);
-	*lst = (*lst)->next;
-	converted_item->next = NULL;
+	if (converted_item)
+	{
+		if (f)
+			converted_item->content = f((*lst)->content);
+		*lst = (*lst)->next;
+		converted_item->next = NULL;
+	}
+	return (converted_item);
+}
+
+t_list	*ft_lstpopconv_xd(t_list **lst,
+							void *(*f)(void *, void *), void *extra_data)
+{
+	t_list	*converted_item;
+
+	converted_item = *lst;
+	if (converted_item)
+	{
+		converted_item->content = f((*lst)->content, extra_data);
+		*lst = (*lst)->next;
+		converted_item->next = NULL;
+	}
 	return (converted_item);
 }

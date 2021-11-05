@@ -42,7 +42,7 @@ static void	debug_next_operator(enum e_operator op)
 	printf(AEC_RESET "\n");
 }
 
-static void	debug_redirect(void *data)
+static void	debug_cmd_redirect(void *data)
 {
 	t_redirect	*r;
 
@@ -84,7 +84,7 @@ static void	debug_cmd(void *data, int ix, int is_last)
 		args = args->next;
 	}
 	printf("\r" HEADER_TMPL, "redirs");
-	ft_lstiter(cmd->redirects, debug_redirect);
+	ft_lstiter(cmd->redirects, debug_cmd_redirect);
 	if (!cmd->redirects)
 		printf("\n");
 	debug_next_operator(cmd->next_operator);

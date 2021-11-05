@@ -47,7 +47,9 @@
 # define AEC_HIDE_CURSOR	"\x1b[?25l"
 # define AEC_SHOW_CURSOR	"\x1b[?25h"
 
-typedef struct s_cmd	t_cmd;
+typedef struct s_cmd			t_cmd;
+typedef struct s_cooking_cursor	t_cc;
+typedef struct s_redirect		t_redirect;
 
 // debug_tokens.c
 t_list	*debug_tokens(t_list *tokens_list);
@@ -55,5 +57,10 @@ t_list	*debug_tokens(t_list *tokens_list);
 // debug_cmds.c
 t_list	*debug_raw_cmds(t_list *raw_cmds_list);
 t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd);
+
+// debug_cooking.c
+void	*debug_cooked_string(void *arg);
+void	debug_cooking_phase(t_list *word_list, t_cc *cc);
+void	debug_redirect(t_redirect *r);
 
 #endif

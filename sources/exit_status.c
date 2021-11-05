@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-#define INT_STR_LEN	12
+#define INT_STRLEN_MAX	12
 
 static inline int	get_power10(int n)
 {
@@ -31,7 +31,7 @@ static inline int	get_power10(int n)
 char	*get_exit_status_str(int exit_status)
 {
 	static int	previous_exit_status;
-	static char	str[INT_STR_LEN] = {'0', '\0'};
+	static char	str[INT_STRLEN_MAX] = {'0', '\0'};
 	int			power10;
 	int			sign;
 	int			i;
@@ -40,7 +40,7 @@ char	*get_exit_status_str(int exit_status)
 	{
 		previous_exit_status = exit_status;
 		i = 0;
-		sign = -1 * (exit_status < 0) + (exit_status >= 0);
+		sign = (exit_status >= 0) - (exit_status < 0);
 		power10 = get_power10(exit_status);
 		if (sign < 0)
 			str[i++] = '-';
@@ -53,4 +53,30 @@ char	*get_exit_status_str(int exit_status)
 		str[i] = '\0';
 	}
 	return ((char *)str);
+}
+
+void	insert_exit_status(t_cc *cc)
+{
+	enum e_phase	phase;
+	char			*status;
+
+	status = get_exit_status_str(*cc->exit_status);
+	step(step(cc));
+	if (DEBUG_CMD_COOKING)
+		printf(" exit_status[" AEC_YELLOW "%s" AEC_RESET "]", status);
+	if (cc->write_cursor == cc->part->start)
+	{
+		cc->part->phase = FINAL;
+		cc->part->start = status;
+		cc->recycle_wordpart = true;
+	}
+	else
+		ft_lstadd_back(&cc->part_list, lstnew_wordpart(status, FINAL));
+	if (cc->inside_double_quotes)
+		phase = _VARSUB_OPEN_DOUBLE_QUOTE;
+	else
+		phase = VARIABLE_SUBSTITUTION;
+	if (*cc->cursor != '\0')
+		ft_lstadd_back(&cc->part_list, lstnew_wordpart(cc->cursor, phase));
+	cc->finish_phase = true;
 }
