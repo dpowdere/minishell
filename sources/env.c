@@ -23,19 +23,19 @@ char	**copy_environ(bool deep_copy)
 	new_env = malloc((env_var_count + 1 + 1) * sizeof(*new_env));
 	if (new_env == NULL)
 		return (NULL);
-	if (deep_copy)
+	i = 0;
+	while (i < env_var_count)
 	{
-		i = 0;
-		while (i < env_var_count)
+		if (deep_copy)
 		{
 			new_env[i] = ft_strdup(environ[i]);
 			if (new_env[i] == NULL)
 				return (ft_ptr_array_free((void **)new_env));
-			i++;
 		}
+		else
+			new_env[i] = environ[i];
+		i++;
 	}
-	else
-		new_env = ft_memcpy(new_env, environ, env_var_count * sizeof(*environ));
 	new_env[env_var_count] = NULL;
 	new_env[env_var_count + 1] = NULL;
 	return (new_env);

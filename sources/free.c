@@ -42,12 +42,16 @@ void	free_cmd(void *cmd_content)
 	free(cmd);
 }
 
-void	clean_up(t_state *state)
+void	clean_up(void)
 {
 	extern char	**environ;
 
 	ft_ptr_array_free((void **)environ);
 	rl_clear_history();
-	if (state->is_input_interactive)
-		ft_putchar_fd('\n', STDOUT_FILENO);
+}
+
+void	exit_with_clean(int return_value)
+{
+	clean_up();
+	exit(return_value);
 }

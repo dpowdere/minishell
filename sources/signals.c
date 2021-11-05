@@ -51,7 +51,7 @@ void	setup_signal_handlers(t_state *state)
 		|| sigaction(SIGINT, &on_int, NULL) < 0)
 	{
 		error(strerror(errno), NULL, NULL, NULL);
-		clean_up(state);
+		clean_up();
 		exit(errno);
 	}
 }
