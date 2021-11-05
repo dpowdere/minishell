@@ -106,9 +106,10 @@ t_list	*get_cmds_list(t_list *tokens_list)
 	{
 		cmd = ft_calloc(1, sizeof(*cmd));
 		cmdlst = ft_lstnew(cmd);
-		if (cmd == NULL || cmdlst == NULL)
+		if (cmd == NULL || cmdlst == NULL || errno)
 		{
 			free(cmd);
+			free(cmdlst);
 			ft_lstclear(&tokens_list, free_token);
 			return (error(strerror(errno), NULL, cmds_list, free_cmd));
 		}
