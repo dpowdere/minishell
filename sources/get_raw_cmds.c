@@ -76,7 +76,7 @@ t_list	*get_cmd(t_list *tokens_list, t_cmd *cmd)
 	enum e_operator	operator;
 
 	operator = OPERATOR_NONE;
-	while (tokens_list && errno == 0 && operator != OPERATOR_PIPE && \
+	while (tokens_list && operator != OPERATOR_PIPE && \
 		operator != OPERATOR_OR && operator != OPERATOR_AND)
 	{
 		token = tokens_list->content;
@@ -106,7 +106,7 @@ t_list	*get_cmds_list(t_list *tokens_list)
 	{
 		cmd = ft_calloc(1, sizeof(*cmd));
 		cmdlst = ft_lstnew(cmd);
-		if (cmd == NULL || cmdlst == NULL || errno)
+		if (cmd == NULL || cmdlst == NULL)
 		{
 			free(cmd);
 			free(cmdlst);
