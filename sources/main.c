@@ -104,13 +104,13 @@ int	main(int argc, char **argv)
 	setup_signal_handlers(&state);
 	fatal_error = 0;
 	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
-		fatal_error = interpret(&state);
-	clean_up();
-	if (DEBUG_EXIT_STATUS)
 	{
-		printf("EXIT STATUS %d\n", state.exit_status);
-		printf("ERRNO %d: %s\n", errno, strerror(errno));
+		fatal_error = interpret(&state);
+		if (DEBUG_EXIT_STATUS)
+			printf("EXIT STATUS " AEC_RED "%d" AEC_RESET "\n"
+				"ERRNO %d: %s\n", state.exit_status, errno, strerror(errno));
 	}
+	clean_up();
 	if (state.exit_status)
 		return (state.exit_status);
 	else
