@@ -175,6 +175,7 @@ void			setup_signal_handlers(t_state *state);
 bool			setup_child_signal_handlers(void);
 
 // readline.c
+void			setup_input(t_state *state, int argc, char **argv);
 int				readline_arg(t_state *s);
 int				readline_stdin_non_tty(t_state *s);
 int				readline_stdin_tty(t_state *s);
