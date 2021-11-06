@@ -17,6 +17,13 @@ static int	interpret(t_state *state)
 	t_list	*tokens_list;
 	t_list	*cmds_list;
 
+	if (state->is_input_interactive && errno == EINTR)
+	{
+		errno = 0;
+		free(state->line);
+		state->exit_status = ERR_CODE_SIGNAL_OFFSET + SIGINT;
+		return (0);
+	}
 	tokens_list = get_tokens_list(state->line, &state->exit_status);
 	if (state->should_free_line)
 		free(state->line);
@@ -70,6 +77,7 @@ void	setup_input(t_state *state, int argc, char **argv)
 	if (isatty(STDIN_FILENO))
 	{
 		rl_change_environment = 0;
+		rl_catch_signals = 0;
 		state->read_user_line = readline_stdin_tty;
 		state->is_input_interactive = true;
 	}
