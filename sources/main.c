@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static int	interpret(t_state *state)
+static int	interpret(char *line, int *exit_status)
 {
 	t_list	*tokens_list;
 	t_list	*cmds_list;
@@ -24,12 +24,12 @@ static int	interpret(t_state *state)
 		state->exit_status = ERR_CODE_SIGNAL_OFFSET + SIGINT;
 		return (0);
 	}
-	tokens_list = get_tokens_list(state->line, &state->exit_status);
-	if (state->should_free_line)
-		free(state->line);
+	if (errno)
+		return (1);
+	tokens_list = get_tokens_list(line, exit_status);
 	if (check_tokens(tokens_list) == false)
 	{
-		state->exit_status = ERR_CODE_PARSE;
+		*exit_status = ERR_CODE_PARSE;
 		return (0);
 	}
 	if (errno == ENOMEM)
@@ -37,8 +37,8 @@ static int	interpret(t_state *state)
 	cmds_list = get_cmds_list(tokens_list);
 	if (errno == ENOMEM)
 		return (1);
-	cmds_list = ft_lstconv_xd(cmds_list, input_heredocs, &state->exit_status);
-	execute(cmds_list, &state->exit_status);
+	cmds_list = ft_lstconv_xd(cmds_list, input_heredocs, exit_status);
+	execute(cmds_list, exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
 	return (errno != EXIT_SUCCESS);
 }
@@ -105,7 +105,9 @@ int	main(int argc, char **argv)
 	fatal_error = 0;
 	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 	{
-		fatal_error = interpret(&state);
+		fatal_error = interpret(state.line, &state.exit_status);
+		if (state.should_free_line)
+			free(state.line);
 		if (DEBUG_EXIT_STATUS)
 			printf("EXIT STATUS " AEC_RED "%d" AEC_RESET "\n"
 				"ERRNO %d: %s\n", state.exit_status, errno, strerror(errno));
