@@ -19,6 +19,7 @@ void	input_heredoc(t_cmd *cmd, const char *terminator)
 
 	lst = NULL;
 	free(cmd->heredoc);
+	cmd->heredoc = NULL;
 	while (true)
 	{
 		line = readline(HEREDOC_PROMPT_STRING);
