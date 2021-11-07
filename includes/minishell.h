@@ -230,6 +230,8 @@ void			cook_single_quotes(t_cc *cc);
 void			cook_double_quotes(t_cc *cc, int is_double_quote_open);
 // cook_variables.c
 void			cook_substitute_variable(t_cc *cc);
+bool			is_identhead(char c);
+bool			is_identtail(char c);
 // cook_serve.c
 void			*serve(void *data);
 void			*calc_memsize(void *initial, void *next);

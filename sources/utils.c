@@ -41,16 +41,6 @@ int	pid_comparator(const pid_t *pid, const pid_t *pid_to_find)
 	return (*pid == *pid_to_find);
 }
 
-bool	is_identhead(char c)
-{
-	return (ft_isalpha(c) || c == '_');
-}
-
-bool	is_identtail(char c)
-{
-	return (ft_isalnum(c) || c == '_');
-}
-
 bool	valid_identifier_name(const char *name)
 {
 	if (name == NULL || name[0] == '\0' || !is_identhead(name[0]))
