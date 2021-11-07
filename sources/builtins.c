@@ -114,6 +114,5 @@ int	builtin_exit(char *builtin_name, char **args)
 		arg++;
 	}
 	clean_up();
-	ft_putchar_fd('\n', STDOUT_FILENO);
 	exit(return_value);
 }

@@ -175,6 +175,7 @@ void			setup_signal_handlers(t_state *state);
 bool			setup_child_signal_handlers(void);
 
 // readline.c
+void			setup_input(t_state *state, int argc, char **argv);
 int				readline_arg(t_state *s);
 int				readline_stdin_non_tty(t_state *s);
 int				readline_stdin_tty(t_state *s);
@@ -197,6 +198,7 @@ void			*input_heredocs(void *cmd_data, void *extra_data);
 // heredoc_utils.c
 void			*calc_heredoc_len(void *initial, void *next);
 void			*populate_heredoc(void *initial, void *next);
+void			populate_heredoc_from_lines(t_cmd *cmd, t_list *lst);
 
 // get_cooked_cmd.c
 t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);
@@ -228,6 +230,8 @@ void			cook_single_quotes(t_cc *cc);
 void			cook_double_quotes(t_cc *cc, int is_double_quote_open);
 // cook_variables.c
 void			cook_substitute_variable(t_cc *cc);
+bool			is_identhead(char c);
+bool			is_identtail(char c);
 // cook_serve.c
 void			*serve(void *data);
 void			*calc_memsize(void *initial, void *next);

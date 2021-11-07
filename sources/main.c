@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+static inline void	fatal_errno_check(t_state *state, int *fatal_error)
+{
+	if (state->is_input_interactive && errno == EINTR)
+	{
+		errno = 0;
+		state->exit_status = ERR_CODE_SIGNAL_OFFSET + SIGINT;
+		*fatal_error = 0;
+	}
+}
+
 static int	interpret(char *line, int *exit_status)
 {
 	t_list	*tokens_list;
@@ -31,6 +41,11 @@ static int	interpret(char *line, int *exit_status)
 	if (errno == ENOMEM)
 		return (1);
 	cmds_list = ft_lstconv_xd(cmds_list, input_heredocs, exit_status);
+	if (errno == EINTR)
+	{
+		ft_lstclear(&cmds_list, free_cmd);
+		return (0);
+	}
 	execute(cmds_list, exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
 	return (errno != EXIT_SUCCESS);
@@ -60,33 +75,8 @@ void	setup_environ(void)
 	free(shlvl_new);
 }
 
-void	setup_input(t_state *state, int argc, char **argv)
-{
-	extern int	errno;
-
-	state->argc = argc;
-	state->argv = argv;
-	state->should_free_line = DO_FREE_LINE;
-	if (isatty(STDIN_FILENO))
-	{
-		rl_change_environment = 0;
-		state->read_user_line = readline_stdin_tty;
-		state->is_input_interactive = true;
-	}
-	else if (argc > 1)
-	{
-		state->should_free_line = DONT_FREE_LINE;
-		state->read_user_line = readline_arg;
-	}
-	else
-		state->read_user_line = readline_stdin_non_tty;
-	if (errno == ENOTTY)
-		errno = 0;
-}
-
 int	main(int argc, char **argv)
 {
-	extern int	errno;
 	t_state		state;
 	int			fatal_error;
 
@@ -98,16 +88,14 @@ int	main(int argc, char **argv)
 	while (fatal_error == 0 && state.read_user_line(&state) > READLINE_EOF)
 	{
 		fatal_error = interpret(state.line, &state.exit_status);
+		fatal_errno_check(&state, &fatal_error);
 		if (state.should_free_line)
 			free(state.line);
+		if (DEBUG_EXIT_STATUS)
+			printf("EXIT STATUS " AEC_RED "%d" AEC_RESET "\n"
+				"ERRNO %d: %s\n", state.exit_status, errno, strerror(errno));
 	}
 	clean_up();
-	if (DEBUG_EXIT_STATUS)
-	{
-		printf("EXIT STATUS %d\n", state.exit_status);
-		printf("ERRNO %d: %s\n", errno, strerror(errno));
-	}
-	ft_putchar_fd('\n', STDOUT_FILENO);
 	if (state.exit_status)
 		return (state.exit_status);
 	else

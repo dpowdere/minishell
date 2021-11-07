@@ -28,3 +28,16 @@ void	*populate_heredoc(void *initial, void *next)
 	free(next);
 	return (initial);
 }
+
+void	populate_heredoc_from_lines(t_cmd *cmd, t_list *lst)
+{
+	size_t	len;
+
+	len = 1;
+	ft_lstreduce(lst, &len, calc_heredoc_len);
+	cmd->heredoc = malloc(len);
+	if (cmd->heredoc == NULL)
+		return ((void)ft_lstclear(&lst, free));
+	*(cmd->heredoc + len - 1) = '\0';
+	ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
+}

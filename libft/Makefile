@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 NAME	= libft.a
-CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	= -Wall -Wextra -Werror -g3
 HEADER	= libft.h	get_next_line.h
 SRCS	=	ft_isspace.c	ft_isprint.c	ft_isascii.c					\
 			ft_isdigit.c	ft_isalpha.c	ft_isalnum.c					\

@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+bool	is_identhead(char c)
+{
+	return (ft_isalpha(c) || c == '_');
+}
+
+bool	is_identtail(char c)
+{
+	return (ft_isalnum(c) || c == '_');
+}
+
 static void	update_wordparts(t_cc *cc, char *start)
 {
 	enum e_phase	phase;

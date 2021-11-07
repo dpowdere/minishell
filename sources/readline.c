@@ -51,3 +51,28 @@ int	readline_arg(t_state *s)
 	}
 	return (READLINE_EOF);
 }
+
+void	setup_input(t_state *state, int argc, char **argv)
+{
+	extern int	errno;
+
+	state->argc = argc;
+	state->argv = argv;
+	state->should_free_line = DO_FREE_LINE;
+	if (isatty(STDIN_FILENO))
+	{
+		rl_change_environment = 0;
+		rl_catch_signals = 0;
+		state->read_user_line = readline_stdin_tty;
+		state->is_input_interactive = true;
+	}
+	else if (argc > 1)
+	{
+		state->should_free_line = DONT_FREE_LINE;
+		state->read_user_line = readline_arg;
+	}
+	else
+		state->read_user_line = readline_stdin_non_tty;
+	if (errno == ENOTTY)
+		errno = 0;
+}

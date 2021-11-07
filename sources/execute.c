@@ -31,8 +31,6 @@ static bool	childs_wait(t_list **childs_list, int *exit_status)
 		if (child_pid == exit_status_child_pid)
 			*exit_status = get_exit_status(stat_loc);
 		ft_lstremoveif(childs_list, &child_pid, pid_comparator, free);
-		if (DEBUG_EXIT_STATUS)
-			fprintf(stderr, "exit code " AEC_RED "%d\n" AEC_RESET, WEXITSTATUS(stat_loc));
 	}
 	if (errno == EINTR)
 	{
@@ -106,11 +104,7 @@ void	execute(t_list *cmds_list, int *exit_status)
 		cmd = get_cooked_cmd(cmds_list->content, exit_status);
 		cmds_list->content = cmd;
 		if (cmd == NULL)
-		{
-			if (DEBUG_EXIT_STATUS)
-				printf("exit code " AEC_RED "%d\n" AEC_RESET, *exit_status);
 			return ;
-		}
 		if (cmd->next_operator == OPERATOR_PIPE)
 			fork_builtin = true;
 		if (execute_run(cmd, fork_builtin, &childs_list, exit_status) == false)

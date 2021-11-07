@@ -16,11 +16,17 @@
 
 static void	sigint_handler(int signum)
 {
+	extern int	rl_done;
+
 	(void)signum;
-	ft_putstr_fd("\n", STDOUT_FILENO);
-	rl_on_new_line();
-	rl_replace_line("", CLEAR_UNDO_LIST);
-	rl_redisplay();
+	rl_done = true;
+}
+
+// Readline won't react to `rl_done` if this handler is undefined
+// and `rl_event_hook` is `NULL`.
+int	do_nothing(void)
+{
+	return (0);
 }
 
 static void	suppress_ctrl_chars_echo(void)
@@ -34,25 +40,27 @@ static void	suppress_ctrl_chars_echo(void)
 
 void	setup_signal_handlers(t_state *state)
 {
-	struct sigaction	on_quit;
-	struct sigaction	on_int;
-	extern int			errno;
+	extern rl_hook_func_t	*rl_event_hook;
+	extern int				errno;
+	struct sigaction		on_quit;
+	struct sigaction		on_int;
 
 	if (state->is_input_interactive)
-		suppress_ctrl_chars_echo();
-	on_quit = (struct sigaction){};
-	on_int = (struct sigaction){};
-	on_quit.sa_handler = SIG_IGN;
-	on_int.sa_handler = sigint_handler;
-	if (!state->is_input_interactive)
-		return ;
-	if (sigaction(SIGQUIT, &on_quit, NULL) < 0
-		|| sigaction(SIGTERM, &on_quit, NULL) < 0
-		|| sigaction(SIGINT, &on_int, NULL) < 0)
 	{
-		error(strerror(errno), NULL, NULL, NULL);
-		clean_up();
-		exit(errno);
+		suppress_ctrl_chars_echo();
+		rl_event_hook = do_nothing;
+		on_quit = (struct sigaction){};
+		on_int = (struct sigaction){};
+		on_quit.sa_handler = SIG_IGN;
+		on_int.sa_handler = sigint_handler;
+		if (sigaction(SIGQUIT, &on_quit, NULL) < 0
+			|| sigaction(SIGTERM, &on_quit, NULL) < 0
+			|| sigaction(SIGINT, &on_int, NULL) < 0)
+		{
+			error(strerror(errno), NULL, NULL, NULL);
+			clean_up();
+			exit(errno);
+		}
 	}
 }
 
