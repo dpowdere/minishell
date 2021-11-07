@@ -113,6 +113,7 @@ int	builtin_exit(char *builtin_name, char **args)
 		}
 		arg++;
 	}
+	ft_putchar_fd('\n', STDOUT_FILENO);
 	clean_up();
 	exit(return_value);
 }

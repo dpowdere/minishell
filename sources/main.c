@@ -95,6 +95,7 @@ int	main(int argc, char **argv)
 			printf("EXIT STATUS " AEC_RED "%d" AEC_RESET "\n"
 				"ERRNO %d: %s\n", state.exit_status, errno, strerror(errno));
 	}
+	ft_putchar_fd('\n', STDOUT_FILENO);
 	clean_up();
 	if (state.exit_status)
 		return (state.exit_status);

@@ -45,16 +45,9 @@ void	free_cmd(void *cmd_content)
 void	clean_up(void)
 {
 	extern char	**environ;
-	extern int	errno;
-	int			errno_old;
 
 	ft_ptr_array_free((void **)environ);
 	rl_clear_history();
-	errno_old = errno;
-	if (isatty(STDIN_FILENO))
-		ft_putchar_fd('\n', STDOUT_FILENO);
-	if (errno == ENOTTY)
-		errno = errno_old;
 }
 
 void	exit_with_clean(int return_value)
