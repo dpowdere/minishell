@@ -77,10 +77,10 @@ static void	execute_child(t_cmd *cmd)
 		cmd_path = get_next_env_path(cmd->args[0]);
 		if (cmd_path)
 			execve(cmd_path, cmd->args, environ);
+		errno = ENOENT;
 	}
 	execute_fail(cmd->args[0]);
-	clean_up();
-	exit(errno);
+	exit_with_clean(errno);
 }
 
 static void	child_pipes_setup(
