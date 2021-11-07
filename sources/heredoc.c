@@ -16,14 +16,13 @@ void	input_heredoc(t_cmd *cmd, const char *terminator)
 {
 	t_list	*lst;
 	char	*line;
-	size_t	len;
 
 	lst = NULL;
 	free(cmd->heredoc);
 	while (true)
 	{
 		line = readline(HEREDOC_PROMPT_STRING);
-		if (!line || !ft_strncmp(line, terminator, ft_strlen(terminator) + 1))
+		if (!line || !ft_strcmp(line, terminator) || errno)
 			break ;
 		ft_lstadd_front(&lst, ft_lstnew(line));
 		if (lst == NULL)
@@ -32,13 +31,10 @@ void	input_heredoc(t_cmd *cmd, const char *terminator)
 	if (line == NULL)
 		error(ERR_HEREDOC_EOF, (char *)terminator, NULL, NULL);
 	free(line);
-	len = 1;
-	ft_lstreduce(lst, &len, calc_heredoc_len);
-	cmd->heredoc = malloc(len);
-	if (cmd->heredoc == NULL)
-		return ((void)ft_lstclear(&lst, free));
-	*(cmd->heredoc + len - 1) = '\0';
-	ft_lstpopreduce(&lst, cmd->heredoc + len - 1, populate_heredoc);
+	if (errno == 0)
+		populate_heredoc_from_lines(cmd, lst);
+	else
+		ft_lstclear(&lst, free);
 }
 
 t_list	*cook_heredoc_terminator(t_list *lst, t_cmd *cmd,

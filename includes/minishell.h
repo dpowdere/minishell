@@ -198,6 +198,7 @@ void			*input_heredocs(void *cmd_data, void *extra_data);
 // heredoc_utils.c
 void			*calc_heredoc_len(void *initial, void *next);
 void			*populate_heredoc(void *initial, void *next);
+void			populate_heredoc_from_lines(t_cmd *cmd, t_list *lst);
 
 // get_cooked_cmd.c
 t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);

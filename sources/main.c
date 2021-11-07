@@ -41,6 +41,11 @@ static int	interpret(char *line, int *exit_status)
 	if (errno == ENOMEM)
 		return (1);
 	cmds_list = ft_lstconv_xd(cmds_list, input_heredocs, exit_status);
+	if (errno == EINTR)
+	{
+		ft_lstclear(&cmds_list, free_cmd);
+		return (0);
+	}
 	execute(cmds_list, exit_status);
 	ft_lstclear(&cmds_list, free_cmd);
 	return (errno != EXIT_SUCCESS);
