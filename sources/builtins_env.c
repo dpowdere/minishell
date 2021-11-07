@@ -64,18 +64,23 @@ static int	builtin_export_set_env(char *arg)
 		}
 		free(name);
 	}
+	else if (valid_identifier_name(arg) == false)
+	{
+		errno = EINVAL;
+		return (EXIT_FAILURE);
+	}
 	return (EXIT_SUCCESS);
 }
 
 int	builtin_export(char *builtin_name, char **args)
 {
+	bool	return_value;
+
+	return_value = EXIT_SUCCESS;
 	if (*args == NULL)
 	{
 		if (builtin_export_list_envs() == EXIT_FAILURE)
-		{
-			error_builtin(builtin_name, strerror(errno), NULL);
-			return (EXIT_FAILURE);
-		}
+			return (error_builtin(builtin_name, strerror(errno), NULL));
 		return (EXIT_SUCCESS);
 	}
 	while (*args)
@@ -83,27 +88,39 @@ int	builtin_export(char *builtin_name, char **args)
 		if (builtin_export_set_env(*args) == EXIT_FAILURE)
 		{
 			if (errno == EINVAL)
+			{
 				error_builtin(builtin_name, ERR_BUILTIN_ENV_INVALID, *args);
+				return_value = EXIT_FAILURE;
+			}
 			else
-				error_builtin(builtin_name, strerror(errno), NULL);
-			return (EXIT_FAILURE);
+				return (error_builtin(builtin_name, strerror(errno), NULL));
 		}
 		args++;
 	}
-	return (EXIT_SUCCESS);
+	return (return_value);
 }
 
 int	builtin_unset(char *builtin_name, char **args)
 {
+	bool	return_value;
+
+	return_value = EXIT_SUCCESS;
 	while (*args)
 	{
 		if (unset_env(*args) == -1)
 		{
 			if (errno == EINVAL)
+			{
 				error_builtin(builtin_name, ERR_BUILTIN_ENV_INVALID, *args);
-			return (EXIT_FAILURE);
+				return_value = EXIT_FAILURE;
+			}
+			else
+			{
+				error_builtin(builtin_name, strerror(errno), NULL);
+				return (EXIT_FAILURE);
+			}
 		}
 		args++;
 	}
-	return (EXIT_SUCCESS);
+	return (return_value);
 }
