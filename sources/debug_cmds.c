@@ -95,9 +95,9 @@ inline t_list	*debug_raw_cmds(t_list *raw_cmds_list)
 {
 	if (DEBUG_RAW_CMDS)
 	{
-		ft_putstr_fd("RAW CMDS: [\n", STDERR_FILENO);
+		printf("RAW CMDS: [\n");
 		ft_lstiterix(raw_cmds_list, debug_cmd);
-		ft_putstr_fd("]\n", STDERR_FILENO);
+		printf("]\n");
 	}
 	return (raw_cmds_list);
 }
@@ -106,7 +106,7 @@ inline t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd)
 {
 	if (DEBUG_COOKED_CMDS)
 	{
-		ft_putstr_fd("COOKED CMD:\n", STDERR_FILENO);
+		printf("COOKED CMD:\n");
 		debug_cmd((void *)cooked_cmd, 0, true);
 		if (cooked_cmd->heredoc)
 		{

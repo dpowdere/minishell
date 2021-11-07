@@ -19,23 +19,21 @@ static void	debug_token_iterator(void *data, int ix, int is_last)
 	(void)ix;
 	token = (t_token *)data;
 	if (token->type == TOKEN_WORD)
-		ft_putstr_fd("word:", STDERR_FILENO);
+		printf("word:");
 	else if (token->type == TOKEN_OPERATOR)
-		ft_putstr_fd("op:", STDERR_FILENO);
-	ft_putstr_fd("'" AEC_YELLOW, STDERR_FILENO);
-	ft_putstr_fd(token->string, STDERR_FILENO);
-	ft_putstr_fd(AEC_RESET "'", STDERR_FILENO);
+		printf("op:");
+	printf("'" AEC_YELLOW "%s" AEC_RESET "'", token->string);
 	if (!is_last)
-		ft_putstr_fd(", ", STDERR_FILENO);
+		printf(", ");
 }
 
 inline t_list	*debug_tokens(t_list *tokens_list)
 {
 	if (DEBUG_TOKENS)
 	{
-		ft_putstr_fd("TOKENS: [", STDERR_FILENO);
+		printf("TOKENS: [");
 		ft_lstiterix(tokens_list, debug_token_iterator);
-		ft_putstr_fd("]\n", STDERR_FILENO);
+		printf("]\n");
 	}
 	return (tokens_list);
 }
