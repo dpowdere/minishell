@@ -33,11 +33,15 @@ static int	builtin_export_list_envs(void)
 {
 	extern char	**environ;
 	char		**envs;
+	char		*after_equal_symbol;
 
 	envs = environ;
 	while (*envs)
 	{
-		if (printf("export %s\n", *envs) < 0)
+		after_equal_symbol = ft_strchr(*envs, '=') + 1;
+		if (write(STDOUT_FILENO, "export ", 7) < 0 \
+		|| write(STDOUT_FILENO, *envs, after_equal_symbol - *envs) < 0 \
+		|| printf("\"%s\"\n", after_equal_symbol) < 0)
 			return (EXIT_FAILURE);
 		envs++;
 	}
