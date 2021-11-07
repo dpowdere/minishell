@@ -78,6 +78,8 @@ bool	execute_builtin(t_cmd *cmd, int *exit_status)
 	}
 	if (redirect_files(cmd->redirects) == true)
 		*exit_status = execute_builtin_run(cmd->args, *exit_status);
+	else
+		*exit_status = EXIT_FAILURE;
 	if (errno != ENOMEM)
 		errno = 0;
 	if (cmd->heredoc || cmd->redirects)
