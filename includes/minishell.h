@@ -292,8 +292,6 @@ void			exit_with_clean(int return_value);
 int				get_exit_status(int stat_loc);
 bool			file_exists(char *path);
 int				pid_comparator(const pid_t *pid, const pid_t *pid_to_find);
-bool			is_identhead(char c);
-bool			is_identtail(char c);
 bool			valid_identifier_name(const char *name);
 
 #endif
