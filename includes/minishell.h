@@ -33,8 +33,11 @@
 # include "minishell_debug.h"
 
 # define COMMAND_NAME	"minishell"
-# define PROMPT_STRING	"\x1b[32mminishell\x1b[0m$ "
+# define PROMPT_STRING	"\001\x1b[32m\002minishell\001\x1b[0m\002$ "
 # define HEREDOC_PROMPT_STRING	"heredoc> "
+// Readline confuses when using ANSI Escape Code sequences in prompt string, it
+// can't determine the length of the prompt string correctly then. But it goes
+// well when the control sequences are wrapped into `\001` and `\002` bytes.
 
 # define SUBSHELL_MAGIC_BYTE	'\1'
 # define SUBSHELL_ENV			"MINISHELL_SUBSHELL"
