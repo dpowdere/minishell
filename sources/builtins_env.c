@@ -12,6 +12,8 @@
 
 #include "minishell.h"
 
+#define EXPORT_ESCAPE_CHARS "$\"\\"
+
 int	builtin_env(char *builtin_name, char **args)
 {
 	extern char	**environ;
@@ -32,16 +34,26 @@ int	builtin_env(char *builtin_name, char **args)
 static int	builtin_export_list_envs(void)
 {
 	extern char	**environ;
-	char		**envs;
+	const char	**envs = (const char **)environ;
 	char		*after_equal_symbol;
 
-	envs = environ;
 	while (*envs)
 	{
 		after_equal_symbol = ft_strchr(*envs, '=') + 1;
 		if (write(STDOUT_FILENO, "export ", 7) < 0 \
 		|| write(STDOUT_FILENO, *envs, after_equal_symbol - *envs) < 0 \
-		|| printf("\"%s\"\n", after_equal_symbol) < 0)
+		|| write(STDOUT_FILENO, "\"", 1) < 0)
+			return (EXIT_FAILURE);
+		while (*after_equal_symbol)
+		{
+			if (ft_strchr(EXPORT_ESCAPE_CHARS, *after_equal_symbol))
+				if (write(STDOUT_FILENO, "\\", 1) < 0)
+					return (EXIT_FAILURE);
+			if (write(STDOUT_FILENO, after_equal_symbol, 1) < 0)
+				return (EXIT_FAILURE);
+			after_equal_symbol++;
+		}
+		if (write(STDOUT_FILENO, "\"\n", 2) < 0)
 			return (EXIT_FAILURE);
 		envs++;
 	}
