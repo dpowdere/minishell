@@ -104,16 +104,16 @@ void	execute(t_list *cmds_list, int *exit_status)
 		cmd = get_cooked_cmd(cmds_list->content, exit_status);
 		cmds_list->content = cmd;
 		if (cmd == NULL)
-			return ;
+			return ((void)ft_lstclear(&childs_list, free));
 		if (cmd->next_operator == OPERATOR_PIPE)
 			fork_builtin = true;
 		if (execute_run(cmd, fork_builtin, &childs_list, exit_status) == false)
-			return ;
+			return ((void)ft_lstclear(&childs_list, free));
 		if (cmd->next_operator != OPERATOR_PIPE)
 		{
 			fork_builtin = false;
 			if (childs_list && childs_wait(&childs_list, exit_status) == false)
-				return ;
+				return ((void)ft_lstclear(&childs_list, free));
 			cmds_list = execute_conditional_skip(cmds_list, *exit_status);
 		}
 		cmds_list = cmds_list->next;
