@@ -38,34 +38,36 @@ t_list	*cook_arg(t_list *word_list, void *exit_status)
 	return (word_list);
 }
 
-static void	*free_return(t_cmd *cmd, int *exit_status, int check)
+static void	*free_return(t_cmd **cmd, int *exit_status, int check)
 {
-	if (check == IMAGINE_ARGSLIST_IS_NOT_NULL + (cmd->redirects != NULL))
+	if (check == IMAGINE_ARGSLIST_IS_NOT_NULL + ((*cmd)->redirects != NULL))
 		*exit_status = 0;
 	else
 		*exit_status = 1;
-	free_cmd(cmd);
+	free_cmd(*cmd);
+	*cmd = NULL;
 	return (NULL);
 }
 
-t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
+t_cmd	*get_cooked_cmd(t_cmd **cmd, int *exit_status)
 {
 	int		check;
 	t_xd	xd;
 
-	check = (cmd->args_list != NULL) + (cmd->redirects != NULL);
-	xd.cmd = cmd;
+	check = ((*cmd)->args_list != NULL) + ((*cmd)->redirects != NULL);
+	xd.cmd = *cmd;
 	xd.exit_status = exit_status;
-	ft_lstpipeline_xd(&cmd->args_list, cook_arg, exit_status);
-	ft_lstpipeline_xd(&cmd->redirects, cook_redirect, &xd);
-	cmd = debug_cooked_cmd(cmd);
+	ft_lstpipeline_xd(&(*cmd)->args_list, cook_arg, exit_status);
+	ft_lstpipeline_xd(&(*cmd)->redirects, cook_redirect, &xd);
+	*cmd = debug_cooked_cmd(*cmd);
 	if (errno == ENOMEM)
 		error(strerror(errno), NULL, NULL, NULL);
-	if (errno || check != (cmd->args_list != NULL) + (cmd->redirects != NULL))
+	if (errno
+		|| check != ((*cmd)->args_list != NULL) + ((*cmd)->redirects != NULL))
 		return (free_return(cmd, exit_status, check));
-	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
-	if (cmd->args == NULL)
+	(*cmd)->args = (char **)ft_lst_to_ptr_array(&(*cmd)->args_list);
+	if ((*cmd)->args == NULL)
 		return (free_return(cmd, exit_status, CHECK_IMPOSSIBLE_TO_PASS));
-	cmd->args_list = NULL;
-	return (cmd);
+	(*cmd)->args_list = NULL;
+	return (*cmd);
 }

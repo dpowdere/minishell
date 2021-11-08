@@ -205,7 +205,7 @@ void			*populate_heredoc(void *initial, void *next);
 void			populate_heredoc_from_lines(t_cmd *cmd, t_list *lst);
 
 // get_cooked_cmd.c
-t_cmd			*get_cooked_cmd(t_cmd *cmd, int *exit_status);
+t_cmd			*get_cooked_cmd(t_cmd **cmd, int *exit_status);
 t_list			*cook_arg(t_list *word_list, void *exit_status);
 // cook_redirect.c
 t_list			*cook_redirect(t_list *lst, void *exit_status);

@@ -101,8 +101,7 @@ void	execute(t_list *cmds_list, int *exit_status)
 	childs_list = NULL;
 	while (cmds_list)
 	{
-		cmd = get_cooked_cmd(cmds_list->content, exit_status);
-		cmds_list->content = cmd;
+		cmd = get_cooked_cmd((t_cmd **)&cmds_list->content, exit_status);
 		if (cmd == NULL)
 			return ((void)ft_lstclear(&childs_list, free));
 		if (cmd->next_operator == OPERATOR_PIPE)
