@@ -12,8 +12,9 @@
 
 #include "minishell.h"
 
-static void	next_word_or_wordpart(t_list **word_list, t_list **part_list,
-									int *word_num, int *part_num)
+static inline void	next_word_or_wordpart(
+						t_list **word_list, t_list **part_list,
+						int *word_num, int *part_num)
 {
 	if ((*part_list)->next != NULL)
 		*part_list = (*part_list)->next;
@@ -33,14 +34,14 @@ static void	next_word_or_wordpart(t_list **word_list, t_list **part_list,
 	}
 }
 
-void	debug_cooking_phase(t_list *word_list, t_cc *cc)
+inline void	debug_cooking_phase(t_list *word_list, t_cc *cc)
 {
 	t_list	*part_list;
 	t_part	*part;
 	int		word_num;
 	int		part_num;
 
-	if (DEBUG_CMD_COOKING)
+	if (DEBUG_CMD_COOKING && word_list)
 	{
 		part_list = word_list->content;
 		word_num = 1;
@@ -63,11 +64,16 @@ void	debug_cooking_phase(t_list *word_list, t_cc *cc)
 inline void	*debug_cooked_string(void *arg)
 {
 	if (DEBUG_CMD_COOKING)
-		printf("\nresult[" AEC_RED "%s" AEC_RESET "]", (char *)arg);
+	{
+		if (arg)
+			printf("\nresult[" AEC_RED "%s" AEC_RESET "]", (char *)arg);
+		else
+			printf("\nresult removed");
+	}
 	return (arg);
 }
 
-void	debug_redirect(t_redirect *r)
+inline void	debug_redirect(t_redirect *r)
 {
 	char	*type;
 

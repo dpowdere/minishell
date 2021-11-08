@@ -47,10 +47,17 @@ static void	update_wordparts(t_cc *cc, char *start)
 	cc->finish_phase = true;
 }
 
+static inline void	conditional_phase_change(t_cc *cc)
+{
+	if (cc->part->phase == VARIABLE_SUBSTITUTION \
+			&& cc->write_cursor == cc->part->start)
+		cc->part->phase = FIELD_SPLITTING;
+}
+
 void	cook_substitute_variable(t_cc *cc)
 {
-	char			*start;
-	char			*tmp;
+	char	*start;
+	char	*tmp;
 
 	start = cc->cursor + 1;
 	if (*start == '?')
@@ -69,6 +76,9 @@ void	cook_substitute_variable(t_cc *cc)
 		printf(" env[%s=" AEC_YELLOW "%s" AEC_RESET "]", tmp, start);
 	free(tmp);
 	if (start == NULL || ft_strlen(start) == 0)
+	{
+		conditional_phase_change(cc);
 		return ;
+	}
 	update_wordparts(cc, start);
 }

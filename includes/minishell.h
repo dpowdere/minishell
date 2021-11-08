@@ -148,6 +148,7 @@ typedef struct s_part
 
 typedef struct s_cooking_cursor
 {
+	t_list	**first_word;
 	t_list	*word_list;
 	t_list	*part_list;
 	t_part	*part;
@@ -209,7 +210,7 @@ t_list			*cook_arg(t_list *word_list, void *exit_status);
 // cook_redirect.c
 t_list			*cook_redirect(t_list *lst, void *exit_status);
 // cooking_cursor.c
-t_cc			get_cooking_cursor(t_list *word_list, int *exit_status);
+t_cc			get_cooking_cursor(t_list **word_list, int *exit_status);
 t_cc			*final_cpy(t_cc *cc);
 t_cc			*step(t_cc *cc);
 t_cc			*step_cpy(t_cc *cc);
@@ -222,7 +223,7 @@ void			cook_wordpart_main(t_cc *cc, int is_double_quote_open);
 void			cook_wordpart_find_string_terminator(t_cc *cc);
 // cook_wordpart_utils.c
 t_list			*lstnew_wordpart(char *start, enum e_phase phase);
-void			next_wordpart(t_cc *cc, t_list *word_list);
+void			next_wordpart(t_cc *cc, t_list **word_list);
 void			seal_wordpart(t_cc *cc);
 // cook_star.c
 void			cook_wordpart_expand_pathnames(t_cc *cc);
@@ -239,7 +240,7 @@ bool			is_identtail(char c);
 void			*serve(void *data);
 void			*calc_memsize(void *initial, void *next);
 // cook_utils.c
-void			cook(t_list *lst, int *exit_status);
+void			cook(t_list **lst, int *exit_status);
 int				string_cooking_condition(t_cc *cc, char *s);
 int				wordpart_cooking_condition(t_cc *cc);
 enum e_phase	next_phase(enum e_phase phase);

@@ -16,7 +16,7 @@
 #define MARGIN_TMPL	"%10s"
 #define REDIR_TMPL	"%2s"
 
-static void	debug_next_operator(enum e_operator op)
+static inline void	debug_next_operator(enum e_operator op)
 {
 	printf("\r" HEADER_TMPL AEC_BOLD, "next op");
 	if (op == REDIRECT_IN)
@@ -42,7 +42,7 @@ static void	debug_next_operator(enum e_operator op)
 	printf(AEC_RESET "\n");
 }
 
-static void	debug_cmd_redirect(void *data)
+static inline void	debug_cmd_redirect(void *data)
 {
 	t_redirect	*r;
 
@@ -62,19 +62,18 @@ static void	debug_cmd_redirect(void *data)
 	printf(" " AEC_YELLOW "%s" AEC_RESET "\n" MARGIN_TMPL, r->target, "");
 }
 
-static void	debug_cmd(void *data, int ix, int is_last)
+static inline void	debug_args(t_list *args)
 {
-	const t_cmd		*cmd = data;
-	const t_list	*args = cmd->args_list;
-
-	if (ix > 0)
-		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
 	printf(HEADER_TMPL AEC_YELLOW, "cmd");
-	if (*(char *)args->content == SUBSHELL_MAGIC_BYTE)
+	if (args == NULL)
+		printf(AEC_RESET AEC_BOLD "none");
+	else if (*(char *)args->content == SUBSHELL_MAGIC_BYTE)
 		printf(COMMAND_NAME);
 	else
 		printf("%s", (char *)args->content);
 	printf(AEC_RESET "\n");
+	if (args == NULL)
+		return ;
 	args = args->next;
 	printf(HEADER_TMPL, "args");
 	while (args)
@@ -83,6 +82,15 @@ static void	debug_cmd(void *data, int ix, int is_last)
 				(char *)args->content, "");
 		args = args->next;
 	}
+}
+
+inline void	debug_cmd(void *data, int ix, int is_last)
+{
+	const t_cmd		*cmd = data;
+
+	if (ix > 0)
+		printf(AEC_BOLD "%d:" AEC_RESET "\n", ix);
+	debug_args(cmd->args_list);
 	printf("\r" HEADER_TMPL, "redirs");
 	ft_lstiter(cmd->redirects, debug_cmd_redirect);
 	if (!cmd->redirects)
@@ -91,28 +99,21 @@ static void	debug_cmd(void *data, int ix, int is_last)
 	(void)is_last;
 }
 
-inline t_list	*debug_raw_cmds(t_list *raw_cmds_list)
-{
-	if (DEBUG_RAW_CMDS)
-	{
-		printf("RAW CMDS: [\n");
-		ft_lstiterix(raw_cmds_list, debug_cmd);
-		printf("]\n");
-	}
-	return (raw_cmds_list);
-}
-
 inline t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd)
 {
 	if (DEBUG_COOKED_CMDS)
 	{
 		printf("COOKED CMD:\n");
-		debug_cmd((void *)cooked_cmd, 0, true);
-		if (cooked_cmd->heredoc)
+		if (cooked_cmd)
 		{
-			printf(HEADER_TMPL AEC_BOLD, "heredoc");
-			printf(AEC_YELLOW "\n" "%s" AEC_RESET "\n", cooked_cmd->heredoc);
+			debug_cmd((void *)cooked_cmd, 0, true);
+			if (cooked_cmd->heredoc)
+			{
+				printf(HEADER_TMPL AEC_BOLD, "heredoc");
+				printf(AEC_YELLOW "\n" "%s" AEC_RESET "\n", cooked_cmd->heredoc);
+			}
 		}
+		printf("\n");
 	}
 	return (cooked_cmd);
 }

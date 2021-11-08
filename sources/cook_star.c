@@ -56,7 +56,7 @@ void	cook_wordpart_expand_pathnames(t_cc *cc)
 	int		should_expand;
 	t_list	*star_list;
 
-	should_expand = true;
+	should_expand = cc->part_list != NULL;
 	ft_lstreduce(cc->part_list, &should_expand, should_expand_pathnames_check);
 	if (should_expand)
 	{

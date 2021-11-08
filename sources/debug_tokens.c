@@ -37,3 +37,14 @@ inline t_list	*debug_tokens(t_list *tokens_list)
 	}
 	return (tokens_list);
 }
+
+inline t_list	*debug_raw_cmds(t_list *raw_cmds_list)
+{
+	if (DEBUG_RAW_CMDS)
+	{
+		printf("RAW CMDS: [\n");
+		ft_lstiterix(raw_cmds_list, debug_cmd);
+		printf("]\n");
+	}
+	return (raw_cmds_list);
+}

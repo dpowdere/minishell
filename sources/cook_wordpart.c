@@ -41,6 +41,42 @@ void	cook_wordpart_main(t_cc *cc, int is_double_quote_open)
 	}
 }
 
+t_list	*remove_empty_wordparts(t_list *lst)
+{
+	t_part	*part;
+
+	part = lst->content;
+	if (part->phase == _PATHEXP_IN_VARIABLE && part->exclusive_end != NULL
+		&& part->exclusive_end == part->start)
+		free(ft_lstpop(&lst));
+	return (lst);
+}
+
+t_cc	*cook_wordpart_remove_empty(t_cc *cc)
+{
+	t_list	*old_word_list;
+
+	while (cc->word_list && cc->part_list)
+	{
+		ft_lstpipeline(&cc->part_list, remove_empty_wordparts);
+		if (cc->part_list == NULL)
+		{
+			old_word_list = ft_lstdetach(cc->first_word, cc->word_list);
+			cc->word_list = old_word_list->next;
+			free(old_word_list);
+			ft_lstadd_back(cc->first_word, cc->word_list);
+			if (cc->word_list)
+				cc->part_list = cc->word_list->content;
+		}
+		else
+			break ;
+	}
+	tune_cursors(cc);
+	if (cc->word_list == NULL)
+		cc->need_another_traversal += _PATHEXP_IN_VARIABLE;
+	return (cc);
+}
+
 void	cook_wordpart(t_cc *cc)
 {
 	enum e_phase	phase;
@@ -54,7 +90,7 @@ void	cook_wordpart(t_cc *cc)
 		cook_wordpart_split_into_fields(cc);
 	else if (phase == PATHNAME_EXPANSION || phase == _PATHEXP_IN_VARIABLE
 		|| phase == _PATHEXP_OPEN_DOUBLE_QUOTE)
-		cook_wordpart_expand_pathnames(cc);
+		cook_wordpart_expand_pathnames(cook_wordpart_remove_empty(cc));
 	else if (phase == QUOTE_REMOVAL)
 		cook_wordpart_main(cc, DOUBLE_QUOTE_IS_NOT_OPEN);
 	else if (phase == _QREM_OPEN_DOUBLE_QUOTE)

@@ -22,6 +22,7 @@ t_list	*lstnew_wordpart(char *start, enum e_phase phase)
 	if (part == NULL || part_list == NULL)
 	{
 		free(part);
+		free(part_list);
 		return (NULL);
 	}
 	part->start = start;
@@ -30,24 +31,25 @@ t_list	*lstnew_wordpart(char *start, enum e_phase phase)
 	return (part_list);
 }
 
-void	next_wordpart(t_cc *cc, t_list *word_list)
+void	next_wordpart(t_cc *cc, t_list **word_list)
 {
 	if (cc->recycle_wordpart)
 		cc->recycle_wordpart = false;
 	else
 	{
 		seal_wordpart(cc);
-		if (cc->part_list->next != NULL)
+		if (cc->part_list && cc->part_list->next != NULL)
 			cc->part_list = cc->part_list->next;
 		else
 		{
-			cc->word_list = cc->word_list->next;
+			if (cc->word_list)
+				cc->word_list = cc->word_list->next;
 			if (cc->word_list == NULL)
-				debug_cooking_phase(word_list, cc);
+				debug_cooking_phase(*word_list, cc);
 			if (cc->word_list == NULL && cc->need_another_traversal)
 			{
 				cc->need_another_traversal = 0;
-				cc->word_list = word_list;
+				cc->word_list = *word_list;
 			}
 			if (cc->word_list == NULL)
 				cc->part_list = NULL;
@@ -60,10 +62,11 @@ void	next_wordpart(t_cc *cc, t_list *word_list)
 
 void	seal_wordpart(t_cc *cc)
 {
-	final_cpy(cc);
+	if (cc->part)
+		final_cpy(cc);
 	if (cc->dont_change_phase)
 		cc->dont_change_phase = false;
-	else
+	else if (cc->part)
 	{
 		if (cc->part->exclusive_end == NULL
 			|| cc->part->phase == QUOTE_REMOVAL
@@ -71,5 +74,5 @@ void	seal_wordpart(t_cc *cc)
 			cc->part->exclusive_end = cc->write_cursor;
 		cc->part->phase = next_phase(cc->part->phase);
 	}
-	cc->need_another_traversal += cc->part->phase;
+	cc->need_another_traversal += (cc->part && cc->part->phase);
 }

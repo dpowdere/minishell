@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-void	cook(t_list *lst, int *exit_status)
+void	cook(t_list **lst, int *exit_status)
 {
 	t_cc	cc;
 

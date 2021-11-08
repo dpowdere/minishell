@@ -58,7 +58,7 @@ t_list	*cook_heredoc_terminator(t_list *lst, t_cmd *cmd,
 		lst->content = redirect;
 		return (lst);
 	}
-	cook(lst, exit_status);
+	cook(&lst, exit_status);
 	cmd->heredoc_expand_vars = !ft_strcmp(redirect->target, raw_terminator);
 	if (DEBUG_CMD_COOKING)
 		printf("\n\n");

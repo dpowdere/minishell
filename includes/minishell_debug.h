@@ -53,9 +53,10 @@ typedef struct s_redirect		t_redirect;
 
 // debug_tokens.c
 t_list	*debug_tokens(t_list *tokens_list);
+t_list	*debug_raw_cmds(t_list *raw_cmds_list);
 
 // debug_cmds.c
-t_list	*debug_raw_cmds(t_list *raw_cmds_list);
+void	debug_cmd(void *data, int ix, int is_last);
 t_cmd	*debug_cooked_cmd(t_cmd *cooked_cmd);
 
 // debug_cooking.c

@@ -12,13 +12,14 @@
 
 #include "minishell.h"
 
-t_cc	get_cooking_cursor(t_list *word_list, int *exit_status)
+t_cc	get_cooking_cursor(t_list **word_list, int *exit_status)
 {
 	t_cc	cc;
 
 	cc = (t_cc){};
-	cc.word_list = word_list;
-	cc.part_list = word_list->content;
+	cc.first_word = word_list;
+	cc.word_list = *word_list;
+	cc.part_list = (*word_list)->content;
 	cc.part = cc.part_list->content;
 	cc.write_cursor = cc.part->start;
 	cc.cursor = cc.write_cursor;

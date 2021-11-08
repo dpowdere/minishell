@@ -12,6 +12,9 @@
 
 #include "minishell.h"
 
+#define CHECK_IMPOSSIBLE_TO_PASS		-1
+#define IMAGINE_ARGSLIST_IS_NOT_NULL	1
+
 t_list	*cook_arg(t_list *word_list, void *exit_status)
 {
 	char	*arg;
@@ -25,7 +28,9 @@ t_list	*cook_arg(t_list *word_list, void *exit_status)
 		word_list->content = arg;
 		return (word_list);
 	}
-	cook(word_list, exit_status);
+	cook(&word_list, exit_status);
+	if (word_list == NULL)
+		debug_cooked_string(NULL);
 	ft_lstconv(word_list, serve);
 	free(arg);
 	if (DEBUG_CMD_COOKING)
@@ -33,9 +38,12 @@ t_list	*cook_arg(t_list *word_list, void *exit_status)
 	return (word_list);
 }
 
-static void	*free_return(t_cmd *cmd, int *exit_status)
+static void	*free_return(t_cmd *cmd, int *exit_status, int check)
 {
-	*exit_status = 1;
+	if (check == IMAGINE_ARGSLIST_IS_NOT_NULL + (cmd->redirects != NULL))
+		*exit_status = 0;
+	else
+		*exit_status = 1;
 	free_cmd(cmd);
 	return (NULL);
 }
@@ -54,10 +62,10 @@ t_cmd	*get_cooked_cmd(t_cmd *cmd, int *exit_status)
 	if (errno == ENOMEM)
 		error(strerror(errno), NULL, NULL, NULL);
 	if (errno || check != (cmd->args_list != NULL) + (cmd->redirects != NULL))
-		return (free_return(cmd, exit_status));
+		return (free_return(cmd, exit_status, check));
 	cmd->args = (char **)ft_lst_to_ptr_array(&cmd->args_list);
 	if (cmd->args == NULL)
-		return (free_return(cmd, exit_status));
+		return (free_return(cmd, exit_status, CHECK_IMPOSSIBLE_TO_PASS));
 	cmd->args_list = NULL;
 	return (cmd);
 }
